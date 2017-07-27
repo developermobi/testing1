@@ -28,15 +28,19 @@
 	  <property name="dataSource" ref="dataSource" />
 	  <property name="annotatedClasses">
 	   <list>
-	   <value>com.mobisoft.sms.model.User</value>
-	    <!-- <value>com.mobisoft.pms.model.Role</value>
-	    <value>com.mobisoft.pms.model.Employee</value>
-	    <value>com.mobisoft.pms.model.Project</value>
-	    <value>com.mobisoft.pms.model.Task</value>
-	    <value>com.mobisoft.pms.model.SubTask</value>
-	    <value>com.mobisoft.pms.model.Team</value>
-	    <value>com.mobisoft.pms.model.TeamMembers</value>
-	    <value>com.mobisoft.pms.model.TaskLog</value> -->
+	    <value>com.mobisoft.sms.model.User</value>
+	    
+	    <value>com.mobisoft.sms.model.Contact</value>
+	    <value>com.mobisoft.sms.model.Credit</value>
+	    <value>com.mobisoft.sms.model.Debit</value>
+	    <value>com.mobisoft.sms.model.FailedLogin</value>	 
+	    <value>com.mobisoft.sms.model.GroupDetails</value>   
+	    <value>com.mobisoft.sms.model.Product</value>
+	    <value>com.mobisoft.sms.model.Route</value>
+	    <value>com.mobisoft.sms.model.SenderId</value>
+	    <value>com.mobisoft.sms.model.SmsBalance</value>
+	    <value>com.mobisoft.sms.model.Template</value>
+	    <value>com.mobisoft.sms.model.UserProduct</value>
 	   </list>
 	  </property>
 	  <property name="hibernateProperties">

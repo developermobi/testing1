@@ -1,12 +1,19 @@
 package com.mobisoft.sms.model;
 
 import java.util.Date;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Cascade;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -53,8 +60,12 @@ public class User {
 	private int status;
 	
 	@Column(name = "company_name")
-	private String company_name;
+	private String companyName;
 	
+	@OneToMany(cascade = CascadeType.MERGE)
+	@JoinTable(name = "user_group_details", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "group_details_id") })
+	private Set<GroupDetails> groupDetails;
+		
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date created = new Date();
@@ -159,12 +170,20 @@ public class User {
 		this.status = status;
 	}
 
-	public String getCompany_name() {
-		return company_name;
+	public String getCompanyName() {
+		return companyName;
 	}
 
-	public void setCompany_name(String company_name) {
-		this.company_name = company_name;
+	public void setCompanyName(String company_name) {
+		this.companyName = company_name;
+	}
+	
+	public Set<GroupDetails> getGroupDetails() {
+		return groupDetails;
+	}
+
+	public void setGroupDetails(Set<GroupDetails> groupDetails) {
+		this.groupDetails = groupDetails;
 	}
 
 	public Date getCreated() {

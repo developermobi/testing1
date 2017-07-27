@@ -2,6 +2,7 @@ package com.mobisoft.sms.service;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +24,25 @@ public class UserServiceImpl implements UserService{
 	}
 	@Override
 	public List<User> getUserById(int adminId) {
-		return userDao.getAdminById(adminId);
+		return userDao.getUserById(adminId);
 	}
 	@Override
 	public int updateUser(User admin) {
-		return userDao.updateAdmin(admin);
+		return userDao.updateUser(admin);
 	}
 	@Override
 	public int deleteUser(User admin) {
-		return userDao.deleteAdmin(admin);
+		return userDao.deleteUser(admin);
+	}
+	@Override
+	public List<User> getUserByUserName(String userName) {
+		
+		return userDao.getUserByUserName(userName);
+	}
+	@Override
+	public int saveUerDeatils(JsonNode jsonNode) {
+		
+		return userDao.saveUerDeatils(jsonNode);
 	}
 
 }

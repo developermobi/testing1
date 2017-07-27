@@ -1,5 +1,7 @@
 package com.mobisoft.sms.utility;
 
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.UUID;
 
 public class Global {
@@ -18,4 +20,10 @@ public class Global {
 	private static String uuidString() {
 	    return UUID.randomUUID().toString().replaceAll("-", "");
 	}
+	public static String removeAccents(String text) {
+		
+		  return text == null ? null :
+		    Normalizer.normalize(text, Form.NFD)
+		        .replaceAll("[^A-Za-z ]", "").toUpperCase();
+		}
 }

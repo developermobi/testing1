@@ -7,9 +7,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.CascadeType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -21,7 +27,7 @@ public class Template {
 	@Column(name = "id")
 	private int id;
 	
-	@OneToOne
+	@ManyToOne(cascade = CascadeType.REFRESH)
 	@JoinColumn(name = "u_id")
 	private User userId;
 	
@@ -34,14 +40,18 @@ public class Template {
 	@Column(name = "status")
 	private int status;
 	
-	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
+	@CreationTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date created = new Date();
 	
-	@Column(name = "updated", columnDefinition="TIMESTAMP", nullable=true)
+	@UpdateTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "updated")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date updated;
-
+	
 	public int getId() {
 		return id;
 	}

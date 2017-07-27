@@ -23,7 +23,7 @@ public class Contact {
 	
 	@OneToOne
 	@JoinColumn(name = "group_id")
-	private Group groupId;
+	private GroupDetails groupId;
 	
 	@Column(name = "mobile")
 	private String mobile;
@@ -56,11 +56,11 @@ public class Contact {
 		this.id = id;
 	}
 
-	public Group getGroupId() {
+	public GroupDetails getGroupId() {
 		return groupId;
 	}
 
-	public void setGroupId(Group groupId) {
+	public void setGroupId(GroupDetails groupId) {
 		this.groupId = groupId;
 	}
 

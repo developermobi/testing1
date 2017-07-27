@@ -13,18 +13,14 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
-@Table(name = "group")
-public class Group {
+@Table(name = "group_details")
+public class GroupDetails {
 	
 	@Id
 	@GeneratedValue
 	@Column(name = "id")
 	private int id;
 		
-	@OneToOne
-	@JoinColumn(name = "user_id")
-	private User userId;
-	
 	@Column(name = "name")
 	private String name;
 	
@@ -45,13 +41,6 @@ public class Group {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public User getUserId() {
-		return userId;
-	}
-
-	public void setUserId(User userId) {
-		this.userId = userId;
-	}
 
 	public String getName() {
 		return name;
@@ -68,7 +57,7 @@ public class Group {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-
+	
 	public Date getCreated() {
 		return created;
 	}
