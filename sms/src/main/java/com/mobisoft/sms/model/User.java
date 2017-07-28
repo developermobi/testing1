@@ -62,9 +62,9 @@ public class User {
 	@Column(name = "company_name")
 	private String companyName;
 	
-	@OneToMany(cascade = CascadeType.MERGE)
+	/*@OneToMany(cascade = CascadeType.MERGE)
 	@JoinTable(name = "user_group_details", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "group_details_id") })
-	private Set<GroupDetails> groupDetails;
+	private Set<GroupDetails> groupDetails;*/
 		
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
@@ -178,13 +178,13 @@ public class User {
 		this.companyName = company_name;
 	}
 	
-	public Set<GroupDetails> getGroupDetails() {
+/*	public Set<GroupDetails> getGroupDetails() {
 		return groupDetails;
 	}
 
 	public void setGroupDetails(Set<GroupDetails> groupDetails) {
 		this.groupDetails = groupDetails;
-	}
+	}*/
 
 	public Date getCreated() {
 		return created;

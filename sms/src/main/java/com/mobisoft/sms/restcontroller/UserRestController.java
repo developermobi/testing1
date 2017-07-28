@@ -1,12 +1,15 @@
 package com.mobisoft.sms.restcontroller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -26,6 +29,7 @@ import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.service.UserService;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/api")
 public class UserRestController {
@@ -57,12 +61,15 @@ public class UserRestController {
 			
 			if(userList.get(0).getUserName().equals(user.getUserName()) && userList.get(0).getPassword().equals(user.getPassword())){
 				String token = tokenAuthentication.getToken(user.getUserName(),user.getPassword());
+				Map<String, Object> mapData =new HashMap<>();
+				mapData.put("authorization","Basic " + token);
+				mapData.put("fullName", userList.get(0).getName());
+				mapData.put("userId", userList.get(0).getId());
 				
-				map.put("status", 302);
+ 				map.put("status", 302);
 				map.put("message", "success");
-				map.put("authorization", "Basic " + token);
-				map.put("fullName", userList.get(0).getName());
-				map.put("userId", userList.get(0).getId());
+				map.put("data", mapData);
+				
 				
 			}
 			
@@ -72,8 +79,7 @@ public class UserRestController {
 		
 	}
 	
-	
-	
+
 	@RequestMapping(value = "/saveUser",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> saveUser(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
 
