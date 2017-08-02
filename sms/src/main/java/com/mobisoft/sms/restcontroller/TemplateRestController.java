@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -23,6 +24,7 @@ import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.service.TemplateService;
 import com.mobisoft.sms.utility.TokenAuthentication;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/api")
 public class TemplateRestController {
@@ -55,35 +57,46 @@ public class TemplateRestController {
 		{
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
-			
-			User user = new User();
-			user.setId(node.get("userId").asInt());
-			
-			Template template = new Template();
-			template.setDescription(node.get("description").asText());
-			template.setName(node.get("name").asText());
-			template.setUserId(user);
-			int result = templateService.saveTemplate(template);
-			if(result == 1){
-				map.put("status", "success");
-				map.put("code", 201);
-				map.put("message", "inserted successfully");
-				map.put("data", result);
-			}else{
-				map.put("status", "error");
-				map.put("code", 400);
-				map.put("message", "error occured during insertion");
-				map.put("data", result);
+			if(node.get("name").asText().length() != 0 && node.get("description").asText().length() != 0)
+			{
+				User user = new User();
+				user.setUserId(node.get("userId").asInt());
+				
+				Template template = new Template();
+				template.setDescription(node.get("description").asText());
+				template.setName(node.get("name").asText());
+				template.setUserId(user);
+				int result = templateService.saveTemplate(template);
+				if(result == 1){
+					map.put("status", "success");
+					map.put("code", 201);
+					map.put("message", "inserted successfully");
+					map.put("data", result);
+				}else{
+					map.put("status", "error");
+					map.put("code", 400);
+					map.put("message", "error occured during insertion");
+					map.put("data", result);
+				}
 			}
+			else
+			{
+				map.put("status", "error");
+				map.put("code", 406);
+				map.put("message", "Please Enter Title and Description Valid Data");
+				map.put("data", null);
+			}
+			
 			
 		}
 		
 		return map;
 	}
 	
-	@RequestMapping(value = "/getAllTemplate",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllTemplate(@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getAllTemplate/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllTemplate(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
 	{
+		System.out.println(userId);
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
@@ -97,8 +110,8 @@ public class TemplateRestController {
 			
 		}
 		else {
-			List<Template> alltemplateList = templateService.getTemplate();
-			System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
+			List<Template> alltemplateList = templateService.getTemplateByUserId(userId);
+			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
 			if(alltemplateList.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
@@ -184,12 +197,11 @@ public class TemplateRestController {
 				map.put("data", result);
 			}
 		}
-		
-		
+
 		return map;
 		
 	}
-	@RequestMapping( value = "/deleteTemplate/{templateId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping( value = "/deleteTemplate/{templateId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> deleteTemplate(@PathVariable("templateId") int templateId,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
 		
 		Map<String,Object> map = new HashMap<>();

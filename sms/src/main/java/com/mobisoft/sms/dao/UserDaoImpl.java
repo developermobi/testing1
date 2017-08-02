@@ -1,7 +1,9 @@
 package com.mobisoft.sms.dao;
 
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hibernate.Criteria;
@@ -18,7 +20,7 @@ import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.Product;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.User;
-import com.mobisoft.sms.model.UserProduct;
+
 import com.mobisoft.sms.utility.Global;
 import com.mobisoft.sms.utility.SmsHelper;
 
@@ -83,7 +85,7 @@ public class UserDaoImpl implements UserDao {
 			qry.setParameter("role", user.getRole());
 			qry.setParameter("state", user.getState());
 			qry.setParameter("status", user.getStatus());
-			qry.setParameter("id", user.getId());
+			qry.setParameter("id", user.getUserId());
 			
 			temp = qry.executeUpdate();
 			tx.commit();
@@ -109,7 +111,7 @@ public class UserDaoImpl implements UserDao {
 			
 			Query qry = session.createQuery(sql);
 			qry.setParameter("status", user.getStatus());
-			qry.setParameter("userId", user.getId());		
+			qry.setParameter("userId", user.getUserId());		
 			
 			temp = qry.executeUpdate();
 			tx.commit();
@@ -169,6 +171,15 @@ public class UserDaoImpl implements UserDao {
 		user.setRole(jsonNode.get("role").asInt());
 		user.setStatus(jsonNode.get("status").asInt());
 		user.setCompanyName(jsonNode.get("companyName").asText());
+		
+		Set<Product> products =new HashSet<>();
+		Product product= new Product();
+		product.setId(jsonNode.get("productId").asInt());
+		products.add(product);
+		
+		System.out.println(product.getId()+"product name:--"+product.getName());
+		user.setUserProduct(products);
+		
 		int temp = 0;
 		
 		try {
@@ -178,21 +189,15 @@ public class UserDaoImpl implements UserDao {
 			SmsBalance smsBalance = new SmsBalance();
 			smsBalance.setBalance(jsonNode.get("balance").asInt());
 			
-			Product product = new Product();
-			product.setId(jsonNode.get("productId").asInt());
+			
+			
 			smsBalance.setProductId(product);
 			
 			smsBalance.setUserId(user);
 			// save balance in sms_balance  table
 			session.saveOrUpdate(smsBalance);
 			
-			// save Product Id in user_product table
-			
-			UserProduct userProduct = new UserProduct();
-			userProduct.setProduct_id(product);
-			userProduct.setUserId(user);
-			
-			session.saveOrUpdate(userProduct);
+
 			
 			// save data in credit table
 			
@@ -214,7 +219,7 @@ public class UserDaoImpl implements UserDao {
 			String debitReasion = "Create New  User, User Name = "+user.getUserName();
 			debit.setDebitBy(debitReasion);
 			User resellerUser = new User();
-			resellerUser.setId(jsonNode.get("userId").asInt());
+			resellerUser.setUserId(jsonNode.get("userId").asInt());
 			debit.setUserId(resellerUser);
 			
 			session.saveOrUpdate(debit);
@@ -225,11 +230,11 @@ public class UserDaoImpl implements UserDao {
 			int updateSmsBalanceResult = query.executeUpdate();
 			if(updateSmsBalanceResult > 0)
 			{
-				temp = 1;
-				tx.commit();
+				
 			}
 			
-			
+			temp = 1;
+			tx.commit();
 			
 		} catch (Exception e) {
 			e.printStackTrace();

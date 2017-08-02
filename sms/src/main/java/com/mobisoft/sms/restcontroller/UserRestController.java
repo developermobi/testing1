@@ -64,13 +64,12 @@ public class UserRestController {
 				Map<String, Object> mapData =new HashMap<>();
 				mapData.put("authorization","Basic " + token);
 				mapData.put("fullName", userList.get(0).getName());
-				mapData.put("userId", userList.get(0).getId());
+				mapData.put("userId", userList.get(0).getUserId());
 				
  				map.put("status", 302);
 				map.put("message", "success");
 				map.put("data", mapData);
-				
-				
+
 			}
 			
 		}
@@ -98,14 +97,10 @@ public class UserRestController {
 		else if(tokenAuthentication.validateToken(authorization) == 1){
 			String password = Global.randomString(6);
 
-			
-			
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
 			List<User> listUser = userService.getUserByUserName(node.get("userName").asText());
-			
-			
-			
+
 			if(listUser.size() > 0)
 			{
 				map.put("code", 409);
@@ -307,7 +302,7 @@ public class UserRestController {
 			user.setRole(node.get("role").asInt());
 			user.setStatus(node.get("status").asInt());
 			user.setCompanyName(node.get("companyName").asText());
-			user.setId(userId);
+			user.setUserId(userId);
 			
 			int result = userService.updateUser(user);
 			if(result == 1){
@@ -353,7 +348,7 @@ public class UserRestController {
 
 			User user = new User();
 			user.setStatus(2);
-			user.setId(userId);
+			user.setUserId(userId);
 					
 			int result = userService.deleteUser(user);
 			if(result == 1){

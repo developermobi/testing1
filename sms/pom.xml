@@ -16,8 +16,13 @@
   <jdk.version>1.7</jdk.version>
   <jackson.version>2.6.3</jackson.version>
  </properties>
- 
+
   <dependencies>
+   <dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>4.3.11.Final</version>
+</dependency>
   <!-- slf4j-log4j -->
 	<dependency>
 		<groupId>org.slf4j</groupId>

@@ -6,9 +6,11 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -16,6 +18,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.Cascade;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "user")
@@ -24,7 +27,7 @@ public class User {
 	@Id
 	@GeneratedValue
 	@Column(name = "id")
-	private int id;
+	private int userId;
 	
 	@Column(name = "user_name")
 	private String userName;
@@ -62,9 +65,9 @@ public class User {
 	@Column(name = "company_name")
 	private String companyName;
 	
-	/*@OneToMany(cascade = CascadeType.MERGE)
-	@JoinTable(name = "user_group_details", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "group_details_id") })
-	private Set<GroupDetails> groupDetails;*/
+	@OneToMany(cascade = CascadeType.MERGE,fetch=FetchType.EAGER)
+	@JoinTable(name = "user_product", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "prodcut_id") })
+	private Set<Product> userProduct;
 		
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
@@ -74,12 +77,12 @@ public class User {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date updated;
 
-	public int getId() {
-		return id;
+	public int getUserId() {
+		return userId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 	public String getUserName() {
@@ -145,7 +148,7 @@ public class User {
 	public void setCountry(String country) {
 		this.country = country;
 	}
-	
+
 	public String getAddress() {
 		return address;
 	}
@@ -174,17 +177,17 @@ public class User {
 		return companyName;
 	}
 
-	public void setCompanyName(String company_name) {
-		this.companyName = company_name;
-	}
-	
-/*	public Set<GroupDetails> getGroupDetails() {
-		return groupDetails;
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
 	}
 
-	public void setGroupDetails(Set<GroupDetails> groupDetails) {
-		this.groupDetails = groupDetails;
-	}*/
+	public Set<Product> getUserProduct() {
+		return userProduct;
+	}
+
+	public void setUserProduct(Set<Product> userProduct) {
+		this.userProduct = userProduct;
+	}
 
 	public Date getCreated() {
 		return created;
@@ -201,4 +204,7 @@ public class User {
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
+	
+	
+	
 }

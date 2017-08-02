@@ -4,10 +4,12 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
+
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -15,6 +17,7 @@ import javax.persistence.TemporalType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "sender_id")
@@ -25,8 +28,9 @@ public class SenderId {
 	@Column(name = "id")
 	private int id;
 	
-	@OneToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "u_id")
+	@JsonIgnore
 	private User userId;
 	
 	@Column(name = "sender_id")
@@ -34,10 +38,6 @@ public class SenderId {
 	
 	@Column(name = "status")
 	private int status;
-	
-	/*@Column(name = "created", columnDefinition="DATETIME", nullable=true)
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
-	private Date created = new Date();*/
 	
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)

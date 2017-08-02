@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mobisoft.sms.model.SenderId;
 import com.mobisoft.sms.model.Template;
+import com.mobisoft.sms.model.User;
 
 @Repository("senderIdDao")
 public class SenderIdDaoImpl implements SenderIDDao{
@@ -48,9 +49,11 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Override
 	public List<SenderId> getSenderIdByUserId(int userId) {
+		User user = new User();
+		user.setUserId(userId);
 		Session session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(SenderId.class);
-		criteria.add(Restrictions.eq("u_id", userId)).add(Restrictions.eq("status", 1));		
+		criteria.add(Restrictions.eq("userId", user)).add(Restrictions.eq("status", 1));		
 		List<SenderId> list = criteria.list();
 		session.close();
 		return list;
