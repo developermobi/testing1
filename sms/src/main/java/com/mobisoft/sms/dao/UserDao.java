@@ -3,6 +3,8 @@ package com.mobisoft.sms.dao;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.mobisoft.sms.model.Credit;
+import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.User;
 
@@ -12,7 +14,11 @@ public interface UserDao {
 	
 	public int saveUerDeatils(JsonNode jsonNode);
 	
-	//public int saveBalance(SmsBalance smsBalance);
+	public List<SmsBalance> getBalanceByUserId(int userId);
+	
+	public List<Credit> getCreditDetailsByUserId(int userId);
+	
+	public List<Debit> getDebitByUserId(int userId);
 	
 	public List<User> getUser();
 	

@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mobisoft.sms.utility.Global;
 import com.mobisoft.sms.utility.TokenAuthentication;
+import com.mobisoft.sms.model.Credit;
+import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.service.SmsHelperService;
@@ -291,7 +293,7 @@ public class UserRestController {
 			JsonNode node = mapper.readValue(josnString, JsonNode.class);
 			
 			User user = new User();
-			user.setUserName(node.get("userName").asText());
+			
 			user.setName(node.get("name").asText());
 			user.setEmail(node.get("email").asText());
 			user.setMobile(node.get("mobile").asText());
@@ -299,8 +301,6 @@ public class UserRestController {
 			user.setState(node.get("state").asText());
 			user.setCountry(node.get("country").asText());
 			user.setAddress(node.get("address").asText());
-			user.setRole(node.get("role").asInt());
-			user.setStatus(node.get("status").asInt());
 			user.setCompanyName(node.get("companyName").asText());
 			user.setUserId(userId);
 			
@@ -369,6 +369,114 @@ public class UserRestController {
 			map.put("message", "user not authorized");
 		}
 		return map;	
+	}
+	
+	@RequestMapping(value = "getBalanceByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getBalanceByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else {
+
+			List<SmsBalance> userList = userService.getBalanceByUserId(userId);
+			if(userList.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				map.put("data", userList);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", userList);
+			}
+		
+		}
+		
+		return map;
+	}
+	
+	@RequestMapping(value = "getCreditByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getCreditByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else {
+
+			List<Credit> userList = userService.getCreditDetailsByUserId(userId);
+			if(userList.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				map.put("data", userList);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", userList);
+			}
+		
+		}
+		
+		return map;
+	}
+	
+	@RequestMapping(value = "getDebitByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getDebitByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else {
+
+			List<Debit> userList = userService.getDebitByUserId(userId);
+			if(userList.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				map.put("data", userList);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", userList);
+			}
+		
+		}
+		
+		return map;
 	}
 	
 

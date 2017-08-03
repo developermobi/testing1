@@ -8,6 +8,7 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -71,20 +72,18 @@ public class UserDaoImpl implements UserDao {
 		
 		try {
 			
-			String sql = "UPDATE User SET user_name = :userName,address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,role = :role,state = :state, status = :status WHERE id = :id";
-			
+			//String sql = "UPDATE User SET user_name = :userName,address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,role = :role,state = :state, status = :status WHERE id = :id";
+			String sql = "UPDATE User SET address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,state = :state WHERE id = :id";
 			Query qry = session.createQuery(sql);
-			qry.setParameter("userName", user.getUserName());
+			//qry.setParameter("userName", user.getUserName());
 			qry.setParameter("address", user.getAddress());
 			qry.setParameter("city", user.getCity());
 			qry.setParameter("companyName", user.getCompanyName());
 			qry.setParameter("country", user.getCountry());
 			qry.setParameter("email", user.getEmail());
 			qry.setParameter("mobile", user.getMobile());
-			qry.setParameter("name", user.getName());
-			qry.setParameter("role", user.getRole());
-			qry.setParameter("state", user.getState());
-			qry.setParameter("status", user.getStatus());
+			qry.setParameter("name", user.getName());			
+			qry.setParameter("state", user.getState());			
 			qry.setParameter("id", user.getUserId());
 			
 			temp = qry.executeUpdate();
@@ -107,8 +106,7 @@ public class UserDaoImpl implements UserDao {
 		
 		try {
 			
-			String sql = "UPDATE User set status = :status WHERE id = :userId";
-			
+			String sql = "UPDATE User set status = :status WHERE id = :userId";			
 			Query qry = session.createQuery(sql);
 			qry.setParameter("status", user.getStatus());
 			qry.setParameter("userId", user.getUserId());		
@@ -143,12 +141,6 @@ public class UserDaoImpl implements UserDao {
 		Transaction tx = session.beginTransaction();
 		String sqlQuery = "SELECT balance FROM sms_balance WHERE user_id = :userId and product_id = :productId";
 		System.out.println(sqlQuery);
-		/*Query query = session.createQuery(sqlQuery);
-		query.setParameter("userId", userId);
-		query.setParameter("productId",productId);
-		List results = query.list();
-		System.out.println(results.get(0));
-		balance = (int) results.get(0);*/
 		return balance;
 	}
 	@Override
@@ -173,8 +165,9 @@ public class UserDaoImpl implements UserDao {
 		user.setCompanyName(jsonNode.get("companyName").asText());
 		
 		Set<Product> products =new HashSet<>();
-		Product product= new Product();
-		product.setId(jsonNode.get("productId").asInt());
+		Product product= (Product)session.get(Product.class, jsonNode.get("productId").asInt());
+		//product.getId();
+		
 		products.add(product);
 		
 		System.out.println(product.getId()+"product name:--"+product.getName());
@@ -188,16 +181,12 @@ public class UserDaoImpl implements UserDao {
 			
 			SmsBalance smsBalance = new SmsBalance();
 			smsBalance.setBalance(jsonNode.get("balance").asInt());
-			
-			
-			
+
 			smsBalance.setProductId(product);
 			
 			smsBalance.setUserId(user);
 			// save balance in sms_balance  table
 			session.saveOrUpdate(smsBalance);
-			
-
 			
 			// save data in credit table
 			
@@ -230,11 +219,11 @@ public class UserDaoImpl implements UserDao {
 			int updateSmsBalanceResult = query.executeUpdate();
 			if(updateSmsBalanceResult > 0)
 			{
-				
+				temp = 1;
+				tx.commit();
 			}
 			
-			temp = 1;
-			tx.commit();
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -244,6 +233,36 @@ public class UserDaoImpl implements UserDao {
 			session.close();
 		}
 		return temp;
+	}
+	@Override
+	public List<SmsBalance> getBalanceByUserId(int userId) {
+		Session session = sessionFactory.openSession();	
+		String sql = "SELECT * FROM sms_balance WHERE user_id = :userId";
+		SQLQuery query = session.createSQLQuery(sql);
+		query.addEntity(SmsBalance.class);
+		query.setParameter("userId", userId);
+		List results = query.list();
+		return results;
+	}
+	@Override
+	public List<Credit> getCreditDetailsByUserId(int userId) {
+		Session session = sessionFactory.openSession();	
+		String sql = "SELECT * FROM credit WHERE u_id = :userId";
+		SQLQuery query = session.createSQLQuery(sql);
+		query.addEntity(Credit.class);
+		query.setParameter("userId", userId);
+		List results = query.list();
+		return results;
+	}
+	@Override
+	public List<Debit> getDebitByUserId(int userId) {
+		Session session = sessionFactory.openSession();	
+		String sql = "SELECT * FROM debit WHERE u_id = :userId";
+		SQLQuery query = session.createSQLQuery(sql);
+		query.addEntity(Debit.class);
+		query.setParameter("userId", userId);
+		List results = query.list();
+		return results;
 	}
 
 }
