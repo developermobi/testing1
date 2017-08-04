@@ -145,11 +145,15 @@ public class UserDaoImpl implements UserDao {
 	}
 	@Override
 	public int saveUerDeatils(JsonNode jsonNode) {
-		System.out.println("as;ldlasdlajksdasdjsadlksajdlkasdsajd");
-		System.out.println(jsonNode.get("productId"));
+
 		String password = Global.randomString(6);
 		Session session =  sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
+		
+		Set<Product> products =new HashSet<>();
+		Product product= (Product)session.get(Product.class, jsonNode.get("productId").asInt());	
+		products.add(product);
+		
 		User user = new User();
 		user.setUserName(jsonNode.get("userName").asText());
 		user.setPassword(password);
@@ -163,15 +167,9 @@ public class UserDaoImpl implements UserDao {
 		user.setRole(jsonNode.get("role").asInt());
 		user.setStatus(jsonNode.get("status").asInt());
 		user.setCompanyName(jsonNode.get("companyName").asText());
-		
-		Set<Product> products =new HashSet<>();
-		Product product= (Product)session.get(Product.class, jsonNode.get("productId").asInt());
-		//product.getId();
-		
-		products.add(product);
-		
-		System.out.println(product.getId()+"product name:--"+product.getName());
 		user.setUserProduct(products);
+		
+		User resellerUser = (User)session.get(User.class,jsonNode.get("userId").asInt());
 		
 		int temp = 0;
 		
@@ -192,9 +190,12 @@ public class UserDaoImpl implements UserDao {
 			
 			Credit credit =new Credit();
 			credit.setCredit(jsonNode.get("balance").asInt());
-			credit.setCreditBy(jsonNode.get("creditBy").asText());
+			credit.setCreditBy(resellerUser.getUserId());
 			credit.setCurrentAmount(jsonNode.get("balance").asInt());
+			credit.setRemark("Credit By "+resellerUser.getUserName()+" And Create New User "+user.getUserName());
+			credit.setCreditType(1);
 			credit.setPreviousAmouunt(0);
+			credit.setProductId(product);
 			credit.setUserId(user);
 			
 			session.saveOrUpdate(credit);
@@ -205,11 +206,12 @@ public class UserDaoImpl implements UserDao {
 			debit.setDebit(jsonNode.get("balance").asInt());
 			debit.setCurrentAmount(jsonNode.get("updateResellerBalance").asInt());
 			debit.setPreviousAmouunt(jsonNode.get("previousResellerBalance").asInt());
-			String debitReasion = "Create New  User, User Name = "+user.getUserName();
-			debit.setDebitBy(debitReasion);
-			User resellerUser = new User();
-			resellerUser.setUserId(jsonNode.get("userId").asInt());
+			debit.setDebitTo(resellerUser.getUserId());
+			String debitReasion = "Create New  User, User Name = "+user.getUserName();			
+			debit.setRemark(debitReasion);			
+			debit.setDebitType(1);			
 			debit.setUserId(resellerUser);
+			debit.setProductId(product);
 			
 			session.saveOrUpdate(debit);
 			
@@ -222,9 +224,7 @@ public class UserDaoImpl implements UserDao {
 				temp = 1;
 				tx.commit();
 			}
-			
-			
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
@@ -247,7 +247,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<Credit> getCreditDetailsByUserId(int userId) {
 		Session session = sessionFactory.openSession();	
-		String sql = "SELECT * FROM credit WHERE u_id = :userId";
+		String sql = "SELECT * FROM credit WHERE credit_by = :userId";
 		SQLQuery query = session.createSQLQuery(sql);
 		query.addEntity(Credit.class);
 		query.setParameter("userId", userId);
@@ -257,7 +257,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<Debit> getDebitByUserId(int userId) {
 		Session session = sessionFactory.openSession();	
-		String sql = "SELECT * FROM debit WHERE u_id = :userId";
+		String sql = "SELECT * FROM debit WHERE user_id = :userId";
 		SQLQuery query = session.createSQLQuery(sql);
 		query.addEntity(Debit.class);
 		query.setParameter("userId", userId);

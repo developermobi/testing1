@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService{
 	}
 	@Override
 	public List<Debit> getDebitByUserId(int userId) {
-		// TODO Auto-generated method stub
+		
 		return userDao.getDebitByUserId(userId);
 	}
 

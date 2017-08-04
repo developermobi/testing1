@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -21,9 +22,16 @@ public class Credit {
 	@Column(name = "id")
 	private int id;
 	
-	@OneToOne
-	@JoinColumn(name = "u_id")
+	@ManyToOne
+	@JoinColumn(name = "user_id")
 	private User userId;
+	
+	@ManyToOne
+	@JoinColumn(name = "prodcut_id")
+	private Product productId;	
+	
+	@Column(name = "credit_type")
+	private int creditType;
 	
 	@Column(name = "credit")
 	private int credit;
@@ -35,7 +43,10 @@ public class Credit {
 	private int previousAmouunt;
 	
 	@Column(name = "credit_by")
-	private String creditBy;
+	private int creditBy;
+	
+	@Column(name = "remark")
+	private String remark;
 	
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
@@ -53,12 +64,28 @@ public class Credit {
 		this.id = id;
 	}
 
-	public User getUuserId() {
+	public User getUserId() {
 		return userId;
 	}
 
 	public void setUserId(User userId) {
 		this.userId = userId;
+	}
+
+	public Product getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Product productId) {
+		this.productId = productId;
+	}
+
+	public int getCreditType() {
+		return creditType;
+	}
+
+	public void setCreditType(int creditType) {
+		this.creditType = creditType;
 	}
 
 	public int getCredit() {
@@ -85,11 +112,11 @@ public class Credit {
 		this.previousAmouunt = previousAmouunt;
 	}
 
-	public String getCreditBy() {
+	public int getCreditBy() {
 		return creditBy;
 	}
 
-	public void setCreditBy(String creditBy) {
+	public void setCreditBy(int creditBy) {
 		this.creditBy = creditBy;
 	}
 
@@ -107,6 +134,14 @@ public class Credit {
 
 	public void setUpdated(Date updated) {
 		this.updated = updated;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }
