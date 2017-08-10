@@ -42,8 +42,8 @@ public class Debit {
 	@Column(name = "previous_amount")
 	private int previousAmouunt;
 	
-	@Column(name = "debit_to")
-	private int debitTo;
+	@Column(name = "debit_by")
+	private int debitBy;
 	
 	@Column(name = "remark")
 	private String remark;
@@ -112,12 +112,12 @@ public class Debit {
 		this.previousAmouunt = previousAmouunt;
 	}
 
-	public int getDebitTo() {
-		return debitTo;
+	public int getDebitBy() {
+		return debitBy;
 	}
 
-	public void setDebitTo(int debitTo) {
-		this.debitTo = debitTo;
+	public void setDebitBy(int debitBy) {
+		this.debitBy = debitBy;
 	}
 
 	public String getRemark() {

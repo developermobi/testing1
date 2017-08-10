@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -59,15 +60,18 @@ public class User {
 	@Column(name = "role")
 	private int role;
 	
+	@Column(name = "reseller_id")
+	private Integer resellerId;
+	
 	@Column(name = "status")
 	private int status;
 	
 	@Column(name = "company_name")
 	private String companyName;
 	
-	@OneToMany(cascade = CascadeType.MERGE,fetch=FetchType.EAGER)
+/*	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "user_product", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "prodcut_id") })
-	private Set<Product> userProduct;
+	private Set<Product> userProduct;*/
 		
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
@@ -181,13 +185,13 @@ public class User {
 		this.companyName = companyName;
 	}
 
-	public Set<Product> getUserProduct() {
+/*	public Set<Product> getUserProduct() {
 		return userProduct;
 	}
 
 	public void setUserProduct(Set<Product> userProduct) {
 		this.userProduct = userProduct;
-	}
+	}*/
 
 	public Date getCreated() {
 		return created;
@@ -204,6 +208,16 @@ public class User {
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
+
+	public Integer getResellerId() {
+		return resellerId;
+	}
+
+	public void setResellerId(Integer resellerId) {
+		this.resellerId = resellerId;
+	}
+
+	
 	
 	
 	

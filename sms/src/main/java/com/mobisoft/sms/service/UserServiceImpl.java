@@ -34,8 +34,8 @@ public class UserServiceImpl implements UserService{
 		return userDao.updateUser(admin);
 	}
 	@Override
-	public int deleteUser(User admin) {
-		return userDao.deleteUser(admin);
+	public int deleteUser(int userId,int resellerId) {
+		return userDao.deleteUser(userId,resellerId);
 	}
 	@Override
 	public List<User> getUserByUserName(String userName) {
@@ -61,6 +61,23 @@ public class UserServiceImpl implements UserService{
 	public List<Debit> getDebitByUserId(int userId) {
 		
 		return userDao.getDebitByUserId(userId);
+	}
+	@Override
+	public List<User> getUserByResellerId(int resellerId) {
+		return userDao.getUserByResellerId(resellerId);
+	}
+	@Override
+	public int addCreditUser(int userId, int resellerId, int productId, int balance) {
+		
+		return userDao.addCreditUser(userId, resellerId, productId, balance);
+	}
+	@Override
+	public int addProdcut(int reselerId, int userId, int prodcutId, int balance) {		
+		return userDao.addProdcut(reselerId, userId, prodcutId, balance);
+	}
+	@Override
+	public int deductCreditUser(int deductUserId, int creditByUserId, int productId, int balance) {
+		return userDao.deductCreditUser(deductUserId, creditByUserId, productId, balance);
 	}
 
 }

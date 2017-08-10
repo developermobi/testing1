@@ -271,6 +271,47 @@ public class UserRestController {
 		
 		return map;
 	}
+	
+	@RequestMapping(value = "getUserByResellerId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getUserByResellerId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 1){
+
+			List<User> userList = userService.getUserByResellerId(userId);
+			if(userList.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				map.put("data", userList);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", userList);
+			}
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 2){
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");
+		}
+		
+		return map;
+	}
+	
 	@RequestMapping(value = "updateUserById/{userId}",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object>upadteUserById(@PathVariable("userId")int userId,@RequestBody String josnString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
 	{
@@ -328,8 +369,8 @@ public class UserRestController {
 		
 	}
 	
-	@RequestMapping( value = "/deleteUser/{userId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object> deleteAdmin(@PathVariable("userId") int userId,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
+	@RequestMapping( value = "/deleteUser/{userId}/{resellerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object> deleteAdmin(@PathVariable("userId") int userId,@PathVariable("resellerId") int resellerId,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
 		
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -345,18 +386,22 @@ public class UserRestController {
 			
 		}
 		else if(tokenAuthentication.validateToken(authorization) == 1){
-
-			User user = new User();
-			user.setStatus(2);
-			user.setUserId(userId);
 					
-			int result = userService.deleteUser(user);
+			int result = userService.deleteUser(userId,resellerId);
 			if(result == 1){
 				map.put("status", "success");
 				map.put("code", 200);
 				map.put("message", "deleted successfully");
 				map.put("data", result);
-			}else{
+			}
+			else if(result ==2){
+			
+				map.put("status", "error");
+				map.put("code", 404);
+				map.put("message", "Not found User");
+				map.put("data", result);
+			}
+			else{
 				map.put("status", "error");
 				map.put("code", 400);
 				map.put("message", "error occured during detetion");
@@ -390,6 +435,7 @@ public class UserRestController {
 		else {
 
 			List<SmsBalance> userList = userService.getBalanceByUserId(userId);
+			System.out.println(userList.size());
 			if(userList.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
@@ -478,6 +524,234 @@ public class UserRestController {
 		
 		return map;
 	}
+	@RequestMapping( value = "/addCreditByReseller/{userId}/{resellerId}/{productId}/{newBalance}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object> addCreditByReseller(@PathVariable("userId") int userId,@PathVariable("resellerId") int resellerId,@PathVariable("productId") int productId,@PathVariable("newBalance") int newBalance,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 1){
+					
+			//int result = userService.addCreditUser(userId, resellerId, productId, newBalance);
+			System.out.println("Sms Balnce");
+			List<Integer> balance = smsHelperService.getBalance(resellerId,productId);
+			
+			
+			if(balance.size() > 0)
+			{
+				int resellerBalnce = balance.get(0);
+
+				if(newBalance > 0)
+				{
+					int updateResellerBalance = resellerBalnce - newBalance;
+					if(updateResellerBalance > 0)
+					{
+						
+						int result = userService.addCreditUser(userId, resellerId, productId, newBalance);
+						if(result == 1){
+							map.put("status", "success");
+							map.put("code", 201);
+							map.put("message", "Add Credit successfully");
+							map.put("data", result);
+						}else{
+							map.put("status", "error");
+							map.put("code", 400);
+							map.put("message", "error occured during insertion");
+							map.put("data", result);
+						}
+					}
+					else
+					{
+						map.put("code", 204);
+						map.put("status", "error");
+						map.put("message", "Insufficieant Balance");
+					}
+					
+				}
+				else
+				{
+					map.put("code", 405);
+					map.put("status", "error");
+					map.put("message", "Please set positive balance ");
+				}
+				
+					
+			}
+			else
+			{
+				map.put("code", 406);
+				map.put("status", "error");
+				map.put("message", "Please Purchase Selected  Product");
+			}
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 2){
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");
+		}
+		return map;	
+	}
+	
+	@RequestMapping(value = "addProduct/{userId}/{reselerId}/{prodcutId}/{balance}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>addproduct(@PathVariable("userId")int userId,@PathVariable("reselerId")int reselerId,@PathVariable("prodcutId")int prodcutId,@PathVariable("balance")int balance,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 1){
+			List<SmsBalance> list = smsHelperService.findProdcut(userId, prodcutId);
+			System.out.println(list.size());
+			if(list.isEmpty())
+			{
+				if(balance > 0)
+				{
+					int result = userService.addProdcut(reselerId, userId, prodcutId, balance);
+					if(result == 1){
+						map.put("status", "success");
+						map.put("code", 201);
+						map.put("message", "Add Prodcut Successfully");
+						map.put("data", result);
+					}else if(result == 3){
+						map.put("status", "error");
+						map.put("code", 204);
+						map.put("message", "Insufficieant Balance");
+						map.put("data", result);
+					}
+					else if(result == 2){
+						map.put("status", "error");
+						map.put("code", 204);
+						map.put("message", "Please Purchase Prodcut");
+						map.put("data", result);
+					}
+					else{
+						map.put("status", "error");
+						map.put("code", 400);
+						map.put("message", "error occured during add prodcut");
+						map.put("data", result);
+					}
+					
+				}
+				else
+				{
+					map.put("code", 405);
+					map.put("status", "error");
+					map.put("message", "Please set positive balance");
+				}
+			}else{
+				map.put("code", 409);
+				map.put("status", "error");
+				map.put("message", "All ready exists");
+			}
+			
+			
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 2){
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");
+		}
+		return map;	
+
+	}
+	@RequestMapping( value = "/deductCreditByReseller/{userId}/{resellerId}/{productId}/{newBalance}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object> deductCreditByReseller(@PathVariable("userId") int userId,@PathVariable("resellerId") int resellerId,@PathVariable("productId") int productId,@PathVariable("newBalance") int newBalance,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 1){
+					
+			//int result = userService.addCreditUser(userId, resellerId, productId, newBalance);
+			System.out.println("Sms Balnce");
+			List<Integer> balance = smsHelperService.getBalance(userId,productId);
+			
+			
+			if(balance.size() > 0)
+			{
+				int userBalnce = balance.get(0);
+
+				if(newBalance > 0)
+				{
+					int updateResellerBalance = userBalnce - newBalance;
+					if(updateResellerBalance > 0)
+					{
+						
+						int result = userService.addCreditUser(resellerId ,userId , productId, newBalance);
+						if(result == 1){
+							map.put("status", "success");
+							map.put("code", 201);
+							map.put("message", "Dedcut Balance successfully");
+							map.put("data", result);
+						}else{
+							map.put("status", "error");
+							map.put("code", 400);
+							map.put("message", "error occured during insertion");
+							map.put("data", result);
+						}
+					}
+					else
+					{
+						map.put("code", 204);
+						map.put("status", "error");
+						map.put("message", "Insufficieant Balance");
+					}
+					
+				}
+				else
+				{
+					map.put("code", 405);
+					map.put("status", "error");
+					map.put("message", "Please set positive balance ");
+				}
+				
+					
+			}
+			else
+			{
+				map.put("code", 406);
+				map.put("status", "error");
+				map.put("message", "Please Purchase Selected  Product");
+			}
+		}
+		else if(tokenAuthentication.validateToken(authorization) == 2){
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");
+		}
+		return map;	
+	}
+	
+	
 	
 
 }

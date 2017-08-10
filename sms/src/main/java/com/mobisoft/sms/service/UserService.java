@@ -20,6 +20,8 @@ public interface UserService {
 	
 	public List<Debit> getDebitByUserId(int userId);
 	
+	public List<User> getUserByResellerId(int resellerId);
+	
 	public List<User> getUser();
 	
 	public List<User> getUserById(int userId);
@@ -28,5 +30,11 @@ public interface UserService {
 	
 	public int updateUser(User user);
 	
-	public int deleteUser(User user);
+	public int deleteUser(int userId,int resellerId);
+	
+	public int addCreditUser(int userId,int resellerId,int productId,int balance);
+	
+	public int addProdcut(int reselerId,int userId,int prodcutId,int balance);
+	
+	public int deductCreditUser(int deductUserId,int creditByUserId,int productId,int balance);
 }
