@@ -41,6 +41,8 @@
 	    <value>com.mobisoft.sms.model.SmsBalance</value>
 	    <value>com.mobisoft.sms.model.Template</value>
 	    <value>com.mobisoft.sms.model.UserProduct</value>
+	    <value>com.mobisoft.sms.model.UserJobs</value>
+	    <value>com.mobisoft.sms.model.QueuedSms</value>
 	   
 	   </list>
 	  </property>
