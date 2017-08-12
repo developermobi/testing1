@@ -59,7 +59,7 @@ public class UserJobs {
 	
 	@Column(name = "completed_at", columnDefinition="TIMESTAMP", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
-	private String completedAt;
+	private Date completedAt;
 	
 	@Column(name="job_status")
 	private int jobStatus;
@@ -77,7 +77,7 @@ public class UserJobs {
 	private int sendRatio;
 	
 	@Column(name="route")
-	private int route;
+	private String route;
 
 	public int getId() {
 		return id;
@@ -175,11 +175,11 @@ public class UserJobs {
 		this.queuedAt = queuedAt;
 	}
 
-	public String getCompletedAt() {
+	public Date getCompletedAt() {
 		return completedAt;
 	}
 
-	public void setCompletedAt(String completedAt) {
+	public void setCompletedAt(Date completedAt) {
 		this.completedAt = completedAt;
 	}
 
@@ -223,11 +223,11 @@ public class UserJobs {
 		this.sendRatio = sendRatio;
 	}
 
-	public int getRoute() {
+	public String getRoute() {
 		return route;
 	}
 
-	public void setRoute(int route) {
+	public void setRoute(String route) {
 		this.route = route;
 	}
 	

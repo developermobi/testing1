@@ -22,13 +22,14 @@ public class UserJobsDaoImpl implements UserJobsDao {
 		int flag = 0;
 		try {
 			session = sessionFactory.openSession();  			
-			tx = session.getTransaction();			
-			tx.begin();			
+			tx = session.beginTransaction();			
+					
 			session.save(userJobs);			  
 			tx.commit();			
 			flag = 1;			  
 		}catch (Exception ex) {
-			tx.rollback();			
+			tx.rollback();
+			System.out.println(ex.getMessage());
 		}finally {		
 			session.close();			
 		}  
