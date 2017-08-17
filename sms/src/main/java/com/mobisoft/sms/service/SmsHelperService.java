@@ -15,4 +15,5 @@ public interface SmsHelperService {
 	public int creditBalance(int userId,int productId,int resellerId,int balance,String remark,int creditType,Session session,Transaction tx);
 	public int debitBalnce(int userId,int productId,int resellerId,int balance,String remark,int debitType,Session session,Transaction tx);
 	public List<SmsBalance> findProdcut(int userId,int prodcutId);
+	public int messageCount(int messageType,int messageLenght);
 }

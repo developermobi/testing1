@@ -48,4 +48,9 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 	public List<SmsBalance> findProdcut(int userId, int prodcutId) {		
 		return smsHelperDao.findProdcut(userId, prodcutId);
 	}
+
+	@Override
+	public int messageCount(int messageType, int messageLenght) {		
+		return smsHelperDao.messageCount(messageType, messageLenght);
+	}
 }

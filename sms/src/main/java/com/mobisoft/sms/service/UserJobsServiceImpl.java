@@ -12,8 +12,8 @@ public class UserJobsServiceImpl implements UserJobsService{
 	UserJobsDao userJobsDao;
 
 	@Override
-	public int saveUserJobs(UserJobs userJobs) {
+	public int saveUserJobs(UserJobs userJobs, int productId,int sentMessageBalance,int updateNewBalance) {
 		
-		return userJobsDao.saveUserJobs(userJobs);
+		return userJobsDao.saveUserJobs(userJobs,productId,sentMessageBalance,updateNewBalance);
 	}
 }

@@ -165,4 +165,63 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		return list;
 	}
 
+	@Override
+	public int messageCount(int messageType, int messageLenght) {
+		int messageCount=0;
+        
+        if(messageType == 1)
+        {
+            int part1Count = 160;
+            int part2Count = 146;
+            int part3Count = 153;
+           
+           
+            if(messageLenght <= part1Count)
+            {
+                messageCount =1;
+            }
+            else if(messageLenght <= (part1Count + part2Count))
+            {
+                messageCount = 2;
+            }
+            else if(messageLenght > (part1Count+part2Count)){
+               
+               
+                double  count = Math.ceil(( messageLenght - part1Count - part2Count) / part3Count);
+                System.out.println(count);
+                messageCount = (int)(count + 3);
+                
+            }
+           
+            System.out.println("Text Message "+messageCount);
+        }
+        else
+        {
+            int part1Count = 70;
+            int part2Count = 64;
+            int part3Count = 67;
+            
+            
+            if(messageLenght <= part1Count)
+            {
+                messageCount =1;
+            }
+            else if(messageLenght <= (part1Count + part2Count))
+            {
+                messageCount = 2;
+            }
+            else if(messageLenght > (part1Count+part2Count)){
+               
+               
+                double  count = Math.ceil(( messageLenght - part1Count - part2Count) / part3Count);
+                System.out.println(count);
+                messageCount = (int)(count + 3);
+                
+            }
+           
+            System.out.println("Unicode "+ messageCount);
+        }
+        return messageCount;
+	}
+
 }

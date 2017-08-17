@@ -2,6 +2,7 @@ package com.mobisoft.sms.restcontroller;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,36 +56,50 @@ public class UserJobsResController {
 	@Autowired
 	private UserJobsService userJobsService;
 	
+	@Autowired
+	private SmsHelperService smsHelperService;
+	
 	private ObjectMapper mapper = null;
 	
-	@Value("${uploadUrl}")
-	private String uploadUrl;
+	@Value("${uploadUserTextFile}")
+	private String uploadUserTextFile;
+	
+	@Value("${uploadUserCsvFile}")
+	private String uploadCsvTextFile;
 	
 	@Value("${uploadLiveUrl}")
 	private String uploadLiveUrl;
+	
+	private BufferedReader br = null;
+	
+	private FileReader fr = null;
+	
+	private File userJobFile;
+	
+	private String fileName;
+	
+	private List<String> mobileList;
 	
 	String rootPath = System.getProperty("catalina.home");
 	
 	@RequestMapping(value="/saveUserJobs",method = RequestMethod.POST)
 	public Map<String,Object>saveUserJobs(@RequestHeader("Authorization") String authorization,@RequestParam("file")MultipartFile multipartFile,
 			@RequestParam("userId")int userId,@RequestParam("message")String message,
-			@RequestParam("messageType")int messageType,@RequestParam("messageLength")int messageLength,
-			@RequestParam("count")int count,@RequestParam("sender")String sender,
-			@RequestParam("totalNumbers")int totalNumbers,@RequestParam("totalSent")int totalSent,
+			@RequestParam("messageType")int messageType,@RequestParam("sender")String sender,
+			@RequestParam("productId")int productId,
 			@RequestParam("scheduledAt")String scheduledAt,
-			@RequestParam("queuedAt")String queuedAt,
-			@RequestParam("completedAt")String completedAt,@RequestParam("jobStatus")int jobStatus,
+			@RequestParam("jobStatus")int jobStatus,
 			@RequestParam("jobType")int jobType,@RequestParam("columns")int columns,
 			@RequestParam("sendNow")String sendNow,@RequestParam("sendRatio")int sendRatio,
 			@RequestParam("route")String route) throws IllegalStateException, ParseException, IOException{
 
-	
+		
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
 		map.put("message", "some error occured");
 		map.put("data", null);
-		System.out.println("kdljal;sdjksa");
+		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
 			map.put("code", 404);
@@ -92,104 +107,124 @@ public class UserJobsResController {
 			map.put("message", "Invalid User Name Password");
 			
 		}else if(tokenAuthentication.validateToken(authorization) == 1){
-			System.out.println("kdljal;sdjksa");
-			//String imagePath = "";
-			System.out.println(userId);
-			String fileDirectory = "";
+			
 			String fileName = "";
 			if(!multipartFile.isEmpty()){
-				    byte[] bytes = multipartFile.getBytes();
-		            Path path = Paths.get("D://temp//" + multipartFile.getOriginalFilename());
-		            Files.write(path, bytes);
-				System.out.println(multipartFile.getOriginalFilename());
-				String fileUploadDirectory = rootPath + "/" + uploadUrl + "/"+ fileDirectory;
 				
-				File file = new File(fileUploadDirectory);
-				System.out.println(file.exists());
-		        if (!file.exists()) {
-		            if (!file.mkdirs()) {
-		            	System.out.println(file.exists());
-		            	map.put("code", 404);
-		    			map.put("status", "error");
-		    			map.put("message", "file Upload Directory has not found");
-		            }
-		        }
-		        
-		        fileName = multipartFile.getOriginalFilename().replace(" ", "-");
-		        
-				//imagePath = uploadLiveUrl + "/"+ fileDirectory  + fileName;
-				
-				String fileUploadPath = "src/main/resources/UploadUserFile/" + fileName;	
-				
-			    File imageFile = new File(fileUploadPath);
-			    System.out.println(imageFile.getAbsolutePath());
 			    try {
-					multipartFile.transferTo(imageFile);					
-					
-					
-				   
-					System.out.println("a;kd;asdk;las");
-
-					Resource resource = new ClassPathResource(fileUploadPath);
-			    	InputStream is = resource.getInputStream();
-			          BufferedReader br = new BufferedReader(new InputStreamReader(is));
-	
-			          String line;
-			          while ((line = br.readLine()) != null) {
-			             System.out.println(line);
-			       	  }
-			          br.close();
-					
-					
-				    UserJobs userJobs= new UserJobs();
-					userJobs.setUserId(userId);
-					userJobs.setMessage(message);
-					userJobs.setMessageType(messageType);
-					userJobs.setMessageLength(messageLength);
-					userJobs.setCount(count);
-					userJobs.setSender(sender);
-					userJobs.setTotalNumbers(totalNumbers);
-					userJobs.setTotalSent(totalSent);
-					userJobs.setFilename(fileName);
-					
-					String scheduledAtConvert = scheduledAt;
-					DateFormat formatter ; 
-					Date scheduledDate ; 
-					formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-					scheduledDate = formatter.parse(scheduledAtConvert);
-					System.out.println(scheduledAt);
-					String queuedAtConvert = queuedAt;
-					Date queuedAtDate; 					
-					queuedAtDate = formatter.parse(queuedAtConvert);
-					
-					/*String completedAtConvert = completedAt;
-					Date completedAtDate;
-					completedAtDate = formatter.parse(completedAtConvert);*/
-					
-					userJobs.setScheduledAt(scheduledDate);
-					userJobs.setQueuedAt(queuedAtDate);
-					userJobs.setJobStatus(jobStatus);
-					userJobs.setJobType(jobType);
-					userJobs.setColumns(columns);
-					userJobs.setSendNow(sendNow);
-					userJobs.setSendRatio(sendRatio);
-					userJobs.setRoute(route);
-					//userJobs.setCompletedAt(completedAtDate);
-					int result = userJobsService.saveUserJobs(userJobs);
-					if(result == 1)
-					{
-						map.put("code", 201);
-		    			map.put("status", "Success");
-		    			map.put("message", "file Upload ");
-					}
-					else
-					{
-						map.put("code", 404);
-		    			map.put("status", "error");
-		    			map.put("message", "Something Going Worng File Is Not Uploaded");
-					}
-				
-					
+			    	
+			    	fileName = multipartFile.getOriginalFilename().replace(" ", "-");
+			    	String newFileName = userId+fileName;
+			    	System.out.println(multipartFile.getSize());
+			    	if(multipartFile.getSize() <= 3000000 )
+			    	{
+			    		if(multipartFile.getOriginalFilename().endsWith(".txt")){
+				    		
+							String fileUploadDirectory =  uploadUserTextFile+"/";						
+							userJobFile = new File(fileUploadDirectory);						
+					        if (!userJobFile.exists()) {
+					            if (!userJobFile.mkdirs()) {
+					            	
+					            	map.put("code", 404);
+					    			map.put("status", "error");
+					    			map.put("message", "file Upload Directory has not found");
+					            }
+					        }
+							userJobFile = new File(fileUploadDirectory,newFileName);
+							multipartFile.transferTo(userJobFile);
+							fr = new FileReader(userJobFile);
+							br = new BufferedReader(fr);
+							String line;
+							mobileList = new ArrayList<>();
+							while ((line = br.readLine()) != null) {
+								mobileList.add(line);
+							}
+							System.out.println(mobileList.size());
+							br.close();
+							fr.close();
+						}
+			    		else{
+			    			System.out.println("Upload Csv File Details");
+			    		}
+			    		
+			    		int messageLength = message.length();
+			    		int messageCount = smsHelperService.messageCount(messageType, messageLength);
+			    		if(messageCount > 10)
+			    		{
+			    			map.put("code", 413);
+							map.put("status", "error");
+							map.put("message", "Message Count Too Large");
+			    		}
+			    		else
+			    		{
+			    			List<Integer> balance = smsHelperService.getBalance(userId,productId);
+			    			System.out.println("User Balnce "+balance.get(0));
+			    			int sentMessage = mobileList.size() * messageCount;
+			    			System.out.println("User Sent Message "+ sentMessage);
+			    			if(sentMessage <= balance.get(0))
+			    			{
+			    				int updateNewBalance = balance.get(0)-sentMessage; 
+			    				UserJobs userJobs= new UserJobs();
+								userJobs.setUserId(userId);
+								userJobs.setMessage(message);
+								userJobs.setMessageType(messageType);
+								userJobs.setMessageLength(messageLength);
+								userJobs.setCount(messageCount);
+								userJobs.setSender(sender);
+								userJobs.setTotalNumbers(mobileList.size());
+								userJobs.setTotalSent(sentMessage);
+								userJobs.setFilename(newFileName);							
+								String scheduledAtConvert = scheduledAt;
+								DateFormat formatter ; 
+								Date scheduledDate ; 
+								formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+								scheduledDate = formatter.parse(scheduledAtConvert);
+								System.out.println(scheduledAt);
+								/*String queuedAtConvert = queuedAt;
+								Date queuedAtDate; 					
+								queuedAtDate = formatter.parse(queuedAtConvert);	
+								userJobs.setQueuedAt(queuedAtDate);*/
+								userJobs.setScheduledAt(scheduledDate);
+								
+								userJobs.setJobStatus(jobStatus);
+								userJobs.setJobType(jobType);
+								userJobs.setColumns(columns);
+								userJobs.setSendNow(sendNow);
+								userJobs.setSendRatio(sendRatio);
+								userJobs.setRoute(route);
+								//userJobs.setCompletedAt(completedAtDate);
+								int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
+								if(result == 1)
+								{
+									
+									map.put("code", 201);
+					    			map.put("status", "Success");
+					    			map.put("message", "file Upload ");
+								}
+								else
+								{
+									map.put("code", 404);
+					    			map.put("status", "error");
+					    			map.put("message", "Something Going Worng File Is Not Uploaded");
+								}
+			    			}
+			    			else
+			    			{
+			    				map.put("code", 204);
+								map.put("status", "error");
+								map.put("message", "Insufficieant Balance");
+			    			}
+			    			
+			    		}
+			    			
+			    	}
+			    	else
+			    	{
+			    		map.put("code", 413);
+						map.put("status", "error");
+						map.put("message", "Request File Too Large");	
+			    	}
+			    	
 
 				} catch (IOException e) {
 					map.put("code", 404);

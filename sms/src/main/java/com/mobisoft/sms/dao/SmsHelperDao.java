@@ -16,4 +16,5 @@ public interface SmsHelperDao {
 	public int updateUserBalance(int newBalance,int userId,int productId,Session session,Transaction tx);
 	public int creditOnUser(int newBalance,int userId,int productId,int creditInUser,int creditByReseller,Session session,Transaction tx);
 	public List<SmsBalance> findProdcut(int userId,int prodcutId);
+	public int messageCount(int messageType,int messageLenght);
 }
