@@ -44,6 +44,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @CrossOrigin
 @RestController
@@ -81,6 +82,7 @@ public class UserJobsResController {
 	private List<String> mobileList;
 	
 	String rootPath = System.getProperty("catalina.home");
+	
 	
 	@RequestMapping(value="/saveUserJobs",method = RequestMethod.POST)
 	public Map<String,Object>saveUserJobs(@RequestHeader("Authorization") String authorization,@RequestParam("file")MultipartFile multipartFile,
@@ -244,5 +246,6 @@ public class UserJobsResController {
 		
 	
 	}
+	
 
 }

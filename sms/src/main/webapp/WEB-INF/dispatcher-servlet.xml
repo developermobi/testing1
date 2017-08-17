@@ -43,7 +43,7 @@
 	    <value>com.mobisoft.sms.model.UserProduct</value>
 	    <value>com.mobisoft.sms.model.UserJobs</value>
 	    <value>com.mobisoft.sms.model.QueuedSms</value>
-	   
+	    <value>com.mobisoft.sms.model.DlrStatus</value>
 	   </list>
 	  </property>
 	  <property name="hibernateProperties">
