@@ -61,6 +61,14 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				mobileList.add(line);
 				
 			}
+			
+			
+			
+			
+			
+			
+			
+			
 			for (int i = 0; i < mobileList.size(); i++) {
 				org.hibernate.Query query = session.createSQLQuery("CALL spInsert(:job_id,:Sender,:momt,:type,:mclass,:coding,:message,:mobile,:provider_id,:user_id,:account)")
 						  .addEntity(DlrStatus.class)
