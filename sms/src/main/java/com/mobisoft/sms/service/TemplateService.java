@@ -12,6 +12,8 @@ public interface TemplateService {
 	
 	public List<Template> getTemplateByUserId(int userId);
 	
+	public List<Template> getTemplateByUserIdPaginate(int userId,int start,int limit);
+	
 	public List<Template> getTemplateById(int templateId);	
 	
 	public int updateTemplate(Template template);

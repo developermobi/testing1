@@ -51,7 +51,8 @@ public class TemplateDaoImpl implements TemplateDao{
 		Session session = sessionFactory.openSession();
 		User user =(User)session.get(User.class, userId);
 		Criteria criteria = session.createCriteria(Template.class);
-		criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("status", 0));		
+		criteria.add(Restrictions.eq("userId",user))
+		.add(Restrictions.eq("status", 0));		
 		List<Template> list = criteria.list();
 		session.close();
 		return list;
@@ -114,6 +115,20 @@ public class TemplateDaoImpl implements TemplateDao{
 		}
 		
 		return temp;
+	}
+
+	@Override
+	public List<Template> getTemplateByUserIdPaginate(int userId, int start, int limit) {
+		Session session = sessionFactory.openSession();
+		User user =(User)session.get(User.class, userId);
+		Criteria criteria = session.createCriteria(Template.class);
+		criteria.add(Restrictions.eq("userId",user))
+		.add(Restrictions.eq("status", 0))
+		.setFirstResult(start)
+		.setMaxResults(limit);		
+		List<Template> list = criteria.list();
+		session.close();
+		return list;
 	}
 
 }

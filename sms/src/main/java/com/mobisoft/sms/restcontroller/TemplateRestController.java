@@ -1,6 +1,7 @@
 package com.mobisoft.sms.restcontroller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,8 +94,8 @@ public class TemplateRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "/getAllTemplate/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllTemplate(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getAllTemplate/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllTemplate(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
 		System.out.println(userId);
 		Map<String,Object> map = new HashMap<>();
@@ -110,18 +111,23 @@ public class TemplateRestController {
 			
 		}
 		else {
-			List<Template> alltemplateList = templateService.getTemplateByUserId(userId);
+			List<Template> alltemplateListCount = templateService.getTemplateByUserId(userId);
+			List<Template> alltemplateList = templateService.getTemplateByUserIdPaginate(userId, start, limit);
+			
+			 Map<String, Object> dataMap = new HashMap<>();
+			 dataMap.put("total", alltemplateListCount.size());
+			 dataMap.put("template_data", alltemplateList);
 			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
-			if(alltemplateList.size() > 0){
+			if(alltemplateListCount.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "Data found");
-				map.put("data", alltemplateList);
+				map.put("data", dataMap);
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
 				map.put("message", "No data found");
-				map.put("data", alltemplateList);
+				map.put("data", dataMap);
 			}
 		}		
 		

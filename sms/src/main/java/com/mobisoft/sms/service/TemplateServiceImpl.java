@@ -49,4 +49,10 @@ public class TemplateServiceImpl implements TemplateService {
 		// TODO Auto-generated method stub
 		return templateDao.deleteTemplate(template);
 	}
+
+	@Override
+	public List<Template> getTemplateByUserIdPaginate(int userId, int start, int limit) {
+		// TODO Auto-generated method stub
+		return templateDao.getTemplateByUserIdPaginate(userId, start, limit);
+	}
 }
