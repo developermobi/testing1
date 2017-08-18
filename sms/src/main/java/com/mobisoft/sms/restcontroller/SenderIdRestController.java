@@ -49,7 +49,7 @@ public class SenderIdRestController {
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
@@ -67,14 +67,14 @@ public class SenderIdRestController {
 				if(sender.length() != 6)
 				{
 					map.put("status", "error");
-					map.put("code", 400);
+					map.put("code", 406);
 					map.put("message", "Please Enter Valid Lenght Sender Id");
 					map.put("data", null);
 				}
 				else
 				{
 					User user = new User();
-					user.setId(node.get("userId").asInt());
+					user.setUserId(node.get("userId").asInt());
 					
 					SenderId senderId = new SenderId();
 					senderId.setSender_id(sender);
@@ -98,7 +98,7 @@ public class SenderIdRestController {
 				else
 				{
 					map.put("status", "error");
-					map.put("code", 400);
+					map.put("code", 406);
 					map.put("message", "Please Enter Sender Id");
 					map.put("data", null);
 				}
@@ -108,8 +108,8 @@ public class SenderIdRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "/getAllSenderId",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllSenderId(@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getAllSenderId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllSenderId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -124,7 +124,7 @@ public class SenderIdRestController {
 			
 		}
 		else {
-			List<SenderId> allSenderIdList = senderIdService.getSenderId();
+			List<SenderId> allSenderIdList = senderIdService.getSenderIdByUserId(userId);
 			
 			if(allSenderIdList.size() > 0){
 				map.put("status", "success");
@@ -239,7 +239,7 @@ public class SenderIdRestController {
 		return map;
 		
 	}
-	@RequestMapping( value = "/deleteSenderId/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping( value = "/deleteSenderId/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> deleteSenderId(@PathVariable("id") int id,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
 		
 		Map<String,Object> map = new HashMap<>();

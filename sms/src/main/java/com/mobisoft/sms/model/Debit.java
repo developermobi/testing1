@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -21,9 +22,16 @@ public class Debit {
 	@Column(name = "id")
 	private int id;
 	
-	@OneToOne
-	@JoinColumn(name = "u_id")
+	@ManyToOne
+	@JoinColumn(name = "user_id")
 	private User userId;
+	
+	@ManyToOne
+	@JoinColumn(name = "product_id")
+	private Product productId;
+	
+	@Column(name = "debit_type")
+	private int debitType;
 	
 	@Column(name = "debit")
 	private int debit;
@@ -35,7 +43,10 @@ public class Debit {
 	private int previousAmouunt;
 	
 	@Column(name = "debit_by")
-	private String debitBy;
+	private int debitBy;
+	
+	@Column(name = "remark")
+	private String remark;
 	
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
@@ -44,7 +55,7 @@ public class Debit {
 	@Column(name = "updated", columnDefinition="TIMESTAMP", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date updated;
-	
+
 	public int getId() {
 		return id;
 	}
@@ -59,6 +70,22 @@ public class Debit {
 
 	public void setUserId(User userId) {
 		this.userId = userId;
+	}
+
+	public Product getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Product productId) {
+		this.productId = productId;
+	}
+
+	public int getDebitType() {
+		return debitType;
+	}
+
+	public void setDebitType(int debitType) {
+		this.debitType = debitType;
 	}
 
 	public int getDebit() {
@@ -85,12 +112,20 @@ public class Debit {
 		this.previousAmouunt = previousAmouunt;
 	}
 
-	public String getDebitBy() {
+	public int getDebitBy() {
 		return debitBy;
 	}
 
-	public void setDebitBy(String debitBy) {
+	public void setDebitBy(int debitBy) {
 		this.debitBy = debitBy;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	public Date getCreated() {
@@ -108,4 +143,7 @@ public class Debit {
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
+	
+	
+
 }

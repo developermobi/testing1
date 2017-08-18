@@ -1,16 +1,26 @@
 package com.mobisoft.sms.model;
 
-import java.sql.Date;
+import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "sms_balance")
@@ -21,12 +31,14 @@ public class SmsBalance {
 	@Column(name = "id")
 	private int id;
 	
-	@OneToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "user_id")
+	
 	private User userId;
 	
-	@OneToOne
+	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "product_id")
+	
 	private Product productId;
 	
 	@Column(name = "balance")
@@ -38,11 +50,15 @@ public class SmsBalance {
 	@Column(name = "expiry_date")
 	private Date expiryDate;
 	
-	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
+	@CreationTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "created")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
-	private Date created;
+	private Date created = new Date();
 	
-	@Column(name = "updated", columnDefinition="TIMESTAMP", nullable=true)
+	@UpdateTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "updated")
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date updated;
 

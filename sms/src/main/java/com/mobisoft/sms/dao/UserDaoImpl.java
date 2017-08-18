@@ -1,17 +1,23 @@
 package com.mobisoft.sms.dao;
 
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.jsf.FacesContextUtils;
 
 import com.mobisoft.sms.model.Credit;
 import com.mobisoft.sms.model.Debit;
@@ -19,6 +25,7 @@ import com.mobisoft.sms.model.Product;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.model.UserProduct;
+import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.utility.Global;
 import com.mobisoft.sms.utility.SmsHelper;
 
@@ -27,6 +34,9 @@ public class UserDaoImpl implements UserDao {
 
 	@Autowired
 	SessionFactory sessionFactory;
+	
+	@Autowired
+	private SmsHelperService smsHelperService;
 	public int saveUser(User user) {
 		Session session =  sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
@@ -54,12 +64,14 @@ public class UserDaoImpl implements UserDao {
 	}
 	@Override
 	public List<User> getUserById(int userId) {
-		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(User.class);
-		criteria.add(Restrictions.eq("id", userId)).add(Restrictions.eq("status", 1));		
-		List<User> list = criteria.list();
-		session.close();
-		return list;
+
+		Session session = sessionFactory.openSession();	
+		String sql = "SELECT * FROM user_product WHERE user_id = :userId";
+		SQLQuery query = session.createSQLQuery(sql);
+		query.addEntity(UserProduct.class);
+		query.setParameter("userId", userId);
+		List results = query.list();
+		return results;
 	}
 	@Override
 	public int updateUser(User user) {
@@ -69,21 +81,19 @@ public class UserDaoImpl implements UserDao {
 		
 		try {
 			
-			String sql = "UPDATE User SET user_name = :userName,address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,role = :role,state = :state, status = :status WHERE id = :id";
-			
+			//String sql = "UPDATE User SET user_name = :userName,address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,role = :role,state = :state, status = :status WHERE id = :id";
+			String sql = "UPDATE User SET address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,state = :state WHERE id = :id";
 			Query qry = session.createQuery(sql);
-			qry.setParameter("userName", user.getUserName());
+			//qry.setParameter("userName", user.getUserName());
 			qry.setParameter("address", user.getAddress());
 			qry.setParameter("city", user.getCity());
 			qry.setParameter("companyName", user.getCompanyName());
 			qry.setParameter("country", user.getCountry());
 			qry.setParameter("email", user.getEmail());
 			qry.setParameter("mobile", user.getMobile());
-			qry.setParameter("name", user.getName());
-			qry.setParameter("role", user.getRole());
-			qry.setParameter("state", user.getState());
-			qry.setParameter("status", user.getStatus());
-			qry.setParameter("id", user.getId());
+			qry.setParameter("name", user.getName());			
+			qry.setParameter("state", user.getState());			
+			qry.setParameter("id", user.getUserId());
 			
 			temp = qry.executeUpdate();
 			tx.commit();
@@ -98,35 +108,48 @@ public class UserDaoImpl implements UserDao {
 		return temp;
 	}
 	@Override
-	public int deleteUser(User user) {
+	public int deleteUser(int userId,int resellerId) {
+		int temp = 0;
 		Session session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
-		int temp = 0;
-		
-		try {
-			
-			String sql = "UPDATE User set status = :status WHERE id = :userId";
-			
-			Query qry = session.createQuery(sql);
-			qry.setParameter("status", user.getStatus());
-			qry.setParameter("userId", user.getId());		
-			
-			temp = qry.executeUpdate();
-			tx.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			temp = 0;
-			tx.rollback();
-		}finally {
-			session.close();
+		User user=(User)session.get(User.class, userId);
+		if(user.getStatus() == 1)
+		{
+			try {
+				String remark = "Delete User By Self "+" User Name Is"+ user.getUserName();
+				temp = smsHelperService.deductBalanceDeleteUser(user.getUserId(),resellerId,  remark, 2,session,tx);
+				if(temp == 1)
+				{
+					int status =2;
+					String sql = "UPDATE User set status = :status WHERE id = :userId";
+					Query qry = session.createQuery(sql);
+					qry.setParameter("status", status);
+					qry.setParameter("userId", user.getUserId());
+					temp = qry.executeUpdate();
+					System.out.println(temp);
+					temp=1;
+					tx.commit();
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				temp = 2;
+				tx.rollback();
+				
+			}finally {
+				session.close();
+			}			
 		}
-		
+		else
+		{
+			temp =2;
+		}
 		return temp;
+		
 	}
 	@Override
 	public List<User> getUserByUserName(String userName) {
-		
-		//System.out.println("sdjhsakdjkjasldsad  "+userName);
+
 		Session session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(User.class);
 		criteria.add(Restrictions.eq("userName", userName));
@@ -141,21 +164,19 @@ public class UserDaoImpl implements UserDao {
 		Transaction tx = session.beginTransaction();
 		String sqlQuery = "SELECT balance FROM sms_balance WHERE user_id = :userId and product_id = :productId";
 		System.out.println(sqlQuery);
-		/*Query query = session.createQuery(sqlQuery);
-		query.setParameter("userId", userId);
-		query.setParameter("productId",productId);
-		List results = query.list();
-		System.out.println(results.get(0));
-		balance = (int) results.get(0);*/
 		return balance;
 	}
 	@Override
 	public int saveUerDeatils(JsonNode jsonNode) {
-		System.out.println("as;ldlasdlajksdasdjsadlksajdlkasdsajd");
-		System.out.println(jsonNode.get("productId"));
+
 		String password = Global.randomString(6);
 		Session session =  sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
+		
+		//Set<Product> products =new HashSet<>();
+		Product product= (Product)session.get(Product.class, jsonNode.get("productId").asInt());	
+		//products.add(product);
+		
 		User user = new User();
 		user.setUserName(jsonNode.get("userName").asText());
 		user.setPassword(password);
@@ -169,6 +190,11 @@ public class UserDaoImpl implements UserDao {
 		user.setRole(jsonNode.get("role").asInt());
 		user.setStatus(jsonNode.get("status").asInt());
 		user.setCompanyName(jsonNode.get("companyName").asText());
+		
+		//user.setUserProduct(products);
+		
+		User resellerUser = (User)session.get(User.class,jsonNode.get("userId").asInt());
+		user.setResellerId(resellerUser.getUserId());
 		int temp = 0;
 		
 		try {
@@ -177,19 +203,18 @@ public class UserDaoImpl implements UserDao {
 			
 			SmsBalance smsBalance = new SmsBalance();
 			smsBalance.setBalance(jsonNode.get("balance").asInt());
-			
-			Product product = new Product();
-			product.setId(jsonNode.get("productId").asInt());
+
 			smsBalance.setProductId(product);
 			
 			smsBalance.setUserId(user);
 			// save balance in sms_balance  table
 			session.saveOrUpdate(smsBalance);
 			
-			// save Product Id in user_product table
 			
-			UserProduct userProduct = new UserProduct();
-			userProduct.setProduct_id(product);
+			//Save user_prodcut 
+			
+			UserProduct userProduct =new UserProduct();
+			userProduct.setProduct(product);
 			userProduct.setUserId(user);
 			
 			session.saveOrUpdate(userProduct);
@@ -198,9 +223,12 @@ public class UserDaoImpl implements UserDao {
 			
 			Credit credit =new Credit();
 			credit.setCredit(jsonNode.get("balance").asInt());
-			credit.setCreditBy(jsonNode.get("creditBy").asText());
+			credit.setCreditBy(resellerUser.getUserId());
 			credit.setCurrentAmount(jsonNode.get("balance").asInt());
+			credit.setRemark("Credit By "+resellerUser.getUserName()+" And Create New User "+user.getUserName());
+			credit.setCreditType(1);
 			credit.setPreviousAmouunt(0);
+			credit.setProductId(product);
 			credit.setUserId(user);
 			
 			session.saveOrUpdate(credit);
@@ -211,11 +239,12 @@ public class UserDaoImpl implements UserDao {
 			debit.setDebit(jsonNode.get("balance").asInt());
 			debit.setCurrentAmount(jsonNode.get("updateResellerBalance").asInt());
 			debit.setPreviousAmouunt(jsonNode.get("previousResellerBalance").asInt());
-			String debitReasion = "Create New  User, User Name = "+user.getUserName();
-			debit.setDebitBy(debitReasion);
-			User resellerUser = new User();
-			resellerUser.setId(jsonNode.get("userId").asInt());
+			debit.setDebitBy(resellerUser.getUserId());
+			String debitReasion = "Create New  User, User Name = "+user.getUserName();			
+			debit.setRemark(debitReasion);			
+			debit.setDebitType(1);			
 			debit.setUserId(resellerUser);
+			debit.setProductId(product);
 			
 			session.saveOrUpdate(debit);
 			
@@ -228,9 +257,7 @@ public class UserDaoImpl implements UserDao {
 				temp = 1;
 				tx.commit();
 			}
-			
-			
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
@@ -240,5 +267,196 @@ public class UserDaoImpl implements UserDao {
 		}
 		return temp;
 	}
+	@Override
+	public List<SmsBalance> getBalanceByUserId(int userId) {
+		Session session = sessionFactory.openSession();		
+		User user=(User)session.get(User.class,userId);
+		Criteria criteria=session.createCriteria(SmsBalance.class);
+		criteria.add(Restrictions.eq("userId", user));
+		List<SmsBalance> results = criteria.list();
+		return results;
+	}
+	@Override
+	public List<Credit> getCreditDetailsByUserId(int userId) {
+		Session session = sessionFactory.openSession();	
+		String sql = "SELECT * FROM credit WHERE credit_by = :userId";
+		SQLQuery query = session.createSQLQuery(sql);
+		query.addEntity(Credit.class);
+		query.setParameter("userId", userId);
+		List results = query.list();
+		return results;
+	}
+	@Override
+	public List<Debit> getDebitByUserId(int userId) {
+		Session session = sessionFactory.openSession();	
+		String sql = "SELECT * FROM debit WHERE user_id = :userId";
+		SQLQuery query = session.createSQLQuery(sql);
+		query.addEntity(Debit.class);
+		query.setParameter("userId", userId);
+		List results = query.list();
+		return results;
+	}
+	@Override
+	public List<User> getUserByResellerId(int resellerId) {
+		Session session = sessionFactory.openSession();
+		Criteria criteria = session.createCriteria(User.class);
+		criteria.add(Restrictions.eq("resellerId", resellerId)).add(Restrictions.eq("status", 1));
+		List<User> list = criteria.list();
+		session.close();
+		return list;
+	}
+	@Override
+	public int addCreditUser(int creditUserId, int creditByUserId, int productId,int balance) {
+		Session session=sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		User user = (User)session.get(User.class, creditUserId);
+		int temp = 0;
+		if(user.getUserId() != 0)
+		{
+			try {
+				String remark ="Add Balance By self "+" User name is "+user.getUserName();
+				smsHelperService.creditBalance(user.getUserId(), productId, creditByUserId, balance, remark, 3, session, tx);
+				
+				temp = smsHelperService.debitBalnce(creditUserId, productId,creditByUserId , balance, remark, 3, session, tx);
+				
+				if(temp == 1)
+				{
+					tx.commit();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				temp = 0;
+				tx.rollback();
+			}finally {
+				session.close();
+			}
+		}
+		else
+		{
+			temp = 2;
+		}
+		
+		return temp;
+	}
+	@Override
+	public int addProdcut(int reselerId, int userId, int ProductId,int balance) {
+		
+		Session session=sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		User user = (User)session.get(User.class, userId);
+		User reseller = (User)session.get(User.class,reselerId);
+		Product product=(Product)session.get(Product.class, ProductId);
+		
+		int temp=0;
+		try {
+			
+			List<Integer> resellerBalanceList = smsHelperService.getBalance(reseller.getUserId(),product.getId());
+			if(resellerBalanceList.size() > 0)
+			{
+				// save data in credit table
+				int resellerBalnce = resellerBalanceList.get(0);
+				if(resellerBalnce > balance)
+				{
+					UserProduct userProduct=new UserProduct();
+					userProduct.setProduct(product);
+					userProduct.setUserId(user);
+					
+					session.save(userProduct);
+					
+					int updateResellerBalance = resellerBalnce - balance;
+					SmsBalance smsBalance = new SmsBalance();
+					smsBalance.setBalance(balance);
+					smsBalance.setProductId(product);	
+					smsBalance.setUserId(user);
+					// save balance in sms_balance  table
+					session.save(smsBalance);
+					
+					Credit credit =new Credit();
+					credit.setCredit(balance);
+					credit.setCreditBy(reseller.getUserId());
+					credit.setCurrentAmount(balance);
+					credit.setRemark("Credit By "+reseller.getUserName()+" And New Product "+user.getUserName());
+					credit.setCreditType(3);
+					credit.setPreviousAmouunt(0);
+					credit.setProductId(product);
+					credit.setUserId(user);				
+					session.save(credit);
+					
+					// save reseller balance in debit table
+					
+					Debit debit = new Debit();
+					debit.setDebit(balance);
+					debit.setCurrentAmount(updateResellerBalance);
+					debit.setPreviousAmouunt(resellerBalnce);
+					debit.setDebitBy(reseller.getUserId());
+					String debitReasion = "Add New Product, User Name = "+user.getUserName();			
+					debit.setRemark(debitReasion);			
+					debit.setDebitType(3);			
+					debit.setUserId(reseller);
+					debit.setProductId(product);					
+					session.save(debit);
+					
+					int result = smsHelperService.updateUserBalance(updateResellerBalance, reseller.getUserId(), product.getId(), session, tx);
+					if(result ==1)
+					{
+						temp = 1;
+						tx.commit();
+					}
+				}
+				else
+				{
+					temp=3;
+				}
+				
+			}
+			else
+			{
+				temp=2;
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			temp = 0;
+			tx.rollback();
+		}finally {
+			session.close();
+		}
+		return temp;
+
+	}
+	@Override
+	public int deductCreditUser(int deductUserId, int dedcutByUserId, int productId, int balance) {
+		
+		Session session=sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		User user = (User)session.get(User.class, dedcutByUserId);
+		int temp = 0;
+		if(user.getUserId() != 0)
+		{
+			try {
+				String remark ="Add Balance By self "+" User name is "+user.getUserName();
+				smsHelperService.creditBalance(user.getUserId(), productId, deductUserId, balance, remark, 3, session, tx);
+				
+				temp = smsHelperService.debitBalnce(dedcutByUserId, productId,deductUserId , balance, remark, 3, session, tx);
+				
+				if(temp == 1)
+				{
+					tx.commit();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				temp = 0;
+				tx.rollback();
+			}finally {
+				session.close();
+			}
+		}
+		else
+		{
+			temp = 2;
+		}
+		
+		return temp;
+	}
+
 
 }

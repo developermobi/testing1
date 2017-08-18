@@ -1,29 +1,34 @@
 package com.mobisoft.sms.model;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
 
 @Entity
 @Table(name = "user_product")
 public class UserProduct {
-
-	@Id
+	
+	@Id 
 	@GeneratedValue
 	@Column(name = "id")
 	private int id;
 	
-	@OneToOne
+	
+
+	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User userId;
 	
-	@OneToOne
-	@JoinColumn(name = "product_id")
-	private Product product_id;
+	@ManyToOne
+	@JoinColumn(name = "prodcut_id")
+	private Product product;
+
 
 	public int getId() {
 		return id;
@@ -32,7 +37,7 @@ public class UserProduct {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+	
 	public User getUserId() {
 		return userId;
 	}
@@ -41,12 +46,12 @@ public class UserProduct {
 		this.userId = userId;
 	}
 
-	public Product getProduct_id() {
-		return product_id;
+	public Product getProduct() {
+		return product;
 	}
 
-	public void setProduct_id(Product product_id) {
-		this.product_id = product_id;
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 	
 	

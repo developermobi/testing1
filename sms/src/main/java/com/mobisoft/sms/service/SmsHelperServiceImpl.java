@@ -2,12 +2,13 @@ package com.mobisoft.sms.service;
 
 import java.util.List;
 
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mobisoft.sms.dao.SmsHelperDao;
 import com.mobisoft.sms.model.SmsBalance;
-
 
 @Service
 public class SmsHelperServiceImpl implements SmsHelperService{
@@ -16,8 +17,40 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 	SmsHelperDao smsHelperDao;
 
 	@Override
-	public List<Integer> getBalance(int userId, int productId) {
-		
+	public List<Integer> getBalance(int userId, int productId) {		
 		return smsHelperDao.getBalance(userId, productId);
+	}
+
+	@Override
+	public int deductBalanceDeleteUser(int userId,  int resellerId, String remark,
+			int deductType,Session session,Transaction tx) {
+		return smsHelperDao.deductBalanceDeleteUser(userId,  resellerId,  remark, deductType,session,tx);
+	}
+
+	@Override
+	public int updateUserBalance(int newBalance, int userId, int productId, Session session, Transaction tx) {		
+		return smsHelperDao.updateUserBalance(newBalance, userId, productId, session, tx);
+	}
+
+	@Override
+	public int creditBalance(int userId, int productId, int resellerId, int balance, String remark, int creditType,
+			Session session, Transaction tx) {
+		return smsHelperDao.creditBalance(userId, productId, resellerId, balance, remark, creditType, session, tx);
+	}
+
+	@Override
+	public int debitBalnce(int userId, int productId, int resellerId, int balance, String remark, int debitType,
+			Session session, Transaction tx) {
+		return smsHelperDao.debitBalnce(userId, productId, resellerId, balance, remark, debitType, session, tx);
+	}
+
+	@Override
+	public List<SmsBalance> findProdcut(int userId, int prodcutId) {		
+		return smsHelperDao.findProdcut(userId, prodcutId);
+	}
+
+	@Override
+	public int messageCount(int messageType, int messageLenght) {		
+		return smsHelperDao.messageCount(messageType, messageLenght);
 	}
 }

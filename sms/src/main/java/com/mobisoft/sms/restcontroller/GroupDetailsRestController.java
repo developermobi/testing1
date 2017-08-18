@@ -62,7 +62,7 @@ public class GroupDetailsRestController {
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
 			User user = new User();
-			user.setId(node.get("userId").asInt());
+			user.setUserId(node.get("userId").asInt());
 			
 			GroupDetails groupDetails = new GroupDetails();
 			groupDetails.setName(node.get("name").asText());

@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mobisoft.sms.dao.UserDao;
+import com.mobisoft.sms.model.Credit;
+import com.mobisoft.sms.model.Debit;
+import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.User;
 
 @Service
@@ -31,8 +34,8 @@ public class UserServiceImpl implements UserService{
 		return userDao.updateUser(admin);
 	}
 	@Override
-	public int deleteUser(User admin) {
-		return userDao.deleteUser(admin);
+	public int deleteUser(int userId,int resellerId) {
+		return userDao.deleteUser(userId,resellerId);
 	}
 	@Override
 	public List<User> getUserByUserName(String userName) {
@@ -43,6 +46,38 @@ public class UserServiceImpl implements UserService{
 	public int saveUerDeatils(JsonNode jsonNode) {
 		
 		return userDao.saveUerDeatils(jsonNode);
+	}
+	@Override
+	public List<SmsBalance> getBalanceByUserId(int userId) {
+		
+		return userDao.getBalanceByUserId(userId);
+	}
+	@Override
+	public List<Credit> getCreditDetailsByUserId(int userId) {
+		
+		return userDao.getCreditDetailsByUserId(userId);
+	}
+	@Override
+	public List<Debit> getDebitByUserId(int userId) {
+		
+		return userDao.getDebitByUserId(userId);
+	}
+	@Override
+	public List<User> getUserByResellerId(int resellerId) {
+		return userDao.getUserByResellerId(resellerId);
+	}
+	@Override
+	public int addCreditUser(int userId, int resellerId, int productId, int balance) {
+		
+		return userDao.addCreditUser(userId, resellerId, productId, balance);
+	}
+	@Override
+	public int addProdcut(int reselerId, int userId, int prodcutId, int balance) {		
+		return userDao.addProdcut(reselerId, userId, prodcutId, balance);
+	}
+	@Override
+	public int deductCreditUser(int deductUserId, int creditByUserId, int productId, int balance) {
+		return userDao.deductCreditUser(deductUserId, creditByUserId, productId, balance);
 	}
 
 }

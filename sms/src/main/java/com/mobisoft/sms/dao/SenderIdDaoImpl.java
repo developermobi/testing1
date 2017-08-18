@@ -1,5 +1,6 @@
 package com.mobisoft.sms.dao;
 
+import java.nio.channels.SeekableByteChannel;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mobisoft.sms.model.SenderId;
 import com.mobisoft.sms.model.Template;
+import com.mobisoft.sms.model.User;
 
 @Repository("senderIdDao")
 public class SenderIdDaoImpl implements SenderIDDao{
@@ -48,9 +50,12 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Override
 	public List<SenderId> getSenderIdByUserId(int userId) {
+		
+		
 		Session session = sessionFactory.openSession();
+		User user = (User)session.load(User.class,userId);
 		Criteria criteria = session.createCriteria(SenderId.class);
-		criteria.add(Restrictions.eq("u_id", userId)).add(Restrictions.eq("status", 1));		
+		criteria.add(Restrictions.eq("userId", user)).add(Restrictions.eq("status", 1)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
 		List<SenderId> list = criteria.list();
 		session.close();
 		return list;

@@ -49,8 +49,9 @@ public class TemplateDaoImpl implements TemplateDao{
 	@Override
 	public List<Template> getTemplateByUserId(int userId) {
 		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(User.class);
-		criteria.add(Restrictions.eq("u_id", userId)).add(Restrictions.eq("status", 1));		
+		User user =(User)session.get(User.class, userId);
+		Criteria criteria = session.createCriteria(Template.class);
+		criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("status", 0));		
 		List<Template> list = criteria.list();
 		session.close();
 		return list;

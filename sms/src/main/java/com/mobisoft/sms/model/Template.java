@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -27,7 +29,7 @@ public class Template {
 	@Column(name = "id")
 	private int id;
 	
-	@ManyToOne(cascade = CascadeType.REFRESH)
+	@ManyToOne
 	@JoinColumn(name = "u_id")
 	private User userId;
 	
