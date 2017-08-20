@@ -61,34 +61,23 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				mobileList.add(line);
 				
 			}
-			
-			
-			
-			
-			
-			
-			
-			
+		
 			for (int i = 0; i < mobileList.size(); i++) {
-				org.hibernate.Query query = session.createSQLQuery("CALL spInsert(:job_id,:Sender,:momt,:type,:mclass,:coding,:message,:mobile,:provider_id,:user_id,:account)")
+				org.hibernate.Query query = session.createSQLQuery("CALL spInsert(:job_id,:momt,:Sender,:mobile,:message,:provider_id,:user_id,:type,:mclass,:count)")
 						  .addEntity(DlrStatus.class)
 						  .setParameter("job_id",list.get(0).getId())
-						  .setParameter("Sender",list.get(0).getSender())
 						  .setParameter("momt", "MO")
-						  .setParameter("type", 1)
-						  .setParameter("mclass", 1)
-						  .setParameter("coding", 0)
-
-						  .setParameter("message",list.get(0).getMessage())
-
+						  .setParameter("Sender",list.get(0).getSender())
 						  .setParameter("mobile",mobileList.get(0))
-						  .setParameter("provider_id","New Foo")
-
-						  .setParameter("user_id",Integer.toString(list.get(0).getUserId()))
-						  .setParameter("account",Integer.toString(list.get(0).getUserId()));
+						  .setParameter("message",list.get(0).getMessage())
+						  .setParameter("count", list.get(0).getCount())
+						  .setParameter("provider_id","New")
+						  .setParameter("user_id",list.get(0).getUserId())
+						  .setParameter("type", 1)
+						  .setParameter("mclass", 1);
 				query.executeUpdate();
 				if( i % 50 == 0 ) { // Same as the JDBC batch size
-					
+					System.out.println("value of i "+i);
 			        session.flush();
 			        session.clear();
 				}
