@@ -12,12 +12,14 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.mobisoft.sms.model.Credit;
 import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.Product;
 import com.mobisoft.sms.model.SmsBalance;
+import com.mobisoft.sms.model.SmsDnd;
 import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.model.UserProduct;
 
@@ -26,6 +28,10 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	
 	@Autowired
 	SessionFactory sessionFactory;
+	
+	@Autowired
+	@Qualifier("sessionFactory2")
+	SessionFactory sessionFactory2;
 
 	@Override
 	public List<Integer> getBalance(int userId, int productId) {
@@ -222,6 +228,18 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
             System.out.println("Unicode "+ messageCount);
         }
         return messageCount;
+	}
+
+	@Override
+	public List<SmsDnd> filterDndNumber() {
+		
+		Session session = sessionFactory2.openSession();
+		Transaction tx = session.beginTransaction();
+		
+		List<SmsDnd> list = session.createCriteria(SmsDnd.class).list();
+		
+		return list;
+		
 	}
 
 }

@@ -20,7 +20,7 @@ public class UserJobs {
 	@Column(name = "id")
 	private int id;
 	
-	@JoinColumn(name="user_id")
+	@Column(name="user_id")
 	private int userId;
 	
 	@Column(name="message")

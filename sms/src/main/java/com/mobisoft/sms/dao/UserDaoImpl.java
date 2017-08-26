@@ -24,6 +24,7 @@ import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.Product;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.User;
+import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.utility.Global;
@@ -195,6 +196,12 @@ public class UserDaoImpl implements UserDao {
 		
 		User resellerUser = (User)session.get(User.class,jsonNode.get("userId").asInt());
 		user.setResellerId(resellerUser.getUserId());
+		
+		UserAuthrization userAuthrization =new UserAuthrization();
+		userAuthrization.setDndCheck(jsonNode.get("dndCheck").asText());
+		userAuthrization.setSpamCheck(jsonNode.get("spamCheck").asText());
+		userAuthrization.setPercentage(jsonNode.get("percentage").asText());
+		userAuthrization.setUserId(user);
 		int temp = 0;
 		
 		try {
@@ -210,7 +217,7 @@ public class UserDaoImpl implements UserDao {
 			// save balance in sms_balance  table
 			session.saveOrUpdate(smsBalance);
 			
-			
+			session.saveOrUpdate(userAuthrization);
 			//Save user_prodcut 
 			
 			UserProduct userProduct =new UserProduct();

@@ -59,12 +59,11 @@ public class DlrStatus {
 	@Column(name="dlr_time")
 	private Date dlrTime;
 	
-	@Column(name="JobId")
-	private int JobId;
+	@Column(name="job_id")
+	private int jobId;
 	
 	@Column(name="Sender")
 	private String Sender;
-	
 	
 	@Column(name="provider_id")
 	private String providerId;
@@ -210,13 +209,13 @@ public class DlrStatus {
 	}
 
 
-	public int getJobId() {
-		return JobId;
+	public int getjobId() {
+		return jobId;
 	}
 
 
-	public void setJobId(int jobId) {
-		JobId = jobId;
+	public void setjobId(int jobId) {
+		jobId = jobId;
 	}
 
 

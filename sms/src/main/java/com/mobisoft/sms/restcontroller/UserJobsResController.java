@@ -65,11 +65,11 @@ public class UserJobsResController {
 	@Value("${uploadUserTextFile}")
 	private String uploadUserTextFile;
 	
-	@Value("${uploadUserCsvFile}")
-	private String uploadCsvTextFile;
+	/*@Value("${uploadUserCsvFile}")
+	private String uploadCsvTextFile;*/
 	
-	@Value("${uploadLiveUrl}")
-	private String uploadLiveUrl;
+	/*@Value("${uploadLiveUrl}")
+	private String uploadLiveUrl;*/
 	
 	private BufferedReader br = null;
 	

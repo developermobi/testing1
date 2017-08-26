@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.mobisoft.sms.model.SmsBalance;
+import com.mobisoft.sms.model.SmsDnd;
 
 public interface SmsHelperService {
 
@@ -16,4 +17,5 @@ public interface SmsHelperService {
 	public int debitBalnce(int userId,int productId,int resellerId,int balance,String remark,int debitType,Session session,Transaction tx);
 	public List<SmsBalance> findProdcut(int userId,int prodcutId);
 	public int messageCount(int messageType,int messageLenght);
+	public List<SmsDnd> filterDndNumber();
 }
