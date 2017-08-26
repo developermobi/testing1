@@ -49,4 +49,9 @@ public class SenderIdServiceImpl implements SenderIdService{
 		return senderIdDao.deleteSenderId(senderId);
 	}
 
+	@Override
+	public List<SenderId> getSenderIdByUserIdPaginate(int userId, int start, int limit) {
+		return senderIdDao.getSenderIdByUserIdPaginate(userId, start, limit);
+	}
+
 }

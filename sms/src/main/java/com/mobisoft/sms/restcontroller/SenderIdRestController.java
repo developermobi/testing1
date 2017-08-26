@@ -67,7 +67,7 @@ public class SenderIdRestController {
 				if(sender.length() != 6)
 				{
 					map.put("status", "error");
-					map.put("code", 406);
+					map.put("code", 411);
 					map.put("message", "Please Enter Valid Lenght Sender Id");
 					map.put("data", null);
 				}
@@ -108,9 +108,12 @@ public class SenderIdRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "/getAllSenderId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllSenderId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getAllSenderId/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllSenderId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
+		System.out.println("Start: "+start);
+		System.out.println("limit: "+limit);
+		
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
@@ -124,18 +127,23 @@ public class SenderIdRestController {
 			
 		}
 		else {
-			List<SenderId> allSenderIdList = senderIdService.getSenderIdByUserId(userId);
+			List<SenderId> allSenderIdListCount = senderIdService.getSenderIdByUserId(userId);
+			List<SenderId> allSenderIdList = senderIdService.getSenderIdByUserIdPaginate(userId, start, limit);
+			
+			Map<String, Object> dataMap = new HashMap<>();
+			dataMap.put("total", allSenderIdListCount.size());
+			dataMap.put("sender_id_data", allSenderIdList);
 			
 			if(allSenderIdList.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "Data found");
-				map.put("data", allSenderIdList);
+				map.put("data", dataMap);
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
 				map.put("message", "No data found");
-				map.put("data", allSenderIdList);
+				map.put("data", dataMap);
 			}
 		}		
 		
@@ -183,7 +191,7 @@ public class SenderIdRestController {
 		map.put("data", null);
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
@@ -200,13 +208,13 @@ public class SenderIdRestController {
 				System.out.println("After Filter"+sender);				
 				if(sender.length() != 6){
 					map.put("status", "error");
-					map.put("code", 400);
+					map.put("code", 411);
 					map.put("message", "Please Enter Valid Lenght Sender Id");
 					map.put("data", null);
 				}
 				else{
 					SenderId senderId = new SenderId();
-					senderId.setSender_id(node.get("senderId").asText());
+					senderId.setSender_id(sender);
 					senderId.setStatus(node.get("status").asInt());
 					senderId.setId(id);			
 					
@@ -218,7 +226,7 @@ public class SenderIdRestController {
 						map.put("data", result);
 					}else{
 						map.put("status", "error");
-						map.put("code", 400);
+						map.put("code", 304);
 						map.put("message", "error occured during updation");
 						map.put("data", result);
 					}
