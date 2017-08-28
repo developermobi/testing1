@@ -104,7 +104,7 @@ public class UserJobsResController {
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
@@ -127,7 +127,7 @@ public class UserJobsResController {
 					        if (!userJobFile.exists()) {
 					            if (!userJobFile.mkdirs()) {
 					            	
-					            	map.put("code", 404);
+					            	map.put("code", 403);
 					    			map.put("status", "error");
 					    			map.put("message", "file Upload Directory has not found");
 					            }
@@ -205,7 +205,7 @@ public class UserJobsResController {
 								}
 								else
 								{
-									map.put("code", 404);
+									map.put("code", 403);
 					    			map.put("status", "error");
 					    			map.put("message", "Something Going Worng File Is Not Uploaded");
 								}
@@ -222,7 +222,7 @@ public class UserJobsResController {
 			    	}
 			    	else
 			    	{
-			    		map.put("code", 413);
+			    		map.put("code", 414);
 						map.put("status", "error");
 						map.put("message", "Request File Too Large");	
 			    	}

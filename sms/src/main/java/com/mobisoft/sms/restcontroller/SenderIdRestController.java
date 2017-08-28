@@ -108,8 +108,8 @@ public class SenderIdRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "/getAllSenderId/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllSenderId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getAllSenderIdPaginate/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllSenderIdPaginate(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
 		System.out.println("Start: "+start);
 		System.out.println("limit: "+limit);
@@ -149,6 +149,42 @@ public class SenderIdRestController {
 		
 		return map;
 	}
+	
+	@RequestMapping(value = "/getAllSenderId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllSenderId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){
+					
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else {
+			List<SenderId> allSenderIdList = senderIdService.getSenderIdByUserId(userId);			
+						
+			if(allSenderIdList.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "Data found");
+				map.put("data", allSenderIdList);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", allSenderIdList);
+			}
+		}		
+		
+		return map;
+	}
+	
 	@RequestMapping(value = "getSenderById/{id}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object>getSenderById(@PathVariable("id")int id,@RequestHeader("Authorization") String authorization)
 	{
