@@ -2,10 +2,8 @@ package com.mobisoft.sms.restcontroller;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -21,32 +19,25 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
-import com.mobisoft.sms.model.SenderId;
-import com.mobisoft.sms.model.Template;
-import com.mobisoft.sms.model.User;
-import com.mobisoft.sms.service.GroupDetailsService;
-import com.mobisoft.sms.service.UserService;
-import com.mobisoft.sms.utility.Global;
+import com.mobisoft.sms.service.ContactService;
 import com.mobisoft.sms.utility.TokenAuthentication;
 
 @CrossOrigin
 @RestController
 @RequestMapping(value = "/api")
-public class GroupDetailsRestController {
-
+public class ContactRestController {
+	
 	@Autowired
 	private TokenAuthentication tokenAuthentication;
 	
 	@Autowired
-	private GroupDetailsService groupDetailsService;
+	private ContactService contactService;
 	
-	@Autowired
-	private UserService userService;
-
 	private ObjectMapper mapper = null;
 	
-	@RequestMapping(value = "/saveGroupDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/saveContact",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> saveGroupDetails(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
 
 		Map<String,Object> map = new HashMap<>();		
@@ -60,32 +51,31 @@ public class GroupDetailsRestController {
 			map.put("code", 404);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
-			
 		}
 		else
 		{
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
 
-			int result = groupDetailsService.saveGroupDetails(node);
-				if(result == 1){
-					map.put("status", "success");
-					map.put("code", 201);
-					map.put("message", "Successfully Add Group");
-					map.put("data", result);
-				}else{
-					map.put("status", "error");
-					map.put("code", 400);
-					map.put("message", "error occured during insertion");
-					map.put("data", result);
-				}
+			int result = contactService.saveConact(node);
+			if(result == 1){
+				map.put("status", "success");
+				map.put("code", 201);
+				map.put("message", "Successfully Add Contact");
+				map.put("data", result);
+			}else{
+				map.put("status", "error");
+				map.put("code", 400);
+				map.put("message", "error occured during insertion");
+				map.put("data", result);
+			}
 			
 		}
 		
 		return map;
 	}
-	@RequestMapping(value = "/getAllGroup/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllTemplate(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getAllContact/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllContact(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
 		System.out.println(userId);
 		Map<String,Object> map = new HashMap<>();
@@ -101,14 +91,14 @@ public class GroupDetailsRestController {
 			
 		}
 		else {
-			List<GroupDetails> groupDetailsCount = groupDetailsService.getGroupDetailsCountByUserId(userId);
-			List<GroupDetails> groupDetails = groupDetailsService.getGroupDetailsByUserId(userId, start, limit);
+			List<Contact> contactCount = contactService.getContactCountByUserId(userId);
+			List<Contact> contact = contactService.getContactByUserId(userId, start, limit);
 			
 			 Map<String, Object> dataMap = new HashMap<>();
-			 dataMap.put("total", groupDetailsCount.size());
-			 dataMap.put("groupDetailsData", groupDetails);
+			 dataMap.put("total", contactCount.size());
+			 dataMap.put("contactData", contact);
 			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
-			if(groupDetailsCount.size() > 0){
+			if(contactCount.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "Data found");
@@ -123,8 +113,8 @@ public class GroupDetailsRestController {
 		
 		return map;
 	}
-	@RequestMapping(value = "getGroupById/{groupId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getTemplateById(@PathVariable("groupId")int groupId,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "getContactById/{contactId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getContactById(@PathVariable("contactId")int contactId,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -137,7 +127,7 @@ public class GroupDetailsRestController {
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			List<GroupDetails> groupList = groupDetailsService.getGroupDetailsByGroupId(groupId);
+			List<Contact> groupList = contactService.getContactByContactId(contactId);
 			
 			if(groupList.size() > 0){
 				map.put("status", "success");
@@ -154,8 +144,8 @@ public class GroupDetailsRestController {
 		
 		return map;
 	}
-	@RequestMapping(value = "updateGroupById/{groupId}",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>upadteUserById(@PathVariable("groupId")int groupId,@RequestBody String josnString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
+	@RequestMapping(value = "updateContactById/{contactId}",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>updateContactById(@PathVariable("contactId")int contactId,@RequestBody String josnString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
 	{
 		Map<String,Object> map = new HashMap<>();
 		
@@ -174,13 +164,7 @@ public class GroupDetailsRestController {
 
 			mapper = new ObjectMapper();		
 			JsonNode node = mapper.readValue(josnString, JsonNode.class);
-			
-			GroupDetails groupDetails= new GroupDetails();
-			groupDetails.setName(node.get("name").asText());
-			groupDetails.setStatus(node.get("status").asInt());
-			groupDetails.setGroupDescription(node.get("groupDescription").asText());
-			
-			int result = groupDetailsService.updateGroupDetails(groupDetails,groupId);
+			int result = contactService.updateContact(node, contactId);
 			if(result == 1){
 				map.put("status", "success");
 				map.put("code", 200);
@@ -197,8 +181,8 @@ public class GroupDetailsRestController {
 		return map;
 		
 	}
-	@RequestMapping( value = "/deleteGroup/{groupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object> deleteTemplate(@PathVariable("groupId") int groupId,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
+	@RequestMapping( value = "/deleteContact/{contactId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object> deleteContact(@PathVariable("contactId") int contactId,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
 		
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -214,7 +198,7 @@ public class GroupDetailsRestController {
 			
 		}
 		else{	
-			int result = groupDetailsService.deleteGroupDetailsByGroupId(groupId);
+			int result = contactService.deleteContactByContactId(contactId);
 			if(result == 1){
 				map.put("status", "success");
 				map.put("code", 200);
@@ -230,4 +214,5 @@ public class GroupDetailsRestController {
 	
 		return map;	
 	}
+
 }
