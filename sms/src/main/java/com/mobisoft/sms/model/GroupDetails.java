@@ -7,6 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -19,13 +22,20 @@ public class GroupDetails {
 	@Id
 	@GeneratedValue
 	@Column(name = "id")
-	private int id;
+	private int groupId;
 		
 	@Column(name = "name")
 	private String name;
 	
+	@Column(name = "group_description")
+	private String groupDescription;
+	
 	@Column(name = "status")
 	private int status;
+	
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User userId;
 	
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
@@ -35,11 +45,12 @@ public class GroupDetails {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date updated;
 
-	public int getId() {
-		return id;
+	public int getGroupId() {
+		return groupId;
 	}
-	public void setId(int id) {
-		this.id = id;
+
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
 	}
 
 	public String getName() {
@@ -50,6 +61,14 @@ public class GroupDetails {
 		this.name = name;
 	}
 
+	public String getGroupDescription() {
+		return groupDescription;
+	}
+
+	public void setGroupDescription(String groupDescription) {
+		this.groupDescription = groupDescription;
+	}
+
 	public int getStatus() {
 		return status;
 	}
@@ -57,7 +76,15 @@ public class GroupDetails {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	
+
+	public User getUserId() {
+		return userId;
+	}
+
+	public void setUserId(User userId) {
+		this.userId = userId;
+	}
+
 	public Date getCreated() {
 		return created;
 	}
@@ -73,5 +100,7 @@ public class GroupDetails {
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
+
+	
 
 }

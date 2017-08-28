@@ -121,6 +121,7 @@ public class TemplateDaoImpl implements TemplateDao{
 	public List<Template> getTemplateByUserIdPaginate(int userId, int start, int limit) {
 		Session session = sessionFactory.openSession();
 		User user =(User)session.get(User.class, userId);
+		System.out.println(user.getUserId());
 		Criteria criteria = session.createCriteria(Template.class);
 		criteria.add(Restrictions.eq("userId",user))
 		.add(Restrictions.eq("status", 0))
