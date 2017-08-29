@@ -50,8 +50,6 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Override
 	public List<SenderId> getSenderIdByUserId(int userId) {
-		
-		
 		Session session = sessionFactory.openSession();
 		User user = (User)session.load(User.class,userId);
 		Criteria criteria = session.createCriteria(SenderId.class);
@@ -116,6 +114,21 @@ public class SenderIdDaoImpl implements SenderIDDao{
 		}
 		
 		return temp;
+	}
+
+	@Override
+	public List<SenderId> getSenderIdByUserIdPaginate(int userId, int start, int limit) {
+		Session session = sessionFactory.openSession();
+		User user = (User)session.load(User.class,userId);
+		Criteria criteria = session.createCriteria(SenderId.class);
+		criteria.add(Restrictions.eq("userId", user))
+		.add(Restrictions.eq("status", 1))
+		.setFirstResult(start)
+		.setMaxResults(limit)
+		.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
+		List<SenderId> list = criteria.list();
+		session.close();
+		return list;
 	}
 
 }

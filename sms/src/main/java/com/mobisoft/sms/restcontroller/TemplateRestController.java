@@ -98,6 +98,9 @@ public class TemplateRestController {
 	public Map<String,Object>getAllTemplate(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
 		System.out.println(userId);
+		System.out.println("Start: "+start);
+		System.out.println("limit: "+limit);
+		System.out.println(userId);
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);

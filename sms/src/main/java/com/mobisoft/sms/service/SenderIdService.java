@@ -12,6 +12,8 @@ public int saveSenderId(SenderId senderId);
 	
 	public List<SenderId> getSenderIdByUserId(int userId);
 	
+	public List<SenderId> getSenderIdByUserIdPaginate(int userId,int start,int limit);
+	
 	public List<SenderId> getSenderId(int senderId);	
 	
 	public int updateSenderId(SenderId senderId);
