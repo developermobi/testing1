@@ -202,6 +202,15 @@ public class UserDaoImpl implements UserDao {
 		userAuthrization.setSpamCheck(jsonNode.get("spamCheck").asText());
 		userAuthrization.setPercentage(jsonNode.get("percentage").asText());
 		userAuthrization.setUserId(user);
+		
+		//Find Reseller route...........
+		Criteria criteria= session.createCriteria(UserProduct.class);
+		criteria.add(Restrictions.eq("userId", resellerUser))
+				.add(Restrictions.eq("productId", product));
+		List<UserProduct>userProductsList = criteria.list();
+		
+		
+		
 		int temp = 0;
 		
 		try {
@@ -223,6 +232,7 @@ public class UserDaoImpl implements UserDao {
 			UserProduct userProduct =new UserProduct();
 			userProduct.setProduct(product);
 			userProduct.setUserId(user);
+			userProduct.setRouteId(userProductsList.get(0).getRouteId());
 			
 			session.saveOrUpdate(userProduct);
 			

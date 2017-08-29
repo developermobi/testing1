@@ -1,11 +1,20 @@
 package com.mobisoft.sms.restcontroller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -21,8 +32,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
+import com.mobisoft.sms.model.UserJobs;
+import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.service.ContactService;
 import com.mobisoft.sms.utility.TokenAuthentication;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 @CrossOrigin
 @RestController
@@ -36,6 +51,21 @@ public class ContactRestController {
 	private ContactService contactService;
 	
 	private ObjectMapper mapper = null;
+	
+	@Value("${uploadUserContact}")
+	private String uploadUserContact;
+	
+	private BufferedReader br = null;
+	
+	private FileReader fr = null;
+	
+	private File userContactFile;
+	
+	private String fileName;
+	
+	private List<String> mobileList;
+	
+	String rootPath = System.getProperty("catalina.home");
 	
 	@RequestMapping(value = "/saveContact",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> saveGroupDetails(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
@@ -213,6 +243,87 @@ public class ContactRestController {
 		}
 	
 		return map;	
+	}
+	@RequestMapping(value="/saveMultipleContact",method = RequestMethod.POST)
+	public Map<String,Object>saveUserJobs(@RequestHeader("Authorization") String authorization,@RequestParam("contactFile")MultipartFile multipartFile,
+			@RequestParam("userId")int userId,
+			@RequestParam("groupId")int messageType
+			) throws IllegalStateException, ParseException, IOException{
+
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}else if(tokenAuthentication.validateToken(authorization) == 1){
+			
+			String fileName = "";
+			if(!multipartFile.isEmpty()){
+				
+			    try {
+			    	
+			    	fileName = multipartFile.getOriginalFilename().replace(" ", "-");
+			    	String newFileName = userId+fileName;
+			    	System.out.println(multipartFile.getSize());
+			    	if(multipartFile.getSize() <= 3000000 )
+			    	{
+			    		if(multipartFile.getOriginalFilename().endsWith(".csv")){
+				    		
+							String fileUploadDirectory =  uploadUserContact+"/";						
+							userContactFile = new File(fileUploadDirectory);						
+					        if (!userContactFile.exists()) {
+					            if (!userContactFile.mkdirs()) {
+					            	
+					            	map.put("code", 404);
+					    			map.put("status", "error");
+					    			map.put("message", "file Upload Directory has not found");
+					            }
+					        }
+					        userContactFile = new File(fileUploadDirectory,newFileName);
+							multipartFile.transferTo(userContactFile);
+							System.out.println(userContactFile.getAbsolutePath());
+							CSVReader reader = new CSVReader(new FileReader(userContactFile));
+					        String [] nextLine;
+					        while ((nextLine = reader.readNext()) != null) {
+					            // nextLine[] is an array of values from the line
+					            System.out.println(nextLine[0]+"  "+nextLine[1]+"  "+nextLine[2]+"  "+nextLine[3]);					           
+					        }
+
+						}
+
+			    	}
+			    	else
+			    	{
+			    		map.put("code", 413);
+						map.put("status", "error");
+						map.put("message", "Request File Too Large");	
+			    	}
+			    	
+
+				} catch (IOException e) {
+					map.put("code", 404);
+	    			map.put("status", e.getMessage());
+	    			map.put("message", "File Not Upload");
+				}
+			}
+		}
+		else
+		{
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");	
+		}
+		return map;
+		
+		
+	
 	}
 
 }

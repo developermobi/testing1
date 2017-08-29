@@ -1,5 +1,8 @@
 package com.mobisoft.sms.dao;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -8,6 +11,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -15,6 +19,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
 import com.mobisoft.sms.model.User;
+import com.mobisoft.sms.utility.Global;
+import com.mysql.jdbc.PreparedStatement;
+
+import au.com.bytecode.opencsv.CSVReader;
 @Repository("conatctDao")
 public class ContactDaoImpl implements ContactDao{
 
@@ -179,4 +187,66 @@ public class ContactDaoImpl implements ContactDao{
 
 		return temp;
 	}
+
+	@Override
+	public int uploadMultipleContact(int groupId, final int userId, final CSVReader reader) {
+		
+		 try {
+			
+		        
+			 	session=sessionFactory.openSession();
+				final GroupDetails groupDetails=(GroupDetails)session.get(GroupDetails.class,groupId);
+		        session.doWork(new Work() {
+					   
+				       @Override
+				       public void execute(Connection conn) throws SQLException {
+				          PreparedStatement pstmtContact = null;
+				          
+				          try{
+				           String sqlInsertDlrStatus = "INSERT INTO contact(designation, email_id, mobile, name, status,user_id, group_id) VALUES (?,?,?,?,?,?,?)";
+				           pstmtContact = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
+				           
+				           String [] nextLine;
+				           int i=0;
+				           while ((nextLine = reader.readNext()) != null) {
+					            
+					            System.out.println(nextLine[0]+"  "+nextLine[1]+"  "+nextLine[2]+"  "+nextLine[3]);	
+					            
+					            pstmtContact.setString(1, nextLine[3]);
+					            pstmtContact.setString(2, nextLine[2]);
+					            pstmtContact.setString(3, nextLine[1]);
+					            pstmtContact.setString(4, nextLine[0]);
+					            pstmtContact.setInt(5, 1);
+					            pstmtContact.setInt(6, userId);
+					            pstmtContact.setInt(7,groupDetails.getGroupId());
+					        }
+				           
+				           conn.setAutoCommit(false);
+				           pstmtContact.executeBatch();
+				           conn.commit();
+				           conn.setAutoCommit(true);
+				           
+				         } catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} 
+				         finally{
+				        	 pstmtContact .close();
+				         }                                
+				     }
+
+				});
+		        
+		        
+		        
+		        
+		        
+		        
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return 0;
+	}
+
+	
 }

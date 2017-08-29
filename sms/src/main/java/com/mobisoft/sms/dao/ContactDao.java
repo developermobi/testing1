@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 public interface ContactDao {
 	public int saveConact(JsonNode node);
 	public List<Contact> getContactByUserId(int userId,int start, int limit);
@@ -13,4 +15,5 @@ public interface ContactDao {
 	public List<Contact> getContactByContactId(int contactId);
 	public int updateContact(JsonNode node,int contactId);
 	public int deleteContactByContactId(int contactId);
+	public int uploadMultipleContact(int groupId,final int userId,final CSVReader reader);
 }

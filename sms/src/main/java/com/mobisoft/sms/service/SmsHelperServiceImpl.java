@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mobisoft.sms.dao.SmsHelperDao;
+import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.SmsDnd;
+import com.mobisoft.sms.model.UserProduct;
 
 @Service
 public class SmsHelperServiceImpl implements SmsHelperService{
@@ -61,5 +63,11 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 	public List<SmsDnd> filterDndNumber() {
 		
 		return smsHelperDao.filterDndNumber();
+	}
+
+	@Override
+	public List<UserProduct> getRouteDetails(int userId, int productId) {
+		
+		return smsHelperDao.getRouteDetails(userId, productId);
 	}
 }

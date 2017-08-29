@@ -5,8 +5,10 @@ import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.SmsDnd;
+import com.mobisoft.sms.model.UserProduct;
 
 public interface SmsHelperService {
 
@@ -18,4 +20,5 @@ public interface SmsHelperService {
 	public List<SmsBalance> findProdcut(int userId,int prodcutId);
 	public int messageCount(int messageType,int messageLenght);
 	public List<SmsDnd> filterDndNumber();
+	public List<UserProduct>getRouteDetails(int userId,int productId);
 }

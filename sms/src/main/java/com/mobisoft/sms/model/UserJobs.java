@@ -46,6 +46,12 @@ public class UserJobs {
 	
 	@Column(name="file_name")
 	private String filename;
+	
+	@Column(name="schedule_status")
+	private int scheduleStatus;
+	
+	@Column(name="duplicate_status")
+	private int duplicateStatus;
 
 	
 	@Column(name = "scheduled_at", columnDefinition="TIMESTAMP", nullable=true)
@@ -229,6 +235,22 @@ public class UserJobs {
 
 	public void setRoute(String route) {
 		this.route = route;
+	}
+
+	public int getScheduleStatus() {
+		return scheduleStatus;
+	}
+
+	public void setScheduleStatus(int scheduleStatus) {
+		this.scheduleStatus = scheduleStatus;
+	}
+
+	public int getDuplicateStatus() {
+		return duplicateStatus;
+	}
+
+	public void setDuplicateStatus(int duplicateStatus) {
+		this.duplicateStatus = duplicateStatus;
 	}
 	
 	

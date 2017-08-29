@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.dao.ContactDao;
 import com.mobisoft.sms.model.Contact;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 @Service
 public class ContactServiceImpl implements ContactService{
 
@@ -43,6 +45,11 @@ public class ContactServiceImpl implements ContactService{
 	public int deleteContactByContactId(int contactId) {
 		
 		return contactDao.deleteContactByContactId(contactId);
+	}
+	@Override
+	public int uploadMultipleContact(int groupId, int userId, CSVReader reader) {
+		
+		return contactDao.uploadMultipleContact(groupId, userId, reader);
 	}
 
 }

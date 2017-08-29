@@ -5,6 +5,8 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Contact;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 public interface ContactService {
 
 	public int saveConact(JsonNode node);
@@ -13,4 +15,5 @@ public interface ContactService {
 	public List<Contact> getContactByContactId(int contactId);
 	public int updateContact(JsonNode node,int contactId);
 	public int deleteContactByContactId(int contactId);
+	public int uploadMultipleContact(int groupId,int userId,CSVReader reader);
 }

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import com.mobisoft.sms.model.Credit;
 import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.Product;
+import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.SmsDnd;
 import com.mobisoft.sms.model.User;
@@ -232,14 +233,23 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 
 	@Override
 	public List<SmsDnd> filterDndNumber() {
-		
 		Session session = sessionFactory2.openSession();
 		Transaction tx = session.beginTransaction();
-		
 		List<SmsDnd> list = session.createCriteria(SmsDnd.class).list();
-		
 		return list;
-		
+	}
+
+	@Override
+	public List<UserProduct> getRouteDetails(int userId, int productId) {
+	
+		Session session= sessionFactory.openSession();
+		User user=(User)session.get(User.class, userId);
+		Product product= (Product)session.get(Product.class, productId);
+		Criteria criteria= session.createCriteria(UserProduct.class);
+		criteria.add(Restrictions.eq("userId", user))
+		 		.add(Restrictions.eq("productId", product));
+		List<UserProduct> userProductsList = criteria.list();		
+		return userProductsList;
 	}
 
 }

@@ -18,8 +18,6 @@ public class UserProduct {
 	@GeneratedValue
 	@Column(name = "id")
 	private int id;
-	
-	
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")
@@ -27,7 +25,11 @@ public class UserProduct {
 	
 	@ManyToOne
 	@JoinColumn(name = "prodcut_id")
-	private Product product;
+	private Product productId;
+	
+	@ManyToOne
+	@JoinColumn(name = "route_id")
+	private Route routeId;
 
 
 	public int getId() {
@@ -46,12 +48,20 @@ public class UserProduct {
 		this.userId = userId;
 	}
 
-	public Product getProduct() {
-		return product;
+	public Product getProductId() {
+		return productId;
 	}
 
-	public void setProduct(Product product) {
-		this.product = product;
+	public void setProduct(Product productId) {
+		this.productId = productId;
+	}
+
+	public Route getRouteId() {
+		return routeId;
+	}
+
+	public void setRouteId(Route routeId) {
+		this.routeId = routeId;
 	}
 	
 	
