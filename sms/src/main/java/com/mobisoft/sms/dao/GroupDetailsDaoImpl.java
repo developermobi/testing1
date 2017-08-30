@@ -70,24 +70,25 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 	public List<GroupDetails> getGroupDetailsByGroupId(int groupId) {
 		session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(GroupDetails.class);
-		criteria.add(Restrictions.eq("groupId", groupId));
+		criteria.add(Restrictions.eq("groupId", groupId))
+		.add(Restrictions.eq("status", 1));
 		List<GroupDetails> list = criteria.list();
 		session.close();
 		return list;
 	}
 
 	@Override
-	public int updateGroupDetails(GroupDetails groupDetails) {
+	public int updateGroupDetails(GroupDetails groupDetails,int groupId) {
 		session = sessionFactory.openSession();
 		tx = session.beginTransaction();
 		int temp = 0;
 		try {
-			String sql = "UPDATE GroupDetails SET name = :name,status = :status,group_description = :groupDescription WHERE user_id = :userId";
+			String sql = "UPDATE GroupDetails SET name = :name,status = :status,group_description = :groupDescription WHERE id = :groupId";
 			Query qry = session.createQuery(sql);			
 			qry.setParameter("name", groupDetails.getName());			
 			qry.setParameter("status", groupDetails.getStatus());			
 			qry.setParameter("groupDescription", groupDetails.getGroupDescription());
-			qry.setParameter("groupDescription", groupDetails.getUserId());			
+			qry.setParameter("groupId", groupId);
 			temp = qry.executeUpdate();
 			tx.commit();
 		} catch (Exception e) {

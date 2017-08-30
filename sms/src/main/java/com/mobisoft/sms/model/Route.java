@@ -29,7 +29,7 @@ public class Route {
 	private String smppName;
 	
 	@Column(name = "account_type")
-	private int AccountType;
+	private String AccountType;
 	
 	@Column(name = "created", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
@@ -71,11 +71,11 @@ public class Route {
 		this.smppName = smppName;
 	}
 
-	public int getAccountType() {
+	public String getAccountType() {
 		return AccountType;
 	}
 
-	public void setAccountType(int accountType) {
+	public void setAccountType(String accountType) {
 		AccountType = accountType;
 	}
 

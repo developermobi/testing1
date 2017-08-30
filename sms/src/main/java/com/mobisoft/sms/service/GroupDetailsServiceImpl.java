@@ -34,9 +34,9 @@ public class GroupDetailsServiceImpl implements GroupDetailsService{
 	}
 
 	@Override
-	public int updateGroupDetails(GroupDetails groupDetails) {
+	public int updateGroupDetails(GroupDetails groupDetails,int groupId) {
 		
-		return groupDetailsDao.updateGroupDetails(groupDetails);
+		return groupDetailsDao.updateGroupDetails(groupDetails,groupId);
 	}
 
 	@Override

@@ -19,11 +19,14 @@ public class Contact {
 	@Id
 	@GeneratedValue
 	@Column(name = "id")
-	private int id;
+	private int contactId;
 	
 	@OneToOne
 	@JoinColumn(name = "group_id")
 	private GroupDetails groupId;
+	
+	@Column(name = "user_id")
+	private int userId;
 	
 	@Column(name = "mobile")
 	private String mobile;
@@ -48,12 +51,12 @@ public class Contact {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date updated;
 
-	public int getId() {
-		return id;
+	public int getContactId() {
+		return contactId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setContactId(int contactId) {
+		this.contactId = contactId;
 	}
 
 	public GroupDetails getGroupId() {
@@ -62,6 +65,14 @@ public class Contact {
 
 	public void setGroupId(GroupDetails groupId) {
 		this.groupId = groupId;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 	public String getMobile() {
@@ -119,6 +130,8 @@ public class Contact {
 	public void setUpdated(Date updated) {
 		this.updated = updated;
 	}
+	
+	
 	
 
 }

@@ -154,4 +154,80 @@ public class GroupDetailsRestController {
 		
 		return map;
 	}
+	@RequestMapping(value = "updateGroupById/{groupId}",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>upadteUserById(@PathVariable("groupId")int groupId,@RequestBody String josnString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
+	{
+		Map<String,Object> map = new HashMap<>();
+		
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else{
+
+			mapper = new ObjectMapper();		
+			JsonNode node = mapper.readValue(josnString, JsonNode.class);
+			
+			GroupDetails groupDetails= new GroupDetails();
+			groupDetails.setName(node.get("name").asText());
+			groupDetails.setStatus(node.get("status").asInt());
+			groupDetails.setGroupDescription(node.get("groupDescription").asText());
+			
+			int result = groupDetailsService.updateGroupDetails(groupDetails,groupId);
+			if(result == 1){
+				map.put("status", "success");
+				map.put("code", 200);
+				map.put("message", "updated successfully");
+				map.put("data", result);
+			}else{
+				map.put("status", "error");
+				map.put("code", 400);
+				map.put("message", "error occured during updation");
+				map.put("data", result);
+			}
+		}
+
+		return map;
+		
+	}
+	@RequestMapping( value = "/deleteGroup/{groupId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object> deleteTemplate(@PathVariable("groupId") int groupId,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else{	
+			int result = groupDetailsService.deleteGroupDetailsByGroupId(groupId);
+			if(result == 1){
+				map.put("status", "success");
+				map.put("code", 200);
+				map.put("message", "deleted successfully");
+				map.put("data", result);
+			}else{
+				map.put("status", "error");
+				map.put("code", 400);
+				map.put("message", "error occured during detetion");
+				map.put("data", result);
+			}
+		}
+	
+		return map;	
+	}
 }

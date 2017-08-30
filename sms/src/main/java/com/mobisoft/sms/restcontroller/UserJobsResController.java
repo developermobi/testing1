@@ -35,7 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.UserJobs;
+import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.service.UserJobsService;
 import com.mobisoft.sms.utility.TokenAuthentication;
@@ -89,13 +91,10 @@ public class UserJobsResController {
 			@RequestParam("userId")int userId,@RequestParam("message")String message,
 			@RequestParam("messageType")int messageType,@RequestParam("sender")String sender,
 			@RequestParam("productId")int productId,
-			@RequestParam("scheduledAt")String scheduledAt,
-			@RequestParam("jobStatus")int jobStatus,
-			@RequestParam("jobType")int jobType,@RequestParam("columns")int columns,
-			@RequestParam("sendNow")String sendNow,@RequestParam("sendRatio")int sendRatio,
-			@RequestParam("route")String route) throws IllegalStateException, ParseException, IOException{
+			@RequestParam("scheduledAt")String scheduledAt,			
+			@RequestParam("jobType")int jobType,@RequestParam("duplicateStatus")int duplicateStatus,@RequestParam("scheduleStatus")int scheduleStatus
+			) throws IllegalStateException, ParseException, IOException{
 
-		
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
@@ -165,6 +164,8 @@ public class UserJobsResController {
 			    			System.out.println("User Sent Message "+ sentMessage);
 			    			if(sentMessage <= balance.get(0))
 			    			{
+			    				List<UserProduct>routeList= smsHelperService.getRouteDetails(userId, productId);
+			    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
 			    				int updateNewBalance = balance.get(0)-sentMessage; 
 			    				UserJobs userJobs= new UserJobs();
 								userJobs.setUserId(userId);
@@ -188,12 +189,14 @@ public class UserJobsResController {
 								userJobs.setQueuedAt(queuedAtDate);*/
 								userJobs.setScheduledAt(scheduledDate);
 								
-								userJobs.setJobStatus(jobStatus);
+								userJobs.setJobStatus(0);
 								userJobs.setJobType(jobType);
-								userJobs.setColumns(columns);
-								userJobs.setSendNow(sendNow);
-								userJobs.setSendRatio(sendRatio);
-								userJobs.setRoute(route);
+								userJobs.setDuplicateStatus(duplicateStatus);
+								userJobs.setScheduleStatus(scheduleStatus);
+								
+								/*userJobs.setSendNow(sendNow);*/
+								userJobs.setSendRatio(0);
+								userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
 								//userJobs.setCompletedAt(completedAtDate);
 								int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
 								if(result == 1)
