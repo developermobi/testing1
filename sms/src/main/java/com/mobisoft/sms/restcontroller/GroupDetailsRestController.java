@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -29,6 +30,7 @@ import com.mobisoft.sms.service.UserService;
 import com.mobisoft.sms.utility.Global;
 import com.mobisoft.sms.utility.TokenAuthentication;
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = "/api")
 public class GroupDetailsRestController {
@@ -55,7 +57,7 @@ public class GroupDetailsRestController {
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
@@ -73,7 +75,7 @@ public class GroupDetailsRestController {
 					map.put("data", result);
 				}else{
 					map.put("status", "error");
-					map.put("code", 400);
+					map.put("code", 403);
 					map.put("message", "error occured during insertion");
 					map.put("data", result);
 				}
