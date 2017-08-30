@@ -70,4 +70,10 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 		
 		return smsHelperDao.getRouteDetails(userId, productId);
 	}
+
+	@Override
+	public List<String> getGroupContact(String groupId, int userId) {
+		
+		return smsHelperDao.getGroupContact(groupId, userId);
+	}
 }

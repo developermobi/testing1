@@ -21,4 +21,5 @@ public interface SmsHelperService {
 	public int messageCount(int messageType,int messageLenght);
 	public List<SmsDnd> filterDndNumber();
 	public List<UserProduct>getRouteDetails(int userId,int productId);
+	public List<String>getGroupContact(String groupId,int userId);
 }
