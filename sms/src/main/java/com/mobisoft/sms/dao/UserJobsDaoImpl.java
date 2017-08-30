@@ -44,4 +44,29 @@ public class UserJobsDaoImpl implements UserJobsDao {
 		}  
 	return flag;
 	}
+
+	@Override
+	public int saveUserGroupJobs(UserJobs userJobs, int productId, int sentMessageBalance, int updateNewBalance) {
+		
+		int flag = 0;
+		try {
+			session = sessionFactory.openSession();  			
+			tx = session.beginTransaction();			
+					
+			session.save(userJobs);
+			int temp = smsHelperService.debitBalnce(userJobs.getUserId(), productId,userJobs.getUserId() , sentMessageBalance, "Sent Message By Self using group", 4, session, tx);
+			if(temp ==1)
+			{
+				tx.commit();			
+				flag = 1;
+			}
+					  
+		}catch (Exception ex) {
+			tx.rollback();
+			System.out.println(ex.getMessage());
+		}finally {		
+			session.close();			
+		}  
+	return flag;
+	}
 }

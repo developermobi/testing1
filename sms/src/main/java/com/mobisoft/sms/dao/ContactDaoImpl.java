@@ -32,6 +32,7 @@ public class ContactDaoImpl implements ContactDao{
 	Session session = null;
 	
 	Transaction tx = null;
+	private int temp=0;
 
 	@Override
 	public int saveConact(JsonNode node) {
@@ -190,61 +191,56 @@ public class ContactDaoImpl implements ContactDao{
 	@Override
 	public int uploadMultipleContact(int groupId, final int userId, final CSVReader reader) {
 		
-		 try {
+		try { 
 			
-		        
-			 	session=sessionFactory.openSession();
-				final GroupDetails groupDetails=(GroupDetails)session.get(GroupDetails.class,groupId);
-		        session.doWork(new Work() {
-					   
-				       @Override
-				       public void execute(Connection conn) throws SQLException {
-				          PreparedStatement pstmtContact = null;
-				          
-				          try{
-				           String sqlInsertDlrStatus = "INSERT INTO contact(designation, email_id, mobile, name, status,user_id, group_id) VALUES (?,?,?,?,?,?,?)";
-				           pstmtContact = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
-				           
-				           String [] nextLine;
-				           int i=0;
-				           while ((nextLine = reader.readNext()) != null) {
-					            
-					            System.out.println(nextLine[0]+"  "+nextLine[1]+"  "+nextLine[2]+"  "+nextLine[3]);	
-					            
-					            pstmtContact.setString(1, nextLine[3]);
+		 	session=sessionFactory.openSession();
+			final GroupDetails groupDetails=(GroupDetails)session.get(GroupDetails.class,groupId);
+	        session.doWork(new Work() {				   
+			       @Override
+			       public void execute(Connection conn) throws SQLException {
+			          PreparedStatement pstmtContact = null;
+			          try{
+			           String sqlInsertDlrStatus = "INSERT INTO contact(designation, email_id, mobile, name, status,user_id, group_id) VALUES (?,?,?,?,?,?,?)";
+			           pstmtContact = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
+			           String [] nextLine;
+			           int i=0;
+			           while ((nextLine = reader.readNext()) != null) {
+			        	   			
+			            	    pstmtContact.setString(1, nextLine[3]);
 					            pstmtContact.setString(2, nextLine[2]);
 					            pstmtContact.setString(3, nextLine[1]);
 					            pstmtContact.setString(4, nextLine[0]);
 					            pstmtContact.setInt(5, 1);
 					            pstmtContact.setInt(6, userId);
 					            pstmtContact.setInt(7,groupDetails.getGroupId());
-					        }
-				           
-				           conn.setAutoCommit(false);
-				           pstmtContact.executeBatch();
-				           conn.commit();
-				           conn.setAutoCommit(true);
-				           
-				         } catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} 
-				         finally{
-				        	 pstmtContact .close();
-				         }                                
-				     }
+					            pstmtContact.addBatch();
+					            
+				       } 		           
+			           reader.close();
+					   conn.setAutoCommit(false);
+			           pstmtContact.executeBatch();
+					   System.out.println("Add Conatct");
+					   conn.commit();
+					   conn.setAutoCommit(true);
+					   
+					   temp = 1;
+			         } catch (IOException e) {
+						e.printStackTrace();
+						conn.rollback();
+					} 
+			         finally{
+			        	 pstmtContact .close();
+			         }                                
+			     }
 
-				});
-		        
-		        
-		        
-		        
-		        
+			});
+
 		        
 		} catch (Exception e) {
-			// TODO: handle exception
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
-		return 0;
+		return temp;
 	}
 
 	

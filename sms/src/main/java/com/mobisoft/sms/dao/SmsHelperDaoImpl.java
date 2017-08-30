@@ -252,4 +252,15 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		return userProductsList;
 	}
 
+	@Override
+	public List<String> getGroupContact(String groupId, int userId) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		String sqlQuery = "SELECT mobile FROM contact WHERE group_id in("+groupId+") and user_id ="+userId;
+		Query query = session.createSQLQuery(sqlQuery);
+		List<String> list = query.list();
+		return list;
+		
+	}
+
 }

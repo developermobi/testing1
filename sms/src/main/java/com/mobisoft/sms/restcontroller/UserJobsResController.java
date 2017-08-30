@@ -1,8 +1,10 @@
 package com.mobisoft.sms.restcontroller;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,11 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.FileDataSource;
 import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,6 +38,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.UserJobs;
@@ -46,6 +51,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @CrossOrigin
@@ -65,7 +71,10 @@ public class UserJobsResController {
 	private ObjectMapper mapper = null;
 	
 	@Value("${uploadUserTextFile}")
-	private String uploadUserTextFile;
+	private String uploadUserJobsFile;
+	
+	@Value("${uploadUserGroupData}")
+	private String uploadUserGroupData;
 	
 	/*@Value("${uploadUserCsvFile}")
 	private String uploadCsvTextFile;*/
@@ -121,7 +130,7 @@ public class UserJobsResController {
 			    	{
 			    		if(multipartFile.getOriginalFilename().endsWith(".txt")){
 				    		
-							String fileUploadDirectory =  uploadUserTextFile+"/";						
+							String fileUploadDirectory =  uploadUserJobsFile+"/";						
 							userJobFile = new File(fileUploadDirectory);						
 					        if (!userJobFile.exists()) {
 					            if (!userJobFile.mkdirs()) {
@@ -237,6 +246,157 @@ public class UserJobsResController {
 	    			map.put("message", "File Not Upload");
 				}
 			}
+		}
+		else
+		{
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");	
+		}
+		return map;
+		
+		
+	
+	}
+	
+	@RequestMapping(value="/saveUserGroupJobs",method = RequestMethod.POST ,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>saveUserGroupJobs(@RequestHeader("Authorization") String authorization,
+			@RequestBody String jsonString
+			) throws IllegalStateException, ParseException, IOException{
+
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}else if(tokenAuthentication.validateToken(authorization) == 1){
+			
+			File file=null;
+			File fileData = null;
+			mapper = new ObjectMapper();
+			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
+			
+			List<String> groupContactList = smsHelperService.getGroupContact(node.get("groupId").asText(), node.get("userId").asInt());
+			if(groupContactList.size() > 0)
+			{
+				  try {
+					  String fileName = node.get("groupId").asText()+node.get("userId").asInt()+".txt";
+				      file = new File(uploadUserJobsFile);				       
+			            if (!file.exists()) {
+			                file.mkdir();
+			            }
+			            
+			            fileData = new File(file, fileName);
+			            if (!fileData.exists()) {
+			            	fileData.createNewFile();
+			            }
+			      
+			        FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
+			        BufferedWriter bw = new BufferedWriter(fw);
+			        for(String contact : groupContactList)
+			        {
+			        	bw.write(contact);
+				        bw.newLine();
+			        }
+			        
+			        bw.close();
+					
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+
+				
+				int messageLength = node.get("message").asText().length();
+	    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
+	    		if(messageCount > 10)
+	    		{
+	    			map.put("code", 413);
+					map.put("status", "error");
+					map.put("message", "Message Count Too Large");
+	    		}
+	    		else
+	    		{
+	    			List<Integer> balance = smsHelperService.getBalance(node.get("userId").asInt(),node.get("productId").asInt());
+	    			System.out.println("User Balnce "+balance.get(0));
+	    			int sentMessage = groupContactList.size() * messageCount;
+	    			System.out.println("User Sent Message "+ sentMessage);
+	    			if(sentMessage <= balance.get(0))
+	    			{
+	    				List<UserProduct>routeList= smsHelperService.getRouteDetails(node.get("userId").asInt(),node.get("productId").asInt());
+	    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
+	    				int updateNewBalance = balance.get(0)-sentMessage; 
+	    				UserJobs userJobs= new UserJobs();
+						userJobs.setUserId(node.get("userId").asInt());
+						userJobs.setMessage(node.get("message").asText());
+						userJobs.setMessageType(node.get("messageType").asInt());
+						userJobs.setMessageLength(messageLength);
+						userJobs.setCount(messageCount);
+						userJobs.setSender(node.get("sender").asText());
+						userJobs.setTotalNumbers(groupContactList.size());
+						userJobs.setTotalSent(sentMessage);
+						userJobs.setFilename(fileData.getAbsolutePath());
+						String scheduledAtConvert = node.get("scheduledAt").asText();
+						DateFormat formatter ; 
+						Date scheduledDate ; 
+						if(scheduledAtConvert != "")
+						{
+							formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+							scheduledDate = formatter.parse(scheduledAtConvert);
+							userJobs.setScheduledAt(scheduledDate);
+						}
+						/*String queuedAtConvert = queuedAt;
+						Date queuedAtDate; 					
+						queuedAtDate = formatter.parse(queuedAtConvert);	
+						userJobs.setQueuedAt(queuedAtDate);*/
+
+						userJobs.setJobStatus(0);
+						userJobs.setJobType(node.get("jobType").asInt());
+						userJobs.setDuplicateStatus(node.get("duplicateStatus").asInt());
+						userJobs.setScheduleStatus(node.get("scheduleStatus").asInt());
+						
+						/*userJobs.setSendNow(sendNow);*/
+						userJobs.setSendRatio(0);
+						userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
+						//userJobs.setCompletedAt(completedAtDate);
+						int result = userJobsService.saveUserGroupJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
+						if(result == 1)
+						{
+							
+							map.put("code", 201);
+			    			map.put("status", "Success");
+			    			map.put("message", "file Upload ");
+						}
+						else
+						{
+							map.put("code", 403);
+			    			map.put("status", "error");
+			    			map.put("message", "Something Going Worng File Is Not Uploaded");
+						}
+	    			}
+	    			else
+	    			{
+	    				map.put("code", 204);
+						map.put("status", "error");
+						map.put("message", "Insufficieant Balance");
+	    			}
+	    		}
+			}
+			else
+			{
+				map.put("code", 404);
+				map.put("status", "error");
+				map.put("message", "No Contact has Found");
+			}
+			
+			  
+			    		
 		}
 		else
 		{

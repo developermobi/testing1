@@ -281,7 +281,7 @@ public class ContactRestController {
 	@RequestMapping(value="/saveMultipleContact",method = RequestMethod.POST)
 	public Map<String,Object>saveUserJobs(@RequestHeader("Authorization") String authorization,@RequestParam("contactFile")MultipartFile multipartFile,
 			@RequestParam("userId")int userId,
-			@RequestParam("groupId")int messageType
+			@RequestParam("groupId")int groupId
 			) throws IllegalStateException, ParseException, IOException{
 
 		Map<String,Object> map = new HashMap<>();
@@ -324,11 +324,23 @@ public class ContactRestController {
 							multipartFile.transferTo(userContactFile);
 							System.out.println(userContactFile.getAbsolutePath());
 							CSVReader reader = new CSVReader(new FileReader(userContactFile));
-					        String [] nextLine;
+							int result = contactService.uploadMultipleContact(groupId, userId, reader);
+							if(result == 1){
+								map.put("status", "success");
+								map.put("code", 200);
+								map.put("message", "Successfully Add Contact");
+								map.put("data", result);
+							}else if(result == 2 || result == 0){
+								map.put("status", "error");
+								map.put("code", 400);
+								map.put("message", "error occured during Insert Contact");
+								map.put("data", result);
+							}
+					       /* String [] nextLine;
 					        while ((nextLine = reader.readNext()) != null) {
 					            // nextLine[] is an array of values from the line
 					            System.out.println(nextLine[0]+"  "+nextLine[1]+"  "+nextLine[2]+"  "+nextLine[3]);					           
-					        }
+					        }*/
 
 						}
 
