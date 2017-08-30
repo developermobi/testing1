@@ -84,8 +84,8 @@ public class GroupDetailsRestController {
 		
 		return map;
 	}
-	@RequestMapping(value = "/getAllGroup/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllTemplate(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getAllGroupPaginate/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllGroupPaginate(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
 		System.out.println(userId);
 		Map<String,Object> map = new HashMap<>();
@@ -118,6 +118,41 @@ public class GroupDetailsRestController {
 				map.put("code", 204);
 				map.put("message", "No data found");
 				map.put("data", dataMap);
+			}
+		}		
+		
+		return map;
+	}
+	@RequestMapping(value = "/getActiveGroupByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllGroup(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		System.out.println(userId);
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){
+					
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else {
+			List<GroupDetails> groupActiveDetails = groupDetailsService.getActiveGroupDetailsByUserId(userId);
+			
+			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
+			if(groupActiveDetails.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "Data found");
+				map.put("data", groupActiveDetails);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", groupActiveDetails);
 			}
 		}		
 		
@@ -165,7 +200,7 @@ public class GroupDetailsRestController {
 		map.put("data", null);
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
@@ -188,7 +223,7 @@ public class GroupDetailsRestController {
 				map.put("data", result);
 			}else{
 				map.put("status", "error");
-				map.put("code", 400);
+				map.put("code", 304);
 				map.put("message", "error occured during updation");
 				map.put("data", result);
 			}
@@ -208,7 +243,7 @@ public class GroupDetailsRestController {
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
@@ -222,7 +257,7 @@ public class GroupDetailsRestController {
 				map.put("data", result);
 			}else{
 				map.put("status", "error");
-				map.put("code", 400);
+				map.put("code", 304);
 				map.put("message", "error occured during detetion");
 				map.put("data", result);
 			}

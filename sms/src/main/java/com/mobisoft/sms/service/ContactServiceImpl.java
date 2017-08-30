@@ -42,9 +42,9 @@ public class ContactServiceImpl implements ContactService{
 		return contactDao.updateContact(node, contactId);
 	}
 	@Override
-	public int deleteContactByContactId(int contactId) {
+	public int updateContactStatusByContactId(int contactId, int status) {
 		
-		return contactDao.deleteContactByContactId(contactId);
+		return contactDao.updateContactStatusByContactId(contactId,status);
 	}
 	@Override
 	public int uploadMultipleContact(int groupId, int userId, CSVReader reader) {

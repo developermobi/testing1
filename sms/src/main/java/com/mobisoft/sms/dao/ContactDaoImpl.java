@@ -75,7 +75,7 @@ public class ContactDaoImpl implements ContactDao{
 		session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(Contact.class);
 		criteria.add(Restrictions.eq("userId", userId))
-		.add(Restrictions.eq("status", 1))
+		.add(Restrictions.ne("status", 2))
 		.setFirstResult(start)
 		.setMaxResults(limit);
 		List<Contact> list = criteria.list();
@@ -89,7 +89,7 @@ public class ContactDaoImpl implements ContactDao{
 		session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(Contact.class);
 		criteria.add(Restrictions.eq("userId", userId))
-		.add(Restrictions.eq("status", 1));
+		.add(Restrictions.ne("status", 2));
 		List<Contact> list = criteria.list();
 		session.close();
 		return list;
@@ -100,7 +100,7 @@ public class ContactDaoImpl implements ContactDao{
 		session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(Contact.class);
 		criteria.add(Restrictions.eq("contactId", contactId))
-		.add(Restrictions.eq("status", 1));
+		.add(Restrictions.ne("status", 2));
 		List<Contact> list = criteria.list();
 		session.close();
 		return list;
@@ -152,15 +152,14 @@ public class ContactDaoImpl implements ContactDao{
 	}
 
 	@Override
-	public int deleteContactByContactId(int contactId) {
+	public int updateContactStatusByContactId(int contactId, int status) {
 		int temp = 0;
 		session = sessionFactory.openSession();
 		tx = session.beginTransaction();		
 		try {	
 			Contact contact =(Contact)session.get(Contact.class,contactId);
 			if(contact.getContactId() == contactId)
-			{
-				int status =2;
+			{				
 				String sql = "UPDATE Contact set status = :status WHERE id = :contactId";
 				Query qry = session.createQuery(sql);
 				qry.setParameter("status", status);

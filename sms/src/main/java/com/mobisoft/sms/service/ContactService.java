@@ -14,6 +14,6 @@ public interface ContactService {
 	public List<Contact> getContactCountByUserId(int userId);
 	public List<Contact> getContactByContactId(int contactId);
 	public int updateContact(JsonNode node,int contactId);
-	public int deleteContactByContactId(int contactId);
+	public int updateContactStatusByContactId(int contactId, int status);
 	public int uploadMultipleContact(int groupId,int userId,CSVReader reader);
 }

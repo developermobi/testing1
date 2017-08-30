@@ -78,7 +78,7 @@ public class ContactRestController {
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 		}
@@ -95,7 +95,7 @@ public class ContactRestController {
 				map.put("data", result);
 			}else{
 				map.put("status", "error");
-				map.put("code", 400);
+				map.put("code", 403);
 				map.put("message", "error occured during insertion");
 				map.put("data", result);
 			}
@@ -222,13 +222,14 @@ public class ContactRestController {
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
-			map.put("code", 404);
+			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
 		}
 		else{	
-			int result = contactService.deleteContactByContactId(contactId);
+			int status = 2;
+			int result = contactService.updateContactStatusByContactId(contactId,status);
 			if(result == 1){
 				map.put("status", "success");
 				map.put("code", 200);
@@ -236,8 +237,41 @@ public class ContactRestController {
 				map.put("data", result);
 			}else{
 				map.put("status", "error");
-				map.put("code", 400);
+				map.put("code", 304);
 				map.put("message", "error occured during detetion");
+				map.put("data", result);
+			}
+		}
+	
+		return map;	
+	}
+	@RequestMapping( value = "/updateContactStatus/{contactId}/{status}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object> updateContactStatus(@PathVariable("contactId") int contactId,@PathVariable("status") int status,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else{	
+			int result = contactService.updateContactStatusByContactId(contactId,status);
+			if(result == 1){
+				map.put("status", "success");
+				map.put("code", 200);
+				map.put("message", "update successfully");
+				map.put("data", result);
+			}else{
+				map.put("status", "error");
+				map.put("code", 304);
+				map.put("message", "error occured during updation");
 				map.put("data", result);
 			}
 		}

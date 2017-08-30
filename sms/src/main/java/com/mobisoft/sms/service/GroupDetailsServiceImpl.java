@@ -47,7 +47,11 @@ public class GroupDetailsServiceImpl implements GroupDetailsService{
 
 	@Override
 	public List<GroupDetails> getGroupDetailsCountByUserId(int userId) {
-		// TODO Auto-generated method stub
 		return groupDetailsDao.getGroupDetailsCountByUserId(userId);
+	}
+
+	@Override
+	public List<GroupDetails> getActiveGroupDetailsByUserId(int userId) {
+		return groupDetailsDao.getActiveGroupDetailsByUserId(userId);
 	}
 }

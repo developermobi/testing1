@@ -58,7 +58,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 		User user= (User)session.get(User.class, userId);
 		Criteria criteria = session.createCriteria(GroupDetails.class);
 		criteria.add(Restrictions.eq("userId", user))
-		.add(Restrictions.eq("status", 1))
+		.add(Restrictions.ne("status", 2))
 		.setFirstResult(start)
 		.setMaxResults(limit);
 		List<GroupDetails> list = criteria.list();
@@ -71,7 +71,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 		session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(GroupDetails.class);
 		criteria.add(Restrictions.eq("groupId", groupId))
-		.add(Restrictions.eq("status", 1));
+		.add(Restrictions.ne("status", 2));
 		List<GroupDetails> list = criteria.list();
 		session.close();
 		return list;
@@ -139,10 +139,23 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 		System.out.println(user.getUserId());
 		Criteria criteria = session.createCriteria(GroupDetails.class);
 		criteria.add(Restrictions.eq("userId", user))
-		.add(Restrictions.eq("status", 1));
+		.add(Restrictions.ne("status", 2));
 		List<GroupDetails> list = criteria.list();
 		session.close();
 		System.out.println("Show data"+list.size());
+		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<GroupDetails> getActiveGroupDetailsByUserId(int userId) {
+		session = sessionFactory.openSession();
+		User user= (User)session.get(User.class, userId);
+		Criteria criteria = session.createCriteria(GroupDetails.class);
+		criteria.add(Restrictions.eq("userId", user))
+		.add(Restrictions.eq("status", 1));
+		List<GroupDetails> list = criteria.list();
+		session.close();
 		return list;
 	}
 

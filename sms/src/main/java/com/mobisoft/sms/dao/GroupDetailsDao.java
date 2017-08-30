@@ -11,6 +11,7 @@ public interface GroupDetailsDao {
 	public List<GroupDetails> getGroupDetailsByUserId(int userId,int start, int limit);
 	public List<GroupDetails> getGroupDetailsCountByUserId(int userId);
 	public List<GroupDetails> getGroupDetailsByGroupId(int groupId);
+	public List<GroupDetails> getActiveGroupDetailsByUserId(int userId);
 	public int updateGroupDetails(GroupDetails groupDetails,int groupId);
 	public int deleteGroupDetailsByGroupId(int groupId);
 }
