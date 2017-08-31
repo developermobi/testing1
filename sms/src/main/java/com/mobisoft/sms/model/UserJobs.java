@@ -54,7 +54,7 @@ public class UserJobs {
 	private int duplicateStatus;
 
 	
-	@Column(name = "scheduled_at", columnDefinition="TIMESTAMP", nullable=true)
+	@Column(name = "scheduled_at", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
 	private Date scheduledAt;
 	

@@ -57,7 +57,7 @@ public class UserJobsDaoImpl implements UserJobsDao {
 			int temp = smsHelperService.debitBalnce(userJobs.getUserId(), productId,userJobs.getUserId() , sentMessageBalance, "Sent Message By Self using group", 4, session, tx);
 			if(temp ==1)
 			{
-				tx.commit();			
+				tx.commit();
 				flag = 1;
 			}
 					  

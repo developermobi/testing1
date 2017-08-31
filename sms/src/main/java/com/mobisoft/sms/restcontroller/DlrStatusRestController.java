@@ -2,12 +2,16 @@ package com.mobisoft.sms.restcontroller;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +39,9 @@ public class DlrStatusRestController {
 	@Autowired
 	SmsHelperService smshelperService;
 	
+	private ObjectMapper mapper;
+	
+	//Send sms from user_jobs table
 	@RequestMapping(value = "/saveDlrStatus",method = RequestMethod.POST)
 	public Map<String,Object> saveUser() throws FileNotFoundException, IOException {
 		
@@ -43,8 +50,8 @@ public class DlrStatusRestController {
 		map.put("message", "Data Not Inserted");
 		
 		System.out.println("askldjalskdjlasdjlasdjasjd akjsdhklasd adbasd asdas");
-		DlrStatus dlrStatus = new DlrStatus();
-		int result = dlrStatusService.saveDlrStatus(dlrStatus);
+		//DlrStatus dlrStatus = new DlrStatus();
+		int result = dlrStatusService.saveDlrStatus();
 		if(result == 1)
 		{
 			map.put("status", 201);
@@ -52,6 +59,7 @@ public class DlrStatusRestController {
 		}
 		return map;
 	}
+
 	@RequestMapping(value = "/getNumberList",method = RequestMethod.GET)
 	public Map<String,Object> getNumberList() throws FileNotFoundException, IOException {
 		

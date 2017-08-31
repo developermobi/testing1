@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.DlrStatus;
 import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.model.UserJobs;
@@ -48,7 +49,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	private int temp=0;
 	
 	@Override
-	public int saveDlrStatus(DlrStatus dlrStatus) {
+	public int saveDlrStatus() {
 		
 		
 		session = sessionFactory.openSession();
@@ -74,7 +75,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				if(updateJobStatus ==1)
 				{
 					String fileName = list.get(0).getFilename();
-					file = new File(uploadUserTextFile,fileName);					
+					file = new File(fileName);					
 					fr = new FileReader(file);
 					br = new BufferedReader(fr);
 					String line="";
@@ -184,6 +185,13 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 		}
 
 		return temp;
+	}
+
+
+	@Override
+	public int sendQuickMessage(List<String> sendQuickListDetails) {
+		
+		return 0;
 	}
 
 }

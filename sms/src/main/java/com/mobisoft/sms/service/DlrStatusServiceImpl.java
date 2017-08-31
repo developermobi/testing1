@@ -16,9 +16,9 @@ public class DlrStatusServiceImpl implements DlrStatusService{
 	DlrStatusDao dlrStatusDao;
 	
 	@Override
-	public int saveDlrStatus(DlrStatus dlrStatus) throws FileNotFoundException, IOException {
+	public int saveDlrStatus() throws FileNotFoundException, IOException {
 		
-		return dlrStatusDao.saveDlrStatus(dlrStatus);
+		return dlrStatusDao.saveDlrStatus();
 	}
 
 }

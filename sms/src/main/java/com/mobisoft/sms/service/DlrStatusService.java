@@ -6,5 +6,5 @@ import java.io.IOException;
 import com.mobisoft.sms.model.DlrStatus;
 
 public interface DlrStatusService {
-	public int saveDlrStatus(DlrStatus dlrStatus) throws FileNotFoundException, IOException;
+	public int saveDlrStatus() throws FileNotFoundException, IOException;
 }
