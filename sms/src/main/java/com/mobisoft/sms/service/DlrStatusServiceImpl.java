@@ -2,7 +2,9 @@ package com.mobisoft.sms.service;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,12 @@ public class DlrStatusServiceImpl implements DlrStatusService{
 	public int saveDlrStatus() throws FileNotFoundException, IOException {
 		
 		return dlrStatusDao.saveDlrStatus();
+	}
+
+	@Override
+	public int saveQuickMessage(Map<String, Object> sendQuickListDetails,Session session) {
+	
+		return dlrStatusDao.saveQuickMessage(sendQuickListDetails,session);
 	}
 
 }

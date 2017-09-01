@@ -1,5 +1,7 @@
 package com.mobisoft.sms.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +20,8 @@ public class UserJobsServiceImpl implements UserJobsService{
 	}
 
 	@Override
-	public int saveUserGroupJobs(UserJobs userJobs, int productId, int sentMessageBalance, int updateNewBalance) {
+	public int sendQuickMessage(Map<String, Object> mapList){
 		
-		return userJobsDao.saveUserGroupJobs(userJobs, productId, sentMessageBalance, updateNewBalance);
+		return userJobsDao.sendQuickMessage(mapList);
 	}
 }

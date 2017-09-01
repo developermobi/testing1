@@ -370,7 +370,7 @@ public class UserJobsResController {
 						userJobs.setSendRatio(0);
 						userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
 						//userJobs.setCompletedAt(completedAtDate);
-						int result = userJobsService.saveUserGroupJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
+						int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
 						if(result == 1)
 						{
 							
@@ -440,12 +440,10 @@ public class UserJobsResController {
 					  System.out.println(millis);
 					  String fileName = millis+node.get("userId").asInt()+"quickschedule"+".txt";
 					  System.out.println(fileName);
-				      file = new File(uploadUserJobsFile);	
-				     
+				      file = new File(uploadUserJobsFile);				     
 			            if (!file.exists()) {
 			                file.mkdir();
-			            }
-			            
+			            }			            
 			            fileData = new File(file, fileName);
 			            if (!fileData.exists()) {
 			            	fileData.createNewFile();
@@ -555,9 +553,17 @@ public class UserJobsResController {
 	    			System.out.println("User Sent Message "+ sentMessage);
 	    			if(sentMessage <= balance.get(0))
 	    			{
+	    				System.out.println(balance.get(0));
 	    				List<UserProduct>routeList= smsHelperService.getRouteDetails(node.get("userId").asInt(),node.get("productId").asInt());
 	    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
 	    				int updateNewBalance = balance.get(0)-sentMessage; 
+	    				System.out.println(updateNewBalance);
+	    				
+	    				int coding = 0;
+	    				if(node.get("messageType").asInt() == 2)
+	    				{
+	    					coding =2;
+	    				}
 	    				Map<String,Object> mapList = new HashMap<>();
 	    				mapList.put("mobileNumber", node.get("mobileNumber").asText());
 	    				mapList.put("userId", node.get("userId").asInt());
@@ -569,12 +575,15 @@ public class UserJobsResController {
 	    				mapList.put("sentMessage", sentMessage);
 	    				mapList.put("jobType", node.get("jobType").asInt());
 	    				mapList.put("productId", node.get("productId").asInt());
-	    				mapList.put("updateNewBalance", node.get("updateNewBalance").asInt());
-	    				
-						/*int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
+	    				mapList.put("updateNewBalance", updateNewBalance);
+	    				mapList.put("routeName", routeList.get(0).getRouteId().getSmppName());
+	    				mapList.put("coding", coding);
+	    				System.out.println("product id in urc"+node.get("productId").asInt());
+	    				System.out.println("product id in urc"+mapList.get("productId"));
+						int result = userJobsService.sendQuickMessage(mapList);
+						
 						if(result == 1)
 						{
-							
 							map.put("code", 201);
 			    			map.put("status", "Success");
 			    			map.put("message", "file Upload ");
@@ -584,7 +593,7 @@ public class UserJobsResController {
 							map.put("code", 403);
 			    			map.put("status", "error");
 			    			map.put("message", "Something Going Worng File Is Not Uploaded");
-						}*/
+						}
 	    			}
 	    		}
 			}
