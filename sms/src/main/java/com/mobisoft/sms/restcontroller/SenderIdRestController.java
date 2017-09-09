@@ -320,4 +320,40 @@ public class SenderIdRestController {
 	
 		return map;	
 	}
+	@RequestMapping(value = "/getAllSenderIdCountByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllSenderIdByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+				
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){
+					
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else {
+			List<SenderId> allSenderIdListCount = senderIdService.getSenderIdByUserId(userId);
+			Map<String, Object> dataMap = new HashMap<>();
+			dataMap.put("total", allSenderIdListCount.size());			
+			
+			if(allSenderIdListCount.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "Data found");
+				map.put("data", dataMap);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", dataMap);
+			}
+		}		
+		
+		return map;
+	}
+	
 }

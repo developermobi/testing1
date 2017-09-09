@@ -48,6 +48,7 @@ import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.service.UserJobsService;
 import com.mobisoft.sms.utility.TokenAuthentication;
 
+import au.com.bytecode.opencsv.CSVReader;
 import javassist.compiler.ast.Symbol;
 
 import org.springframework.context.ApplicationContext;
@@ -156,8 +157,36 @@ public class UserJobsResController {
 							br.close();
 							fr.close();
 						}
-			    		else{
+			    		else if(multipartFile.getOriginalFilename().endsWith(".csv")){
 			    			System.out.println("Upload Csv File Details");
+			    			String fileUploadDirectory =  uploadUserJobsFile+"/";						
+							userJobFile = new File(fileUploadDirectory);						
+					        if (!userJobFile.exists()) {
+					            if (!userJobFile.mkdirs()) {
+					            	
+					            	map.put("code", 403);
+					    			map.put("status", "error");
+					    			map.put("message", "file Upload Directory has not found");
+					            }
+					        }
+							userJobFile = new File(fileUploadDirectory,newFileName);
+							multipartFile.transferTo(userJobFile);
+							CSVReader reader = new CSVReader(new FileReader(userJobFile));
+							String [] nextLine;
+							mobileList = new ArrayList<>();
+							 while ((nextLine = reader.readNext()) != null) {
+								
+								 String number = nextLine[0];
+								 mobileList.add(number);
+					       } 		           
+				           reader.close();
+				           
+			    		}
+			    		else
+			    		{
+			    			map.put("code", 415);
+			    			map.put("status", "error");
+			    			map.put("message", "Unsupported File Format");
 			    		}
 			    		
 			    		int messageLength = message.length();
@@ -170,70 +199,79 @@ public class UserJobsResController {
 			    		}
 			    		else
 			    		{
-			    			List<Integer> balance = smsHelperService.getBalance(userId,productId);
-			    			System.out.println("User Balnce "+balance.get(0));
-			    			int sentMessage = mobileList.size() * messageCount;
-			    			System.out.println("User Sent Message "+ sentMessage);
-			    			if(sentMessage <= balance.get(0))
+			    			System.out.println("lis size"+mobileList.size());
+			    			if(!mobileList.isEmpty())
 			    			{
-			    				List<UserProduct>routeList= smsHelperService.getRouteDetails(userId, productId);
-			    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
-			    				int updateNewBalance = balance.get(0)-sentMessage; 
-			    				UserJobs userJobs= new UserJobs();
-								userJobs.setUserId(userId);
-								userJobs.setMessage(message);
-								userJobs.setMessageType(messageType);
-								userJobs.setMessageLength(messageLength);
-								userJobs.setCount(messageCount);
-								userJobs.setSender(sender);
-								userJobs.setTotalNumbers(mobileList.size());
-								userJobs.setTotalSent(sentMessage);
-								userJobs.setFilename(newFileName);							
-								String scheduledAtConvert = scheduledAt;
-								DateFormat formatter ; 
-								Date scheduledDate ; 
-								if(scheduledAtConvert != "")
-								{
-									formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-									scheduledDate = formatter.parse(scheduledAtConvert);
-									userJobs.setScheduledAt(scheduledDate);
-								}
-								/*String queuedAtConvert = queuedAt;
-								Date queuedAtDate; 					
-								queuedAtDate = formatter.parse(queuedAtConvert);	
-								userJobs.setQueuedAt(queuedAtDate);*/
-								
-								
-								userJobs.setJobStatus(0);
-								userJobs.setJobType(jobType);
-								userJobs.setDuplicateStatus(duplicateStatus);
-								userJobs.setScheduleStatus(scheduleStatus);
-								
-								/*userJobs.setSendNow(sendNow);*/
-								userJobs.setSendRatio(0);
-								userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
-								//userJobs.setCompletedAt(completedAtDate);
-								int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
-								if(result == 1)
-								{
+			    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
+				    			System.out.println("User Balnce "+balance.get(0));
+				    			int sentMessage = mobileList.size() * messageCount;
+				    			System.out.println("User Sent Message "+ sentMessage);
+				    			if(sentMessage <= balance.get(0))
+				    			{
+				    				List<UserProduct>routeList= smsHelperService.getRouteDetails(userId, productId);
+				    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
+				    				int updateNewBalance = balance.get(0)-sentMessage; 
+				    				UserJobs userJobs= new UserJobs();
+									userJobs.setUserId(userId);
+									userJobs.setMessage(message);
+									userJobs.setMessageType(messageType);
+									userJobs.setMessageLength(messageLength);
+									userJobs.setCount(messageCount);
+									userJobs.setSender(sender);
+									userJobs.setTotalNumbers(mobileList.size());
+									userJobs.setTotalSent(sentMessage);
+									userJobs.setFilename(userJobFile.getAbsolutePath());							
+									String scheduledAtConvert = scheduledAt;
+									DateFormat formatter ; 
+									Date scheduledDate ; 
+									if(scheduledAtConvert != "")
+									{
+										formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+										scheduledDate = formatter.parse(scheduledAtConvert);
+										userJobs.setScheduledAt(scheduledDate);
+									}
+									/*String queuedAtConvert = queuedAt;
+									Date queuedAtDate; 					
+									queuedAtDate = formatter.parse(queuedAtConvert);	
+									userJobs.setQueuedAt(queuedAtDate);*/
+
+									userJobs.setJobStatus(0);
+									userJobs.setJobType(jobType);
+									userJobs.setDuplicateStatus(duplicateStatus);
+									userJobs.setScheduleStatus(scheduleStatus);
 									
-									map.put("code", 201);
-					    			map.put("status", "Success");
-					    			map.put("message", "file Upload ");
-								}
-								else
-								{
-									map.put("code", 403);
-					    			map.put("status", "error");
-					    			map.put("message", "Something Going Worng File Is Not Uploaded");
-								}
+									/*userJobs.setSendNow(sendNow);*/
+									userJobs.setSendRatio(0);
+									userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
+									//userJobs.setCompletedAt(completedAtDate);
+									int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
+									if(result == 1)
+									{
+										map.put("code", 201);
+						    			map.put("status", "Success");
+						    			map.put("message", "file Upload ");
+									}
+									else
+									{
+										map.put("code", 403);
+						    			map.put("status", "error");
+						    			map.put("message", "Something Going Worng File Is Not Uploaded");
+									}
+				    			}
+				    			else
+				    			{
+				    				map.put("code", 204);
+									map.put("status", "error");
+									map.put("message", "Insufficieant Balance");
+				    			}
 			    			}
 			    			else
 			    			{
-			    				map.put("code", 204);
+			    				map.put("code", 0);
 								map.put("status", "error");
-								map.put("message", "Insufficieant Balance");
+								map.put("message", "Mobile Count is zero please upload correct file");
 			    			}
+			    			
 			    			
 			    		}
 			    			
@@ -586,7 +624,7 @@ public class UserJobsResController {
 						{
 							map.put("code", 201);
 			    			map.put("status", "Success");
-			    			map.put("message", "file Upload ");
+			    			map.put("message", "Send Quick Message Successfully");
 						}
 						else
 						{

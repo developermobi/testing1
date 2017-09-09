@@ -54,7 +54,7 @@ public class DlrStatus {
 	
 	@Column(name = "logged_at", columnDefinition="TIMESTAMP", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
-	private int LoggedAt;
+	private int loggedAt;
 	
 	@Column(name="dlr_time")
 	private Date dlrTime;
@@ -190,12 +190,12 @@ public class DlrStatus {
 
 
 	public int getLoggedAt() {
-		return LoggedAt;
+		return loggedAt;
 	}
 
 
 	public void setLoggedAt(int loggedAt) {
-		LoggedAt = loggedAt;
+		loggedAt = loggedAt;
 	}
 
 

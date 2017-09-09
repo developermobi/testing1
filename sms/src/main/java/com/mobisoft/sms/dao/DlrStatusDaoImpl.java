@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.management.Query;
 
+import org.apache.commons.io.FilenameUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -41,6 +42,8 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	
 	@Value("${uploadUserTextFile}")
 	private String uploadUserTextFile;
+	
+
 	
 	Session session = null;
 	Transaction tx = null;
@@ -76,34 +79,25 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				
 				if(updateJobStatus ==1)
 				{
-					String fileName = list.get(0).getFilename();
-					file = new File(fileName);					
-					fr = new FileReader(file);
-					br = new BufferedReader(fr);
-					String line="";
 					final List<String> mobileList = new ArrayList<>();
-					while((line = br.readLine()) != null)
-					{
-						mobileList.add(line);
-					}
-					/*for (int i = 0; i < mobileList.size(); i++) {
-						org.hibernate.Query query = session.createSQLQuery("CALL spInsert(:job_id,:momt,:Sender,:mobile,:message,:provider_id,:user_id,:type,:mclass,:count)")
-								  .addEntity(DlrStatus.class)
-								  .setParameter("job_id",list.get(0).getId())
-								  .setParameter("momt", "MO")
-								  .setParameter("Sender",list.get(0).getSender())
-								  .setParameter("mobile",mobileList.get(0))
-								  .setParameter("message",list.get(0).getMessage())
-								  .setParameter("count", list.get(0).getCount())
-								  .setParameter("provider_id","New")
-								  .setParameter("user_id",list.get(0).getUserId())
-								  .setParameter("type", 1)
-								  .setParameter("mclass", 1);
-						query.executeUpdate();
+					/*try {*/
+						String fileName = list.get(0).getFilename();
+					/*	String fileExtension = FilenameUtils.getExtension(fileName);
+						System.out.println(fileExtension);*/
+						file = new File(fileName);					
+						fr = new FileReader(file);
+						br = new BufferedReader(fr);
+						String line="";
 						
-
-					}*/	
-					//get Connction from Session
+						while((line = br.readLine()) != null)
+						{
+							mobileList.add(line);
+						}
+						if(mobileList.isEmpty())
+						{
+							return temp;
+						}
+				
 					session.doWork(new Work() {
 						   
 					       @Override
@@ -165,6 +159,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 					         } 
 					         finally{
 					        	 pstmtDlrStatus .close();
+					        	 
 					         }                                
 					     }
 
@@ -183,7 +178,8 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 		}
 		else
 		{
-			return temp;
+			
+			return temp = 0;
 		}
 
 		return temp;
@@ -201,7 +197,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 			       @Override
 			       public void execute(Connection conn) throws SQLException {
 			    	  
-			    	      int jobId = (int) (System.currentTimeMillis() & 0xfffffff);
+			    	   	  int jobId = (int) (System.currentTimeMillis() & 0xfffffff);	
 				    	  String sender = (String)mapList.get("sender");
 				    	  
 				    	  int coding = (int)mapList.get("coding");
@@ -209,9 +205,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				    	  int length = (int)mapList.get("messageLength");
 				    	  String message = (String)mapList.get("message");
 				    	  System.out.println(messageCount);
-				    	  
-				    	  String messId = Global.randomString(10);
-				    	  
+
 				    	  int mobi_class = 1;
 				    	  String providerId = (String)mapList.get("routeName");
 				    	  int type = 1;
@@ -234,19 +228,19 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				           int i=0;
 				           for(String mobile : mobileList){	        	   
 
-				        	   		        	   
-				        	   pstmtDlrStatus.setInt(1, 2);
+				        	   String messId = Global.randomString(10);    	   
+				        	   pstmtDlrStatus.setInt(1, jobId);
 				        	   pstmtDlrStatus.setString(2, sender);
-				        	   pstmtDlrStatus.setInt(3,0);
-				        	   pstmtDlrStatus.setInt(4, 0);
-				        	   pstmtDlrStatus.setInt(5, 1);
+				        	   pstmtDlrStatus.setInt(3,coding);
+				        	   pstmtDlrStatus.setInt(4, messageCount);
+				        	   pstmtDlrStatus.setInt(5, length);
 				        	   pstmtDlrStatus.setString(6, message);
 				        	   pstmtDlrStatus.setString(7, messId);
 				        	   pstmtDlrStatus.setInt(8, mobi_class);
 				        	   pstmtDlrStatus.setString(9, mobile);
 				        	   pstmtDlrStatus.setString(10,providerId);
 				        	   pstmtDlrStatus.setInt(11, type);
-				        	   pstmtDlrStatus.setInt(12, 1);
+				        	   pstmtDlrStatus.setInt(12, userId);
 				               pstmtDlrStatus.addBatch();
 				               
 				               pstmtQueuedSms.setInt(1, jobId);
@@ -258,7 +252,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				               pstmtQueuedSms.setString(7,boxcId);
 				               pstmtQueuedSms.setInt(8, service);
 				               pstmtQueuedSms.setInt(9, mobi_class);
-				               pstmtQueuedSms.setInt(10, 0);
+				               pstmtQueuedSms.setInt(10, coding);
 				               pstmtQueuedSms.setInt(11,dlrMask);
 				               pstmtQueuedSms.setString(12, messId);
 				               pstmtQueuedSms.setString(13,chaset);
