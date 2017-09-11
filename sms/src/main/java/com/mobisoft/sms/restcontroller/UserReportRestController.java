@@ -81,14 +81,14 @@ public class UserReportRestController {
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			List<DlrStatus> todayMessageCount = userReportService.weeklyCountMessage(userId);
-			System.out.println(todayMessageCount);
-			Iterator itr = todayMessageCount.iterator();
+			List<DlrStatus> weeklyCountMessage = userReportService.weeklyCountMessage(userId);
+			System.out.println(weeklyCountMessage);
+			Iterator itr = weeklyCountMessage.iterator();
 			while (itr.hasNext()) {
 				Object[] obj = (Object[])itr.next();
 				map.put(obj[1].toString(), obj[0]);	
 			}
-			if(todayMessageCount.size() > 0){
+			if(weeklyCountMessage.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
@@ -116,14 +116,14 @@ public class UserReportRestController {
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			List<DlrStatus> todayMessageCount = userReportService.monthlyCountMessage(userId);
-			System.out.println(todayMessageCount);
-			Iterator itr = todayMessageCount.iterator();
+			List<DlrStatus> monthlyCountMessage = userReportService.monthlyCountMessage(userId);
+			System.out.println(monthlyCountMessage);
+			Iterator itr = monthlyCountMessage.iterator();
 			while (itr.hasNext()) {
 				Object[] obj = (Object[])itr.next();
 				map.put(obj[1].toString(), obj[0]);	
 			}
-			if(todayMessageCount.size() > 0){
+			if(monthlyCountMessage.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
@@ -132,6 +132,70 @@ public class UserReportRestController {
 				map.put("status", "success");
 				map.put("code", 204);
 				map.put("message", "No data found");
+			}
+		}
+		
+		return map;
+	}
+	@RequestMapping(value = "dailyRepotMessage/{userId}/{start}/{max}",method = RequestMethod.GET)
+	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+			
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else{
+			List<DlrStatus> dalyReport = userReportService.dailyRepotMessage(userId,start,max);
+						
+			if(dalyReport.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				map.put("data", dalyReport);
+				
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", dalyReport);
+			}
+		}
+		
+		return map;
+	}
+	@RequestMapping(value = "archiveRepotMessage/{userId}",method = RequestMethod.GET)
+	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+			
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else{
+			List<DlrStatus> dalyReport = userReportService.archiveReportByUserId(userId);
+						
+			if(dalyReport.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				map.put("data", dalyReport);
+				
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", dalyReport);
 			}
 		}
 		

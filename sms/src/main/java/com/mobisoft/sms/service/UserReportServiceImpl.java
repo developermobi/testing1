@@ -30,4 +30,15 @@ public class UserReportServiceImpl implements UserReportService{
 		// TODO Auto-generated method stub
 		return userReportDao.monthlyCountMessage(userId);
 	}
+
+	@Override
+	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max) {
+		
+		return userReportDao.dailyRepotMessage(userId,start,max);
+	}
+
+	@Override
+	public List<DlrStatus> archiveReportByUserId(int userId) {
+		return userReportDao.archiveReportByUserId(userId);
+	}
 }

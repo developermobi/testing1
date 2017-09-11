@@ -10,6 +10,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +90,7 @@ public class ContactDaoImpl implements ContactDao{
 	@Override
 	public List<Contact> getContactCountByUserId(int userId) {
 		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(Contact.class);
+		Criteria criteria = session.createCriteria(Contact.class).setProjection(Projections.rowCount());
 		criteria.add(Restrictions.eq("userId", userId))
 		.add(Restrictions.ne("status", 2));
 		List<Contact> list = criteria.list();

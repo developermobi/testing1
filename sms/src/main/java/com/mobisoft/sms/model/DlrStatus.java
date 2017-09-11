@@ -47,7 +47,7 @@ public class DlrStatus {
 	private int coding;
 	
 	@Column(name="status")
-	private int status;
+	private String status;
 	
 	@Column(name="errorCode")
 	private int errorCode;	
@@ -158,7 +158,6 @@ public class DlrStatus {
 		this.mobiClass = mobiClass;
 	}
 
-
 	public int getCoding() {
 		return coding;
 	}
@@ -169,12 +168,12 @@ public class DlrStatus {
 	}
 
 
-	public int getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
 
-	public void setStatus(int status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 

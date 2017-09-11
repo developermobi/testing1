@@ -125,7 +125,7 @@ public class ContactRestController {
 			List<Contact> contact = contactService.getContactByUserId(userId, start, limit);
 			
 			 Map<String, Object> dataMap = new HashMap<>();
-			 dataMap.put("total", contactCount.size());
+			 dataMap.put("total", contactCount);
 			 dataMap.put("contactData", contact);
 			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
 			if(contactCount.size() > 0){
