@@ -49,7 +49,7 @@ public class GroupDetailsRestController {
 	@RequestMapping(value = "/saveGroupDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> saveGroupDetails(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
 
-		Map<String,Object> map = new HashMap<>();		
+		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
 		map.put("message", "some error occured");

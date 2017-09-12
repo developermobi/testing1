@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.mobisoft.sms.dao.UserReportDao;
 import com.mobisoft.sms.model.DlrStatus;
+import com.mobisoft.sms.model.UserJobs;
 
 @Service
 public class UserReportServiceImpl implements UserReportService{
@@ -38,7 +39,13 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public List<DlrStatus> archiveReportByUserId(int userId) {
-		return userReportDao.archiveReportByUserId(userId);
+	public List archiveReportByUserId(int userId,String startDate,String endDate) {
+		return userReportDao.archiveReportByUserId(userId,startDate,endDate);
+	}
+
+	@Override
+	public List<UserJobs> scheduleReportByUserId(int userId, int start, int max) {
+		
+		return userReportDao.scheduleReportByUserId(userId, start, max);
 	}
 }

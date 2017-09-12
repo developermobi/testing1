@@ -43,8 +43,6 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	@Value("${uploadUserTextFile}")
 	private String uploadUserTextFile;
 	
-
-	
 	Session session = null;
 	Transaction tx = null;
 	File file;
@@ -61,7 +59,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 		tx= session.beginTransaction();
 		final Session session = sessionFactory.openSession();
 		Criteria criteria = session.createCriteria(UserJobs.class);
-		criteria.add(Restrictions.eq("jobStatus", 0));
+		criteria.add(Restrictions.eq("jobStatus", 0)).add(Restrictions.eq("scheduleStatus", 0));
 		final List<UserJobs> list = criteria.list();
 		System.out.println("List Size data"+list.size());
 		
@@ -70,41 +68,42 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 			
 			try {
 				
-				String sql = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
-				org.hibernate.Query qry = session.createSQLQuery(sql);
-				qry.setParameter("status", 1);
-				qry.setParameter("userId", list.get(0).getUserId());
-				qry.setParameter("id", list.get(0).getId());
-				int updateJobStatus =qry.executeUpdate();
 				
-				if(updateJobStatus ==1)
-				{
-					final List<String> mobileList = new ArrayList<>();
-					/*try {*/
-						String fileName = list.get(0).getFilename();
-					/*	String fileExtension = FilenameUtils.getExtension(fileName);
-						System.out.println(fileExtension);*/
-						file = new File(fileName);					
-						fr = new FileReader(file);
-						br = new BufferedReader(fr);
-						String line="";
-						
-						while((line = br.readLine()) != null)
-						{
-							mobileList.add(line);
-						}
-						if(mobileList.isEmpty())
-						{
-							return temp;
-						}
-				
-					session.doWork(new Work() {
-						   
-					       @Override
-					       public void execute(Connection conn) throws SQLException {
-					          PreparedStatement pstmtDlrStatus = null;
-					          PreparedStatement pstmtQueuedSms = null;
-					          try{
+				session.doWork(new Work() {
+					   
+				       @Override
+				       public void execute(Connection conn) throws SQLException {
+				          PreparedStatement pstmtDlrStatus = null;
+				          PreparedStatement pstmtQueuedSms = null;
+				          try{
+								String sql = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
+								org.hibernate.Query qry = session.createSQLQuery(sql);
+								qry.setParameter("status", 1);
+								qry.setParameter("userId", list.get(0).getUserId());
+								qry.setParameter("id", list.get(0).getId());
+								int updateJobStatus =qry.executeUpdate();
+								final List<String> mobileList = new ArrayList<>();
+								if(updateJobStatus ==1)
+								{
+									
+									/*try {*/
+								String fileName = list.get(0).getFilename();
+								/*	String fileExtension = FilenameUtils.getExtension(fileName);
+									System.out.println(fileExtension);*/
+								file = new File(fileName);					
+								fr = new FileReader(file);
+								br = new BufferedReader(fr);
+								String line="";
+										
+										while((line = br.readLine()) != null)
+										{
+											mobileList.add(line);
+										}
+										if(mobileList.isEmpty())
+										{
+											 temp=0;
+										}
+								}
 					           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 					           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
 					           
@@ -112,7 +111,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 					           pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
 					           int i=0;
 					           for(String mobile : mobileList){	        	   
-
+	
 					        	   String messId = Global.randomString(10);			        	   
 					        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
 					        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
@@ -142,29 +141,36 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 					               pstmtQueuedSms.setString(12, messId);
 					               pstmtQueuedSms.setString(13,"UTF-8");
 					               pstmtQueuedSms.addBatch(); 
-
+	
 					           }
 					           conn.setAutoCommit(false);
 					           pstmtDlrStatus.executeBatch();
 					           pstmtQueuedSms.executeBatch();
-					           String sql = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
-					           org.hibernate.Query qry = session.createSQLQuery(sql);
-					           qry.setParameter("status", 2);
-					           qry.setParameter("userId", list.get(0).getUserId());
-					           qry.setParameter("id", list.get(0).getId());			
-					           temp =qry.executeUpdate();
+					           String sql1 = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
+					           org.hibernate.Query qry1 = session.createSQLQuery(sql1);
+					           qry1.setParameter("status", 2);
+					           qry1.setParameter("userId", list.get(0).getUserId());
+					           qry1.setParameter("id", list.get(0).getId());			
+					           temp =qry1.executeUpdate();
 					           conn.commit();
 					           conn.setAutoCommit(true);
 					           
-					         } 
+					         } catch (FileNotFoundException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								tx.rollback();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								tx.rollback();
+							} 
 					         finally{
 					        	 pstmtDlrStatus .close();
 					        	 
 					         }                                
-					     }
+				     }
 
-					});
-				}
+				});
 				
 					
 			} catch (Exception e) {

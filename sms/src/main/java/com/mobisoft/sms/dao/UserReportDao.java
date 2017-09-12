@@ -3,6 +3,7 @@ package com.mobisoft.sms.dao;
 import java.util.List;
 
 import com.mobisoft.sms.model.DlrStatus;
+import com.mobisoft.sms.model.UserJobs;
 
 public interface UserReportDao {
 	public List todayCountMessage(int userId);
@@ -10,5 +11,9 @@ public interface UserReportDao {
 	public List monthlyCountMessage(int userId);
 	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max);
 	
-	public List<DlrStatus> archiveReportByUserId(int userId);
+	public List archiveReportByUserId(int userId,String startDate,String endDate);
+	
+	public List<UserJobs> scheduleReportByUserId(int userId,int start,int max);
+	
+	
 }
