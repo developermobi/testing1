@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mobisoft.sms.model.Route;
+import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserJobs;
 import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.service.SmsHelperService;
@@ -463,8 +464,16 @@ public class UserJobsResController {
 		System.out.println("Start Quick Messaging");
 		mapper = new ObjectMapper();
 		JsonNode node = mapper.readValue(jsonString,JsonNode.class);
-		
-		List<String> mobileList = Arrays.asList(node.get("mobileNumber").asText().split("\\s*,\\s*"));
+		List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt());
+		System.out.println(listCheckAutherization.get(0).getDndCheck());
+		String mobileNumber = node.get("mobileNumber").asText();
+		if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+		{
+			String mobileNo = smsHelperService.mobileNumber(mobileNumber);
+			System.out.println("Method call ");
+		}
+		//System.out.println(mobileNumber);
+		List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
 		System.out.println(mobileList.size());
 		if(mobileList.size() <= 1000)
 		{
@@ -603,7 +612,7 @@ public class UserJobsResController {
 	    					coding =2;
 	    				}
 	    				Map<String,Object> mapList = new HashMap<>();
-	    				mapList.put("mobileNumber", node.get("mobileNumber").asText());
+	    				mapList.put("mobileNumber", mobileNumber);
 	    				mapList.put("userId", node.get("userId").asInt());
 	    				mapList.put("message", node.get("message").asText());
 	    				mapList.put("messageType", node.get("messageType").asInt());

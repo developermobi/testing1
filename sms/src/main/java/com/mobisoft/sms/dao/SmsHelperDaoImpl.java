@@ -1,8 +1,16 @@
 package com.mobisoft.sms.dao;
 
+import java.nio.channels.SeekableByteChannel;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -11,6 +19,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -22,7 +31,10 @@ import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.SmsDnd;
 import com.mobisoft.sms.model.User;
+import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
+import com.mobisoft.sms.utility.Global;
+import com.mysql.jdbc.PreparedStatement;
 
 @Repository("smsHelperDao")
 public class SmsHelperDaoImpl implements SmsHelperDao{
@@ -230,7 +242,6 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
         }
         return messageCount;
 	}
-
 	@Override
 	public List<SmsDnd> filterDndNumber() {
 		Session session = sessionFactory2.openSession();
@@ -238,7 +249,6 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		List<SmsDnd> list = session.createCriteria(SmsDnd.class).list();
 		return list;
 	}
-
 	@Override
 	public List<UserProduct> getRouteDetails(int userId, int productId) {
 	
@@ -251,7 +261,6 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		List<UserProduct> userProductsList = criteria.list();		
 		return userProductsList;
 	}
-
 	@Override
 	public List<String> getGroupContact(String groupId, int userId) {
 		Session session = sessionFactory.openSession();
@@ -261,6 +270,84 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		List<String> list = query.list();
 		return list;
 		
+	}
+	@Override
+	public List<UserAuthrization> getUserAuthrizationCheck(int userId) {
+		Session session = sessionFactory.openSession();
+		Transaction tx= session.beginTransaction();
+		User user =(User)session.get(User.class, userId);
+		Criteria criteria = session.createCriteria(UserAuthrization.class);
+		criteria.add(Restrictions.eq("userId",user));
+		List<UserAuthrization> list = criteria.list();
+		return list;
+		
+	}
+
+	@Override
+	public String mobileNumber(String mobileNumber) {
+		
+		Session session = sessionFactory.openSession();
+		Transaction tx =  session.beginTransaction();
+		
+		final List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
+		
+		try {
+			session.doWork(new Work() {
+				
+			       @Override
+			       public void execute(Connection conn) throws SQLException {
+
+				          PreparedStatement pstmtDlrStatus = null;
+				          List<String> listMatchDndData = new ArrayList<String>();
+				          
+				          try{
+				           String sqlInsertDlrStatus = "INSERT INTO temp_dnd(mobile) VALUES (?)";
+				           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
+				           int i=0;
+				           for(String mobile : mobileList){	        	   
+				        	   if(mobile.length() == 12)
+				        	 	{
+				        	 		mobile = mobile.substring(2);
+				        	 		
+				        	 	}				        	    	   
+				        	   pstmtDlrStatus.setString(1, mobile);
+				               pstmtDlrStatus.addBatch();
+				           }
+				           conn.setAutoCommit(false);
+				           pstmtDlrStatus.executeBatch();				        	          
+				           
+				         //conn.setAutoCommit(true);
+				           String selectMobileNumberQuery ="select  Distinct t.mobile from  mobi_sms.temp_dnd t  inner join  sms_dnd.mobi_dnd d on t.mobile = d.mobile_no";
+				           System.out.println(selectMobileNumberQuery);
+				           Statement statement = conn.createStatement();
+				           ResultSet rs = statement.executeQuery(selectMobileNumberQuery);
+				           while(rs.next())
+				           {
+				        	   System.out.println(rs.getString("mobile"));
+				        	   String newMobile = rs.getString("mobile").toString();
+				        	   System.out.println("New Mobile"+newMobile);
+				        	   /* StringBuilder s =  new StringBuilder(newMobile);
+				        	   newMobile = s.insert(0,"91").toString();*/
+				        	   listMatchDndData.add(newMobile);
+				           }
+				           System.out.println("New Mobile list Size:"+listMatchDndData);
+				           System.out.println("old Mobile list Size:"+mobileList);
+				           mobileList.removeAll(listMatchDndData);
+				           System.out.println("New Mobile list Size:"+listMatchDndData);
+				           System.out.println("old Mobile list Size:"+mobileList);
+				           conn.commit();
+				         } 
+				         finally{
+				        	 pstmtDlrStatus .close(); 
+				         }
+			     }
+
+			});
+		} catch (Exception e) {
+			tx.rollback();
+		}
+
+		return null;
 	}
 
 }

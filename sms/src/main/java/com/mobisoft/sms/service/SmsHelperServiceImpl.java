@@ -12,6 +12,7 @@ import com.mobisoft.sms.dao.SmsHelperDao;
 import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.SmsDnd;
+import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
 
 @Service
@@ -75,5 +76,17 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 	public List<String> getGroupContact(String groupId, int userId) {
 		
 		return smsHelperDao.getGroupContact(groupId, userId);
+	}
+
+	@Override
+	public List<UserAuthrization> getUserAuthrizationCheck(int userId) {
+		
+		return smsHelperDao.getUserAuthrizationCheck(userId);
+	}
+
+	@Override
+	public String mobileNumber(String mobileNumber) {
+		
+		return smsHelperDao.mobileNumber(mobileNumber);
 	}
 }

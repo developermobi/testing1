@@ -286,5 +286,6 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 		
 		return temp;
 	}
+	
 
 }

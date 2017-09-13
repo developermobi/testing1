@@ -8,6 +8,7 @@ import org.hibernate.Transaction;
 import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.SmsDnd;
+import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
 
 public interface SmsHelperService {
@@ -22,4 +23,6 @@ public interface SmsHelperService {
 	public List<SmsDnd> filterDndNumber();
 	public List<UserProduct>getRouteDetails(int userId,int productId);
 	public List<String>getGroupContact(String groupId,int userId);
+	public List<UserAuthrization> getUserAuthrizationCheck(int userId);
+	public String mobileNumber(String mobileNumber);
 }
