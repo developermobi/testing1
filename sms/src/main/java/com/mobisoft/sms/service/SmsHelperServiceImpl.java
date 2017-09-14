@@ -85,7 +85,7 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 	}
 
 	@Override
-	public String mobileNumber(String mobileNumber) {
+	public List<Object> mobileNumber(String mobileNumber) {
 		
 		return smsHelperDao.mobileNumber(mobileNumber);
 	}

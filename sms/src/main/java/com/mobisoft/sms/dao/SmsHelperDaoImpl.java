@@ -284,37 +284,39 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	}
 
 	@Override
-	public String mobileNumber(String mobileNumber) {
+	public List<Object> mobileNumber(final String mobileNumber) {
 		
 		Session session = sessionFactory.openSession();
 		Transaction tx =  session.beginTransaction();
-		
-		final List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
-		
+		final List<Object> commonListData = new ArrayList<Object>();
 		try {
-			session.doWork(new Work() {
-				
+			session.doWork(new Work() {				
 			       @Override
 			       public void execute(Connection conn) throws SQLException {
 
 				          PreparedStatement pstmtDlrStatus = null;
+				          List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
 				          List<String> listMatchDndData = new ArrayList<String>();
 				          
 				          try{
 				           String sqlInsertDlrStatus = "INSERT INTO temp_dnd(mobile) VALUES (?)";
-				           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
+				           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus);
 				           int i=0;
-				           for(String mobile : mobileList){	        	   
-				        	   if(mobile.length() == 12)
-				        	 	{
-				        	 		mobile = mobile.substring(2);
-				        	 		
-				        	 	}				        	    	   
-				        	   pstmtDlrStatus.setString(1, mobile);
-				               pstmtDlrStatus.addBatch();
+				           for(String mobile : mobileList){	
+				        	   
+				        	   if(mobile.length() > 5)
+				        	   {
+				        		   if(mobile.length() == 12)
+					        	 	{
+					        	 		mobile = mobile.substring(2);				        	 		
+					        	 	}				        	
+					        	   pstmtDlrStatus.setString(1, mobile);
+					               pstmtDlrStatus.addBatch();
+				        	   }
+				        	   
 				           }
 				           conn.setAutoCommit(false);
-				           pstmtDlrStatus.executeBatch();				        	          
+				           pstmtDlrStatus.executeBatch();
 				           
 				         //conn.setAutoCommit(true);
 				           String selectMobileNumberQuery ="select  Distinct t.mobile from  mobi_sms.temp_dnd t  inner join  sms_dnd.mobi_dnd d on t.mobile = d.mobile_no";
@@ -326,16 +328,41 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				        	   System.out.println(rs.getString("mobile"));
 				        	   String newMobile = rs.getString("mobile").toString();
 				        	   System.out.println("New Mobile"+newMobile);
-				        	   /* StringBuilder s =  new StringBuilder(newMobile);
-				        	   newMobile = s.insert(0,"91").toString();*/
+				        	   StringBuilder s =  new StringBuilder(newMobile);
+				        	   newMobile = s.insert(0,"91").toString();
 				        	   listMatchDndData.add(newMobile);
 				           }
-				           System.out.println("New Mobile list Size:"+listMatchDndData);
-				           System.out.println("old Mobile list Size:"+mobileList);
-				           mobileList.removeAll(listMatchDndData);
-				           System.out.println("New Mobile list Size:"+listMatchDndData);
-				           System.out.println("old Mobile list Size:"+mobileList);
 				           conn.commit();
+				        //  System.out.println("New Mobile list Size33:"+listMatchDndData);
+				        //  System.out.println("old Mobile list Size33:"+mobileList);
+				           List<String> newFilterMobileList = new ArrayList<>();
+				           for(int j=0; j<mobileList.size(); j++)
+				           {
+				        	   if(mobileList.get(j).length() != 12)
+				        	   {
+				        		   if(mobileList.get(j).length() != 0)
+				        		   {
+				        			   StringBuilder s =  new StringBuilder(mobileList.get(j));
+						        	   String add91Mobile = s.insert(0,"91").toString();
+						        	   newFilterMobileList.add(add91Mobile);
+				        		   }
+				        	   }
+				        	   else
+				        	   {
+				        		   if(mobileList.get(j).length() != 0)
+				        		   {
+				        			   newFilterMobileList.add(mobileList.get(j));
+				        		   }
+				        		  
+				        	   }
+				        	   
+				        	   
+				           }
+				           newFilterMobileList.removeAll(listMatchDndData);
+				           commonListData.add(0, newFilterMobileList);
+				           commonListData.add(1, listMatchDndData.size());
+				           System.out.println("old Mobile list Size:"+mobileList.size());
+				           System.out.println("New Mobile list Size: "+newFilterMobileList);
 				         } 
 				         finally{
 				        	 pstmtDlrStatus .close(); 
@@ -347,7 +374,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			tx.rollback();
 		}
 
-		return null;
+		return commonListData;
 	}
 
 }

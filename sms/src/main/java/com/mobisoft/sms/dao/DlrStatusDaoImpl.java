@@ -65,10 +65,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 		
 		if(list.size() > 0)
 		{
-			
 			try {
-				
-				
 				session.doWork(new Work() {
 					   
 				       @Override
@@ -84,9 +81,8 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								int updateJobStatus =qry.executeUpdate();
 								final List<String> mobileList = new ArrayList<>();
 								if(updateJobStatus ==1)
-								{
-									
-									/*try {*/
+								{									
+								/*try {*/
 								String fileName = list.get(0).getFilename();
 								/*	String fileExtension = FilenameUtils.getExtension(fileName);
 									System.out.println(fileExtension);*/
@@ -95,14 +91,14 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								br = new BufferedReader(fr);
 								String line="";
 										
-										while((line = br.readLine()) != null)
-										{
-											mobileList.add(line);
-										}
-										if(mobileList.isEmpty())
-										{
-											 temp=0;
-										}
+									while((line = br.readLine()) != null)
+									{
+										mobileList.add(line);
+									}
+									if(mobileList.isEmpty())
+									{
+										 temp=0;
+									}
 								}
 					           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 					           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
@@ -171,7 +167,6 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				     }
 
 				});
-				
 					
 			} catch (Exception e) {
 				System.out.println(e.getMessage());

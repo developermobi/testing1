@@ -24,5 +24,5 @@ public interface SmsHelperService {
 	public List<UserProduct>getRouteDetails(int userId,int productId);
 	public List<String>getGroupContact(String groupId,int userId);
 	public List<UserAuthrization> getUserAuthrizationCheck(int userId);
-	public String mobileNumber(String mobileNumber);
+	public List<Object> mobileNumber(String mobileNumber);
 }

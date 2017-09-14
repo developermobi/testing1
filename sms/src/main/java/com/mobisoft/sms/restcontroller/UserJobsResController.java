@@ -58,6 +58,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.web.util.TextEscapeUtils;
 
 @CrossOrigin
 @RestController
@@ -127,7 +128,7 @@ public class UserJobsResController {
 			if(!multipartFile.isEmpty()){
 				
 			    try {
-			    	
+			    	List<Object> dndNumberList=null;
 			    	fileName = multipartFile.getOriginalFilename().replace(" ", "-");
 			    	String newFileName = userId+fileName;
 			    	System.out.println(multipartFile.getSize());
@@ -152,11 +153,47 @@ public class UserJobsResController {
 							String line;
 							mobileList = new ArrayList<>();
 							while ((line = br.readLine()) != null) {
-								mobileList.add(line);
+								line=line.trim();
+								if(!line.equals(""))
+								{
+									mobileList.add(line);
+								}
+								
 							}
-							System.out.println(mobileList.size());
+							System.out.println("First file Mobile data"+mobileList);
 							br.close();
 							fr.close();
+							List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId);
+							System.out.println(listCheckAutherization.get(0).getDndCheck());
+							
+							if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+							{	 
+								  String mobileNumber = String.join(",",mobileList);
+								   dndNumberList = smsHelperService.mobileNumber(mobileNumber);			   
+								   System.out.println("Dnd Filter list:"+dndNumberList.get(0));
+								   List<String> sendMobileLis =new ArrayList<>();
+								   for(Object b:dndNumberList)
+								   {
+									   sendMobileLis.add(String.valueOf(b));
+								   }
+								   System.out.println("new list "+sendMobileLis.get(0));
+								   mobileNumber = String.join(",",sendMobileLis.get(0));
+								   mobileNumber = mobileNumber.replaceAll("[\\[\\](){}]","");
+								   FileWriter fw = new FileWriter(userJobFile.getAbsoluteFile());
+							        BufferedWriter bw = new BufferedWriter(fw);
+							        mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
+							        for(String contact : mobileList)
+							        {
+							        	bw.write(contact);
+								        bw.newLine();
+							        }
+							        
+							        bw.close();
+							        System.out.println("fileter mobile number"+mobileList);
+	  
+							}
+							
+
 						}
 			    		else if(multipartFile.getOriginalFilename().endsWith(".csv")){
 			    			System.out.println("Upload Csv File Details");
@@ -181,6 +218,35 @@ public class UserJobsResController {
 								 mobileList.add(number);
 					       } 		           
 				           reader.close();
+				           List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId);
+							System.out.println(listCheckAutherization.get(0).getDndCheck());
+							
+							if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+							{	 
+								  String mobileNumber = String.join(",",mobileList);
+								   dndNumberList = smsHelperService.mobileNumber(mobileNumber);			   
+								   System.out.println("Dnd Filter list:"+dndNumberList.get(0));
+								   List<String> sendMobileLis =new ArrayList<>();
+								   for(Object b:dndNumberList)
+								   {
+									   sendMobileLis.add(String.valueOf(b));
+								   }
+								   System.out.println("new list "+sendMobileLis.get(0));
+								   mobileNumber = String.join(",",sendMobileLis.get(0));
+								   mobileNumber = mobileNumber.replaceAll("[\\[\\](){}]","");
+								   FileWriter fw = new FileWriter(userJobFile.getAbsoluteFile());
+							        BufferedWriter bw = new BufferedWriter(fw);
+							        mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
+							        for(String contact : mobileList)
+							        {
+							        	bw.write(contact);
+								        bw.newLine();
+							        }
+							        
+							        bw.close();
+							        System.out.println("fileter mobile number"+mobileList);
+	  
+							}
 				           
 			    		}
 			    		else
@@ -200,8 +266,8 @@ public class UserJobsResController {
 			    		}
 			    		else
 			    		{
-			    			System.out.println("lis size"+mobileList.size());
-			    			if(!mobileList.isEmpty())
+			    			System.out.println("lis size" +mobileList);
+			    			if(!(mobileList.size() == 1) && !("".equals(mobileList.get(0))))
 			    			{
 			    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
 				    			System.out.println("User Balnce "+balance.get(0));
@@ -251,6 +317,7 @@ public class UserJobsResController {
 										map.put("code", 201);
 						    			map.put("status", "Success");
 						    			map.put("message", "file Upload ");
+						    			map.put("Total Dnd Number", dndNumberList.get(1));
 									}
 									else
 									{
@@ -327,7 +394,7 @@ public class UserJobsResController {
 			File fileData = null;
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
-			
+			List<Object> dndNumberList=null;
 			List<String> groupContactList = smsHelperService.getGroupContact(node.get("groupId").asText(), node.get("userId").asInt());
 			if(groupContactList.size() > 0)
 			{
@@ -343,15 +410,44 @@ public class UserJobsResController {
 			            	fileData.createNewFile();
 			            }
 			      
-			        FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
+			            /*  FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
 			        BufferedWriter bw = new BufferedWriter(fw);
-			        for(String contact : groupContactList)
+			       for(String contact : groupContactList)
 			        {
 			        	bw.write(contact);
 				        bw.newLine();
-			        }
-			        
+			        }			        
 			        bw.close();
+			        fw.close();*/
+			        List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt());
+					System.out.println(listCheckAutherization.get(0).getDndCheck());
+					
+					if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+					{	 
+						   String mobileNumber = String.join(",",groupContactList);
+						   dndNumberList = smsHelperService.mobileNumber(mobileNumber);			   
+						   System.out.println("Dnd Filter list:"+dndNumberList.get(0));
+						   List<String> sendMobileLis =new ArrayList<>();
+						   for(Object b:dndNumberList)
+						   {
+							   sendMobileLis.add(String.valueOf(b));
+						   }
+						   System.out.println("new list "+sendMobileLis.get(0));
+						   mobileNumber = String.join(",",sendMobileLis.get(0));
+						   mobileNumber = mobileNumber.replaceAll("[\\[\\](){}]","");
+						   FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
+					        BufferedWriter bw = new BufferedWriter(fw);
+					        groupContactList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
+					        for(String contact : groupContactList)
+					        {
+					        	bw.write(contact);
+						        bw.newLine();
+					        }
+					        
+					        bw.close();
+					        System.out.println("fileter mobile number"+groupContactList);
+
+					}
 					
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
@@ -367,69 +463,74 @@ public class UserJobsResController {
 	    		}
 	    		else
 	    		{
-	    			List<Integer> balance = smsHelperService.getBalance(node.get("userId").asInt(),node.get("productId").asInt());
-	    			System.out.println("User Balnce "+balance.get(0));
-	    			int sentMessage = groupContactList.size() * messageCount;
-	    			System.out.println("User Sent Message "+ sentMessage);
-	    			if(sentMessage <= balance.get(0))
+	    			if(!(groupContactList.size() == 1) && !("".equals(groupContactList.get(0))))
 	    			{
-	    				List<UserProduct>routeList= smsHelperService.getRouteDetails(node.get("userId").asInt(),node.get("productId").asInt());
-	    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
-	    				int updateNewBalance = balance.get(0)-sentMessage; 
-	    				UserJobs userJobs= new UserJobs();
-						userJobs.setUserId(node.get("userId").asInt());
-						userJobs.setMessage(node.get("message").asText());
-						userJobs.setMessageType(node.get("messageType").asInt());
-						userJobs.setMessageLength(messageLength);
-						userJobs.setCount(messageCount);
-						userJobs.setSender(node.get("sender").asText());
-						userJobs.setTotalNumbers(groupContactList.size());
-						userJobs.setTotalSent(sentMessage);
-						userJobs.setFilename(fileData.getAbsolutePath());
-						String scheduledAtConvert = node.get("scheduledAt").asText();
-						DateFormat formatter ; 
-						Date scheduledDate ; 
-						if(scheduledAtConvert != "")
-						{
-							formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-							scheduledDate = formatter.parse(scheduledAtConvert);
-							userJobs.setScheduledAt(scheduledDate);
-						}
-						/*String queuedAtConvert = queuedAt;
-						Date queuedAtDate; 					
-						queuedAtDate = formatter.parse(queuedAtConvert);	
-						userJobs.setQueuedAt(queuedAtDate);*/
+	    				List<Integer> balance = smsHelperService.getBalance(node.get("userId").asInt(),node.get("productId").asInt());
+		    			System.out.println("User Balnce "+balance.get(0));
+		    			int sentMessage = groupContactList.size() * messageCount;
+		    			System.out.println("User Sent Message "+ sentMessage);
+		    			if(sentMessage <= balance.get(0))
+		    			{
+		    				List<UserProduct>routeList= smsHelperService.getRouteDetails(node.get("userId").asInt(),node.get("productId").asInt());
+		    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
+		    				int updateNewBalance = balance.get(0)-sentMessage; 
+		    				UserJobs userJobs= new UserJobs();
+							userJobs.setUserId(node.get("userId").asInt());
+							userJobs.setMessage(node.get("message").asText());
+							userJobs.setMessageType(node.get("messageType").asInt());
+							userJobs.setMessageLength(messageLength);
+							userJobs.setCount(messageCount);
+							userJobs.setSender(node.get("sender").asText());
+							userJobs.setTotalNumbers(groupContactList.size());
+							userJobs.setTotalSent(sentMessage);
+							userJobs.setFilename(fileData.getAbsolutePath());
+							String scheduledAtConvert = node.get("scheduledAt").asText();
+							DateFormat formatter ; 
+							Date scheduledDate ; 
+							if(scheduledAtConvert != "")
+							{
+								formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+								scheduledDate = formatter.parse(scheduledAtConvert);
+								userJobs.setScheduledAt(scheduledDate);
+							}
+							/*String queuedAtConvert = queuedAt;
+							Date queuedAtDate; 					
+							queuedAtDate = formatter.parse(queuedAtConvert);	
+							userJobs.setQueuedAt(queuedAtDate);*/
 
-						userJobs.setJobStatus(0);
-						userJobs.setJobType(node.get("jobType").asInt());
-						userJobs.setDuplicateStatus(node.get("duplicateStatus").asInt());
-						userJobs.setScheduleStatus(node.get("scheduleStatus").asInt());
-						
-						/*userJobs.setSendNow(sendNow);*/
-						userJobs.setSendRatio(0);
-						userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
-						//userJobs.setCompletedAt(completedAtDate);
-						int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
-						if(result == 1)
-						{
+							userJobs.setJobStatus(0);
+							userJobs.setJobType(node.get("jobType").asInt());
+							userJobs.setDuplicateStatus(node.get("duplicateStatus").asInt());
+							userJobs.setScheduleStatus(node.get("scheduleStatus").asInt());
 							
-							map.put("code", 201);
-			    			map.put("status", "Success");
-			    			map.put("message", "file Upload ");
-						}
-						else
-						{
-							map.put("code", 403);
-			    			map.put("status", "error");
-			    			map.put("message", "Something Going Worng File Is Not Uploaded");
-						}
+							/*userJobs.setSendNow(sendNow);*/
+							userJobs.setSendRatio(0);
+							userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
+							//userJobs.setCompletedAt(completedAtDate);
+							int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
+							if(result == 1)
+							{
+								
+								map.put("code", 201);
+				    			map.put("status", "Success");
+				    			map.put("message", "file Upload ");
+				    			map.put("Total Dnd Number", dndNumberList.get(1));
+							}
+							else
+							{
+								map.put("code", 403);
+				    			map.put("status", "error");
+				    			map.put("message", "Something Going Worng File Is Not Uploaded");
+							}
+		    			}
+		    			else
+		    			{
+		    				map.put("code", 204);
+							map.put("status", "error");
+							map.put("message", "Insufficieant Balance");
+		    			}
 	    			}
-	    			else
-	    			{
-	    				map.put("code", 204);
-						map.put("status", "error");
-						map.put("message", "Insufficieant Balance");
-	    			}
+	    			
 	    		}
 			}
 			else
@@ -462,51 +563,144 @@ public class UserJobsResController {
 		map.put("status", 404);
 		map.put("message", "Data Not Inserted");
 		System.out.println("Start Quick Messaging");
+		
 		mapper = new ObjectMapper();
 		JsonNode node = mapper.readValue(jsonString,JsonNode.class);
+		List<Object> dndNumberList=null;
+		
 		List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt());
 		System.out.println(listCheckAutherization.get(0).getDndCheck());
 		String mobileNumber = node.get("mobileNumber").asText();
-		if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+		if(mobileNumber != "")
 		{
-			String mobileNo = smsHelperService.mobileNumber(mobileNumber);
-			System.out.println("Method call ");
-		}
-		//System.out.println(mobileNumber);
-		List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
-		System.out.println(mobileList.size());
-		if(mobileList.size() <= 1000)
-		{
-			if(node.get("scheduleStatus").asInt() == 1)
+			if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+			{	 
+				   dndNumberList = smsHelperService.mobileNumber(mobileNumber);			   
+				   System.out.println("Dnd Filter list:"+dndNumberList.get(0));
+				   List<String> sendMobileLis =new ArrayList<>();
+				   for(Object b:dndNumberList)
+				   {
+					   sendMobileLis.add(String.valueOf(b));
+				   }
+				   System.out.println("new list "+sendMobileLis.get(0));
+				   mobileNumber = String.join(",",sendMobileLis.get(0));
+				   mobileNumber = mobileNumber.replaceAll("[\\[\\](){}]","");
+				  
+				  
+			}
+			//System.out.println(mobileNumber);
+			List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
+			System.out.println("list adta"+mobileList.get(0));
+			if(mobileList.size() <= 1000 && mobileList.size() > 0)
 			{
-				System.out.println("In side If");
-				File file=null;
-				File fileData = null;
-				 try {
-					  long millis = new java.util.Date().getTime();
-					  System.out.println(millis);
-					  String fileName = millis+node.get("userId").asInt()+"quickschedule"+".txt";
-					  System.out.println(fileName);
-				      file = new File(uploadUserJobsFile);				     
-			            if (!file.exists()) {
-			                file.mkdir();
-			            }			            
-			            fileData = new File(file, fileName);
-			            if (!fileData.exists()) {
-			            	fileData.createNewFile();
-			            }
+				if(node.get("scheduleStatus").asInt() == 1)
+				{
+					System.out.println("In side If");
+					File file=null;
+					File fileData = null;
+					 try {
+						  long millis = new java.util.Date().getTime();
+						  System.out.println(millis);
+						  String fileName = millis+node.get("userId").asInt()+"quickschedule"+".txt";
+						  System.out.println(fileName);
+					      file = new File(uploadUserJobsFile);				     
+				            if (!file.exists()) {
+				                file.mkdir();
+				            }			            
+				            fileData = new File(file, fileName);
+				            if (!fileData.exists()) {
+				            	fileData.createNewFile();
+				            }
 
-			        FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
-			        BufferedWriter bw = new BufferedWriter(fw);
-			        
-			        for(String contact : mobileList)
-			        {
-			        	bw.write(contact);
-				        bw.newLine();
-			        }
-			        
-			        bw.close();
-			        int messageLength = node.get("message").asText().length();
+				        FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
+				        BufferedWriter bw = new BufferedWriter(fw);
+				        
+				        for(String contact : mobileList)
+				        {
+				        	bw.write(contact);
+					        bw.newLine();
+				        }
+				        
+				        bw.close();
+				        int messageLength = node.get("message").asText().length();
+			    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
+			    		if(messageCount > 10)
+			    		{
+			    			map.put("code", 413);
+							map.put("status", "error");
+							map.put("message", "Message Count Too Large");
+			    		}
+			    		else
+			    		{
+			    			List<Integer> balance = smsHelperService.getBalance(node.get("userId").asInt(),node.get("productId").asInt());
+			    			System.out.println("User Balnce "+balance.get(0));
+			    			int sentMessage = mobileList.size() * messageCount;
+			    			System.out.println("User Sent Message "+ sentMessage);
+			    			if(sentMessage <= balance.get(0))
+			    			{
+			    				List<UserProduct>routeList= smsHelperService.getRouteDetails(node.get("userId").asInt(),node.get("productId").asInt());
+			    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
+			    				int updateNewBalance = balance.get(0)-sentMessage; 
+			    				UserJobs userJobs= new UserJobs();
+								userJobs.setUserId(node.get("userId").asInt());
+								userJobs.setMessage(node.get("message").asText());
+								userJobs.setMessageType(node.get("messageType").asInt());
+								userJobs.setMessageLength(messageLength);
+								userJobs.setCount(messageCount);
+								userJobs.setSender(node.get("sender").asText());
+								userJobs.setTotalNumbers(mobileList.size());
+								userJobs.setTotalSent(sentMessage);
+								userJobs.setFilename(fileData.getAbsolutePath());
+								String scheduledAtConvert = node.get("scheduledAt").asText();
+								System.out.println(scheduledAtConvert);
+								DateFormat formatter ; 
+								Date scheduledDate ; 
+								if(scheduledAtConvert != "")
+								{
+									formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+									scheduledDate = formatter.parse(scheduledAtConvert);
+									userJobs.setScheduledAt(scheduledDate);
+								}
+								/*String queuedAtConvert = queuedAt;
+								Date queuedAtDate; 					
+								queuedAtDate = formatter.parse(queuedAtConvert);	
+								userJobs.setQueuedAt(queuedAtDate);*/
+
+								userJobs.setJobStatus(0);
+								userJobs.setJobType(node.get("jobType").asInt());
+								userJobs.setDuplicateStatus(node.get("duplicateStatus").asInt());
+								userJobs.setScheduleStatus(node.get("scheduleStatus").asInt());
+								
+								/*userJobs.setSendNow(sendNow);*/
+								userJobs.setSendRatio(0);
+								userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
+								//userJobs.setCompletedAt(completedAtDate);
+								int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
+								if(result == 1)
+								{
+									
+									map.put("code", 201);
+					    			map.put("status", "Success");
+					    			map.put("message", "file Upload ");
+								}
+								else
+								{
+									map.put("code", 403);
+					    			map.put("status", "error");
+					    			map.put("message", "Something Going Worng File Is Not Uploaded");
+								}
+			    			}
+			    		}		        
+						
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+
+				}
+				else
+				{
+					System.out.println("Start direct in dlr_status table");
+					int messageLength = node.get("message").asText().length();
 		    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
 		    		if(messageCount > 10)
 		    		{
@@ -522,50 +716,41 @@ public class UserJobsResController {
 		    			System.out.println("User Sent Message "+ sentMessage);
 		    			if(sentMessage <= balance.get(0))
 		    			{
+		    				System.out.println(balance.get(0));
 		    				List<UserProduct>routeList= smsHelperService.getRouteDetails(node.get("userId").asInt(),node.get("productId").asInt());
 		    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
 		    				int updateNewBalance = balance.get(0)-sentMessage; 
-		    				UserJobs userJobs= new UserJobs();
-							userJobs.setUserId(node.get("userId").asInt());
-							userJobs.setMessage(node.get("message").asText());
-							userJobs.setMessageType(node.get("messageType").asInt());
-							userJobs.setMessageLength(messageLength);
-							userJobs.setCount(messageCount);
-							userJobs.setSender(node.get("sender").asText());
-							userJobs.setTotalNumbers(mobileList.size());
-							userJobs.setTotalSent(sentMessage);
-							userJobs.setFilename(fileData.getAbsolutePath());
-							String scheduledAtConvert = node.get("scheduledAt").asText();
-							System.out.println(scheduledAtConvert);
-							DateFormat formatter ; 
-							Date scheduledDate ; 
-							if(scheduledAtConvert != "")
-							{
-								formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-								scheduledDate = formatter.parse(scheduledAtConvert);
-								userJobs.setScheduledAt(scheduledDate);
-							}
-							/*String queuedAtConvert = queuedAt;
-							Date queuedAtDate; 					
-							queuedAtDate = formatter.parse(queuedAtConvert);	
-							userJobs.setQueuedAt(queuedAtDate);*/
-
-							userJobs.setJobStatus(0);
-							userJobs.setJobType(node.get("jobType").asInt());
-							userJobs.setDuplicateStatus(node.get("duplicateStatus").asInt());
-							userJobs.setScheduleStatus(node.get("scheduleStatus").asInt());
+		    				System.out.println(updateNewBalance);
+		    				
+		    				int coding = 0;
+		    				if(node.get("messageType").asInt() == 2)
+		    				{
+		    					coding =2;
+		    				}
+		    				Map<String,Object> mapList = new HashMap<>();
+		    				mapList.put("mobileNumber", mobileNumber);
+		    				mapList.put("userId", node.get("userId").asInt());
+		    				mapList.put("message", node.get("message").asText());
+		    				mapList.put("messageType", node.get("messageType").asInt());
+		    				mapList.put("messageLength", messageLength);
+		    				mapList.put("messageCount", messageCount);
+		    				mapList.put("sender", node.get("sender").asText());
+		    				mapList.put("sentMessage", sentMessage);
+		    				mapList.put("jobType", node.get("jobType").asInt());
+		    				mapList.put("productId", node.get("productId").asInt());
+		    				mapList.put("updateNewBalance", updateNewBalance);
+		    				mapList.put("routeName", routeList.get(0).getRouteId().getSmppName());
+		    				mapList.put("coding", coding);
+		    				System.out.println("product id in urc"+node.get("productId").asInt());
+		    				System.out.println("product id in urc"+mapList.get("productId"));
+							int result = userJobsService.sendQuickMessage(mapList);
 							
-							/*userJobs.setSendNow(sendNow);*/
-							userJobs.setSendRatio(0);
-							userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
-							//userJobs.setCompletedAt(completedAtDate);
-							int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
 							if(result == 1)
 							{
-								
 								map.put("code", 201);
 				    			map.put("status", "Success");
-				    			map.put("message", "file Upload ");
+				    			map.put("message", "Send Quick Message Successfully");
+				    			map.put("Total Dnd Number", dndNumberList.get(1));
 							}
 							else
 							{
@@ -574,83 +759,23 @@ public class UserJobsResController {
 				    			map.put("message", "Something Going Worng File Is Not Uploaded");
 							}
 		    			}
-		    		}		        
-					
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
+		    		}
 				}
-
 			}
 			else
 			{
-				System.out.println("Start direct in dlr_status table");
-				int messageLength = node.get("message").asText().length();
-	    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
-	    		if(messageCount > 10)
-	    		{
-	    			map.put("code", 413);
-					map.put("status", "error");
-					map.put("message", "Message Count Too Large");
-	    		}
-	    		else
-	    		{
-	    			List<Integer> balance = smsHelperService.getBalance(node.get("userId").asInt(),node.get("productId").asInt());
-	    			System.out.println("User Balnce "+balance.get(0));
-	    			int sentMessage = mobileList.size() * messageCount;
-	    			System.out.println("User Sent Message "+ sentMessage);
-	    			if(sentMessage <= balance.get(0))
-	    			{
-	    				System.out.println(balance.get(0));
-	    				List<UserProduct>routeList= smsHelperService.getRouteDetails(node.get("userId").asInt(),node.get("productId").asInt());
-	    				System.out.println("Route Name"+routeList.get(0).getRouteId().getSmppName());
-	    				int updateNewBalance = balance.get(0)-sentMessage; 
-	    				System.out.println(updateNewBalance);
-	    				
-	    				int coding = 0;
-	    				if(node.get("messageType").asInt() == 2)
-	    				{
-	    					coding =2;
-	    				}
-	    				Map<String,Object> mapList = new HashMap<>();
-	    				mapList.put("mobileNumber", mobileNumber);
-	    				mapList.put("userId", node.get("userId").asInt());
-	    				mapList.put("message", node.get("message").asText());
-	    				mapList.put("messageType", node.get("messageType").asInt());
-	    				mapList.put("messageLength", messageLength);
-	    				mapList.put("messageCount", messageCount);
-	    				mapList.put("sender", node.get("sender").asText());
-	    				mapList.put("sentMessage", sentMessage);
-	    				mapList.put("jobType", node.get("jobType").asInt());
-	    				mapList.put("productId", node.get("productId").asInt());
-	    				mapList.put("updateNewBalance", updateNewBalance);
-	    				mapList.put("routeName", routeList.get(0).getRouteId().getSmppName());
-	    				mapList.put("coding", coding);
-	    				System.out.println("product id in urc"+node.get("productId").asInt());
-	    				System.out.println("product id in urc"+mapList.get("productId"));
-						int result = userJobsService.sendQuickMessage(mapList);
-						
-						if(result == 1)
-						{
-							map.put("code", 201);
-			    			map.put("status", "Success");
-			    			map.put("message", "Send Quick Message Successfully");
-						}
-						else
-						{
-							map.put("code", 403);
-			    			map.put("status", "error");
-			    			map.put("message", "Something Going Worng File Is Not Uploaded");
-						}
-	    			}
-	    		}
+				map.put("code", 413);
+				map.put("status", "error");
+				map.put("message", "You sending more then 1000 number");
 			}
 		}
 		else
 		{
 			map.put("code", 413);
 			map.put("status", "error");
-			map.put("message", "You sending more then 1000 number");
+			map.put("message", "Please send at least one mobile number");
 		}
+		
 		
 		
 		return map;
