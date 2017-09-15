@@ -163,7 +163,8 @@ public class UserJobsResController {
 							System.out.println("First file Mobile data"+mobileList);
 							br.close();
 							fr.close();
-							List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId);
+							List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
+							
 							System.out.println(listCheckAutherization.get(0).getDndCheck());
 							
 							if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
@@ -190,10 +191,8 @@ public class UserJobsResController {
 							        
 							        bw.close();
 							        System.out.println("fileter mobile number"+mobileList);
-	  
 							}
 							
-
 						}
 			    		else if(multipartFile.getOriginalFilename().endsWith(".csv")){
 			    			System.out.println("Upload Csv File Details");
@@ -218,7 +217,7 @@ public class UserJobsResController {
 								 mobileList.add(number);
 					       } 		           
 				           reader.close();
-				           List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId);
+				           List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
 							System.out.println(listCheckAutherization.get(0).getDndCheck());
 							
 							if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
@@ -409,17 +408,8 @@ public class UserJobsResController {
 			            if (!fileData.exists()) {
 			            	fileData.createNewFile();
 			            }
-			      
-			            /*  FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
-			        BufferedWriter bw = new BufferedWriter(fw);
-			       for(String contact : groupContactList)
-			        {
-			        	bw.write(contact);
-				        bw.newLine();
-			        }			        
-			        bw.close();
-			        fw.close();*/
-			        List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt());
+
+			        List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt(),node.get("productId").asInt());
 					System.out.println(listCheckAutherization.get(0).getDndCheck());
 					
 					if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
@@ -568,7 +558,7 @@ public class UserJobsResController {
 		JsonNode node = mapper.readValue(jsonString,JsonNode.class);
 		List<Object> dndNumberList=null;
 		
-		List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt());
+		List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt(),node.get("productId").asInt());
 		System.out.println(listCheckAutherization.get(0).getDndCheck());
 		String mobileNumber = node.get("mobileNumber").asText();
 		if(mobileNumber != "")

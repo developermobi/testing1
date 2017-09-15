@@ -1,22 +1,17 @@
 package com.mobisoft.sms.dao;
 
 import java.util.List;
-
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.GroupDetails;
 import com.mobisoft.sms.model.User;
-
 
 @Repository("groupDetailsDao")
 public class GroupDetailsDaoImpl implements GroupDetailsDao{
@@ -61,6 +56,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 		.add(Restrictions.ne("status", 2))
 		.setFirstResult(start)
 		.setMaxResults(limit);
+		@SuppressWarnings("unchecked")
 		List<GroupDetails> list = criteria.list();
 		session.close();
 		return list;
@@ -72,6 +68,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 		Criteria criteria = session.createCriteria(GroupDetails.class);
 		criteria.add(Restrictions.eq("groupId", groupId))
 		.add(Restrictions.ne("status", 2));
+		@SuppressWarnings("unchecked")
 		List<GroupDetails> list = criteria.list();
 		session.close();
 		return list;
@@ -133,16 +130,15 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 
 	@Override
 	public List<GroupDetails> getGroupDetailsCountByUserId(int userId) {
-		System.out.println("Show data");	
+		
 		session= sessionFactory.openSession();
 		User user= (User)session.get(User.class, userId);
-		System.out.println(user.getUserId());
 		Criteria criteria = session.createCriteria(GroupDetails.class);
 		criteria.add(Restrictions.eq("userId", user))
 		.add(Restrictions.ne("status", 2));
+		@SuppressWarnings("unchecked")
 		List<GroupDetails> list = criteria.list();
-		session.close();
-		System.out.println("Show data"+list.size());
+		session.close();		
 		return list;
 	}
 

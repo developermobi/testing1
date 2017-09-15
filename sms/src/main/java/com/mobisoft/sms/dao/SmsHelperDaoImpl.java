@@ -272,12 +272,13 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		
 	}
 	@Override
-	public List<UserAuthrization> getUserAuthrizationCheck(int userId) {
+	public List<UserAuthrization> getUserAuthrizationCheck(int userId,int productId) {
 		Session session = sessionFactory.openSession();
 		Transaction tx= session.beginTransaction();
 		User user =(User)session.get(User.class, userId);
 		Criteria criteria = session.createCriteria(UserAuthrization.class);
-		criteria.add(Restrictions.eq("userId",user));
+		criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("productId", productId));
+		
 		List<UserAuthrization> list = criteria.list();
 		return list;		
 	}

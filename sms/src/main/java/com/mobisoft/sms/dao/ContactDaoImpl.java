@@ -245,5 +245,17 @@ public class ContactDaoImpl implements ContactDao{
 		return temp;
 	}
 
+	@Override
+	public List<Contact> getContactCountByGroupId(int groupId) {
+		session = sessionFactory.openSession();
+		GroupDetails groupDetails =(GroupDetails)session.get(GroupDetails.class,groupId);
+		Criteria criteria = session.createCriteria(Contact.class);
+		criteria.add(Restrictions.eq("groupId", groupDetails))
+		.add(Restrictions.ne("status", 2));
+		List<Contact> list = criteria.list();
+		session.close();
+		return list;
+	}
+
 	
 }

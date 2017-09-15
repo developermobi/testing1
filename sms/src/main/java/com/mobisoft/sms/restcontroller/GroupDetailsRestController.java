@@ -2,11 +2,8 @@ package com.mobisoft.sms.restcontroller;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,18 +13,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
-import com.mobisoft.sms.model.SenderId;
-import com.mobisoft.sms.model.Template;
-import com.mobisoft.sms.model.User;
+import com.mobisoft.sms.service.ContactService;
 import com.mobisoft.sms.service.GroupDetailsService;
 import com.mobisoft.sms.service.UserService;
-import com.mobisoft.sms.utility.Global;
 import com.mobisoft.sms.utility.TokenAuthentication;
 
 @CrossOrigin
@@ -40,6 +34,10 @@ public class GroupDetailsRestController {
 	
 	@Autowired
 	private GroupDetailsService groupDetailsService;
+	
+	@Autowired
+	private ContactService contactService;
+	
 	
 	@Autowired
 	private UserService userService;
@@ -103,12 +101,55 @@ public class GroupDetailsRestController {
 		else {
 			List<GroupDetails> groupDetailsCount = groupDetailsService.getGroupDetailsCountByUserId(userId);
 			List<GroupDetails> groupDetails = groupDetailsService.getGroupDetailsByUserId(userId, start, limit);
+		
+			
+			System.out.println("groupDetails: "+groupDetails.get(0));
 			
 			 Map<String, Object> dataMap = new HashMap<>();
 			 dataMap.put("total", groupDetailsCount.size());
 			 dataMap.put("groupDetailsData", groupDetails);
 			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
 			if(groupDetailsCount.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "Data found");
+				map.put("data", dataMap);
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", dataMap);
+			}
+		}		
+		
+		return map;
+	}
+	@RequestMapping(value = "/getGroupContact/{groupId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getAllGroupPaginate(@PathVariable("groupId")int groupId,@RequestHeader("Authorization") String authorization)
+	{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){
+					
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else {
+			List<Contact> listContactByGroup = contactService.getContactCountByGroupId(groupId);		
+			
+			System.out.println("groupDetails: "+listContactByGroup.get(0));
+			
+			 Map<String, Object> dataMap = new HashMap<>();
+			 dataMap.put("total", listContactByGroup.size());
+			 dataMap.put("groupContactData", listContactByGroup);
+			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
+			if(listContactByGroup.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "Data found");

@@ -19,9 +19,12 @@ public class UserAuthrization {
 	@Column(name = "id")
 	private int userAuthrizationId;
 	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name = "u_id")
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "user_id")
 	private User userId;
+	
+	@Column(name = "product_id")
+	private int productId;
 	
 	@Column(name = "dnd_check",length=2 )	
 	private String dndCheck;
@@ -47,6 +50,16 @@ public class UserAuthrization {
 
 	public void setUserId(User userId) {
 		this.userId = userId;
+	}
+
+	
+
+	public int getProductId() {
+		return productId;
+	}
+
+	public void setProductId(int productId) {
+		this.productId = productId;
 	}
 
 	public String getDndCheck() {

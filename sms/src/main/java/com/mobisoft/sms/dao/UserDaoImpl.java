@@ -201,6 +201,7 @@ public class UserDaoImpl implements UserDao {
 		userAuthrization.setDndCheck(jsonNode.get("dndCheck").asText());
 		userAuthrization.setSpamCheck(jsonNode.get("spamCheck").asText());
 		userAuthrization.setPercentage(jsonNode.get("percentage").asText());
+		userAuthrization.setProductId(product.getId());
 		userAuthrization.setUserId(user);
 		
 		//Find Reseller route...........

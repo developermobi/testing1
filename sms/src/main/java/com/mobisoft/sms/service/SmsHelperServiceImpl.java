@@ -79,9 +79,9 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 	}
 
 	@Override
-	public List<UserAuthrization> getUserAuthrizationCheck(int userId) {
+	public List<UserAuthrization> getUserAuthrizationCheck(int userId,int productId) {
 		
-		return smsHelperDao.getUserAuthrizationCheck(userId);
+		return smsHelperDao.getUserAuthrizationCheck(userId,productId);
 	}
 
 	@Override

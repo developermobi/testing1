@@ -12,6 +12,7 @@ public interface ContactDao {
 	public int saveConact(JsonNode node);
 	public List<Contact> getContactByUserId(int userId,int start, int limit);
 	public List<Contact> getContactCountByUserId(int userId);
+	public List<Contact> getContactCountByGroupId(int groupId);
 	public List<Contact> getContactByContactId(int contactId);
 	public int updateContact(JsonNode node,int contactId);
 	public int updateContactStatusByContactId(int contactId, int status);
