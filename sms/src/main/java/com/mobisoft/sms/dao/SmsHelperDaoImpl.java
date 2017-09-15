@@ -279,10 +279,8 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		Criteria criteria = session.createCriteria(UserAuthrization.class);
 		criteria.add(Restrictions.eq("userId",user));
 		List<UserAuthrization> list = criteria.list();
-		return list;
-		
+		return list;		
 	}
-
 	@Override
 	public List<Object> mobileNumber(final String mobileNumber) {
 		
@@ -332,6 +330,12 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				        	   newMobile = s.insert(0,"91").toString();
 				        	   listMatchDndData.add(newMobile);
 				           }
+				           ///Trancute table temp table
+				           String trancuteTable ="TRUNCATE TABLE temp_dnd";
+				           System.out.println(selectMobileNumberQuery);
+				           Statement statementTrancute = conn.createStatement();
+				           ResultSet resultSetTrancute = statementTrancute.executeQuery(trancuteTable);
+				           
 				           conn.commit();
 				        //  System.out.println("New Mobile list Size33:"+listMatchDndData);
 				        //  System.out.println("old Mobile list Size33:"+mobileList);
@@ -352,11 +356,8 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				        		   if(mobileList.get(j).length() != 0)
 				        		   {
 				        			   newFilterMobileList.add(mobileList.get(j));
-				        		   }
-				        		  
-				        	   }
-				        	   
-				        	   
+				        		   }				        		  
+				        	   } 
 				           }
 				           newFilterMobileList.removeAll(listMatchDndData);
 				           commonListData.add(0, newFilterMobileList);
