@@ -89,4 +89,10 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 		
 		return smsHelperDao.mobileNumber(mobileNumber);
 	}
+
+	@Override
+	public int genrateOtp(int userId) {
+		
+		return smsHelperDao.genrateOtp(userId);
+	}
 }

@@ -47,6 +47,7 @@
 	    <value>com.mobisoft.sms.model.QueuedSms</value>
 	    <value>com.mobisoft.sms.model.DlrStatus</value>
 	    <value>com.mobisoft.sms.model.UserAuthrization</value>
+	    <value>com.mobisoft.sms.model.OtpValidate</value>
 	   </list>
 	  </property>
 	  <property name="hibernateProperties">

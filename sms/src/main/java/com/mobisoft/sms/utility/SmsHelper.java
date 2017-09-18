@@ -27,10 +27,5 @@ public class SmsHelper {
 		balance = (int) results.get(0);*/
 		return balance;
 	}
-	/*public static void main(String[] args) {
-		
-		SmsHelper smsHelper = new SmsHelper();
-		int balance = smsHelper.getBalnce(1,1);
-		System.out.println(balance);
-	}*/
+	
 }

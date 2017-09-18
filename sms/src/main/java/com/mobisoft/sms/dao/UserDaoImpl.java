@@ -1,6 +1,7 @@
 package com.mobisoft.sms.dao;
 
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,9 +17,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.jsf.FacesContextUtils;
-
 import com.mobisoft.sms.model.Credit;
 import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.Product;
@@ -28,7 +28,7 @@ import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.utility.Global;
-import com.mobisoft.sms.utility.SmsHelper;
+
 
 @Repository("userDao")
 public class UserDaoImpl implements UserDao {
@@ -36,13 +36,23 @@ public class UserDaoImpl implements UserDao {
 	@Autowired
 	SessionFactory sessionFactory;
 	
+	@Value("${sms_username}")
+	private String userName;
+	
+
+	@Value("${password}")
+	private String password;
+	
+
+	@Value("${senderId}")
+	private String senderId;
+	
 	@Autowired
 	private SmsHelperService smsHelperService;
 	public int saveUser(User user) {
 		Session session =  sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
-		int temp = 0;
-		
+		int temp = 0;		
 		try {
 			session.saveOrUpdate(user);
 			temp = 1;
@@ -452,10 +462,8 @@ public class UserDaoImpl implements UserDao {
 		{
 			try {
 				String remark ="Add Balance By self "+" User name is "+user.getUserName();
-				smsHelperService.creditBalance(user.getUserId(), productId, deductUserId, balance, remark, 3, session, tx);
-				
+				smsHelperService.creditBalance(user.getUserId(), productId, deductUserId, balance, remark, 3, session, tx);				
 				temp = smsHelperService.debitBalnce(dedcutByUserId, productId,deductUserId , balance, remark, 3, session, tx);
-				
 				if(temp == 1)
 				{
 					tx.commit();
@@ -471,9 +479,72 @@ public class UserDaoImpl implements UserDao {
 		else
 		{
 			temp = 2;
-		}
-		
+		}		
 		return temp;
+	}
+	@Override
+	public int changePassword(String oldPassword, String newPassword,int userId) {
+		Session session = sessionFactory.openSession();
+		@SuppressWarnings("unused")
+		Transaction tx= session.beginTransaction();
+		int i=0;
+		try {
+			User user = (User)session.get(User.class, userId);
+			
+			if(user.getPassword().equals(oldPassword))
+			{
+				String sqlquery = "update user set password = "+newPassword+" where id= "+userId;
+				Query query = session.createSQLQuery(sqlquery);
+				int updatePasswordData = query.executeUpdate();
+				
+				System.out.println(updatePasswordData);
+				if(updatePasswordData > 0)
+				{
+					tx.commit();
+					try {
+						session.refresh(user);
+						User user2 = (User)session.get(User.class,userId);
+						String mobile =user2.getMobile();
+						if(mobile.length() == 12)
+						{
+							mobile = mobile.substring(2);
+						}
+						String message ="Dear Sir, Your new password is "+user2.getPassword();
+						i = Global.sendMessage(userName, password,mobile, senderId, message);
+						
+					} catch (MalformedURLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}			
+			}
+			else
+			{
+				//old password is not match
+				i=2;
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			tx.rollback();
+		}
+		finally {
+			session.close();
+		}
+		return i;
+	}
+
+	@Override
+	public List<User> validateUserName(String userName) {
+		Session session = sessionFactory.openSession();
+		@SuppressWarnings("unused")
+		Transaction tx= session.beginTransaction();
+		Criteria criteria = session.createCriteria(User.class);
+		criteria.add(Restrictions.eq("userName", userName));
+		@SuppressWarnings("unchecked")
+		List<User> userList = criteria.list();
+		session.close();		
+		return userList;
 	}
 
 

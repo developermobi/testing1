@@ -37,4 +37,10 @@ public interface UserDao {
 	public int deductCreditUser(int deductUserId,int creditByUserId,int productId,int balance);
 	
 	public int addProdcut(int reselerId,int userId,int prodcutId,int balance);
+	
+	public int changePassword(String oldPassword, String newPassword,int userId);
+	
+	public List<User> validateUserName(String userName);
+	
+	
 }

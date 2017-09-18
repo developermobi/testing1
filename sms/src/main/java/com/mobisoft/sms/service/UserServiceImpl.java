@@ -39,27 +39,22 @@ public class UserServiceImpl implements UserService{
 	}
 	@Override
 	public List<User> getUserByUserName(String userName) {
-		
 		return userDao.getUserByUserName(userName);
 	}
 	@Override
 	public int saveUerDeatils(JsonNode jsonNode) {
-		
 		return userDao.saveUerDeatils(jsonNode);
 	}
 	@Override
 	public List<SmsBalance> getBalanceByUserId(int userId) {
-		
 		return userDao.getBalanceByUserId(userId);
 	}
 	@Override
 	public List<Credit> getCreditDetailsByUserId(int userId) {
-		
 		return userDao.getCreditDetailsByUserId(userId);
 	}
 	@Override
 	public List<Debit> getDebitByUserId(int userId) {
-		
 		return userDao.getDebitByUserId(userId);
 	}
 	@Override
@@ -68,7 +63,6 @@ public class UserServiceImpl implements UserService{
 	}
 	@Override
 	public int addCreditUser(int userId, int resellerId, int productId, int balance) {
-		
 		return userDao.addCreditUser(userId, resellerId, productId, balance);
 	}
 	@Override
@@ -78,6 +72,16 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public int deductCreditUser(int deductUserId, int creditByUserId, int productId, int balance) {
 		return userDao.deductCreditUser(deductUserId, creditByUserId, productId, balance);
+	}
+	@Override
+	public List<User> validateUserName(String userName) {
+		
+		return userDao.validateUserName(userName);
+	}
+	@Override
+	public int changePassword(String oldPassword, String newPassword, int userId) {
+	
+		return userDao.changePassword(oldPassword, newPassword, userId);
 	}
 
 }

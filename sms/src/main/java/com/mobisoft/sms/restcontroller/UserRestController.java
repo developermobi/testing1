@@ -1,6 +1,7 @@
 package com.mobisoft.sms.restcontroller;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Observer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +48,17 @@ public class UserRestController {
 	private SmsHelperService smsHelperService;
 	
 	private ObjectMapper mapper = null;
+	
+	@Value("${sms_username}")
+	private String userName;
+	
+
+	@Value("${password}")
+	private String password;
+	
+
+	@Value("${senderId}")
+	private String senderId;
 	
 	
 	@RequestMapping(value="/user/login",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -750,8 +763,133 @@ public class UserRestController {
 		}
 		return map;	
 	}
-	
-	
-	
+	@RequestMapping(value = "validateUserName/{userName}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>validateUserName(@PathVariable("userName")String userName)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		List<User>listUser= userService.validateUserName(userName);
+		
+		if(listUser.size() > 0){
+			
+			if(listUser.get(0).getUserName().equals(userName))
+			{
+				// Send Mail And message to user with password
+				
+				String message ="Dear Sir, Your password has been send on your register mobile number"+listUser.get(0).getPassword();
+				String mobile = listUser.get(0).getMobile();
+				if( mobile.length() == 12)
+				{
+					mobile = mobile.substring(2);
+				}
+				try {
+					int i = Global.sendMessage(userName, password,mobile, senderId, message);
+					if(i == 1)
+					{
+						map.put("code", 404);
+						map.put("status", "success");
+						map.put("message", "Dear Sir, Your password has been send on your register mobile number");
+					}
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				/*String otp = smsHelperService.genrateOtp(listUser.get(0).getUserId());
+				System.out.println("New Otp"+otp);*/
+			}
+			else
+			{
+				map.put("code", 404);
+				map.put("status", "error");
+				map.put("message", "Invalid User Name");
+			}
+		}
+		else {
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Not Found User name");
+		}		
+		return map;
+	}
+	@RequestMapping(value = "changePassword/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>changePassword(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}
+		else
+		{
+			int temp = smsHelperService.genrateOtp(userId);
+			
+			if(temp == 1){
+				
+				// send mail and message
+				map.put("code", 404);
+				map.put("status", "success");
+				map.put("message", "Otp send on your register mobile number");
+			}
+			else {
+				map.put("code", 404);
+				map.put("status", "error");
+				map.put("message", "Not Found User name");
+			}		
+		}
+		
+		return map;
+	}
+	@RequestMapping(value = "updatePassword",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>updatePassword(@RequestBody String jsonString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0)
+		{
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else
+		{
+			mapper = new ObjectMapper();
+			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
+			
+			int chnagePassword = userService.changePassword(node.get("oldPassword").asText(), node.get("newPassword").asText(), node.get("userId").asInt());			
+			System.out.println("chnpassword ----- "+chnagePassword);
+			if(chnagePassword == 1){				
+				map.put("code", 404);
+				map.put("status", "success");
+				map.put("message", "Dear User, Your new password has been send on your register mobile number");
+			}
+			else if(chnagePassword == 2){
+				
+				map.put("code", 404);
+				map.put("status", "error");
+				map.put("message", "Old Password did not match");
+			}	
+			else
+			{
+				map.put("code", 404);
+				map.put("status", "error");
+				map.put("message", "Not Found User name");
+			}
+		}
+		return map;
+	}
 
 }

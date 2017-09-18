@@ -1,5 +1,7 @@
 package com.mobisoft.sms.dao;
 
+import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.nio.channels.SeekableByteChannel;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -22,10 +24,12 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.mobisoft.sms.model.Credit;
 import com.mobisoft.sms.model.Debit;
+import com.mobisoft.sms.model.OtpValidate;
 import com.mobisoft.sms.model.Product;
 import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
@@ -45,6 +49,17 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Autowired
 	@Qualifier("sessionFactory2")
 	SessionFactory sessionFactory2;
+	
+	@Value("${sms_username}")
+	private String userName;
+	
+
+	@Value("${password}")
+	private String password;
+	
+
+	@Value("${senderId}")
+	private String senderId;
 
 	@Override
 	public List<Integer> getBalance(int userId, int productId) {
@@ -377,6 +392,66 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		}
 
 		return commonListData;
+	}
+
+	@Override
+	public int genrateOtp(int userId) {
+		Session session = sessionFactory.openSession();
+		Transaction tx = session.beginTransaction();
+		int temp =0;
+		User user = (User)session.get(User.class, userId);
+		Criteria criteria = session.createCriteria(OtpValidate.class);
+		criteria.add(Restrictions.eq("userId", user));
+		List<OtpValidate> listOtp = criteria.list();
+		String otp = Global.randomString(5);
+		String newOtp = "";
+		if(listOtp.size() > 0)
+		{
+			//newOtp = listOtp.get(0).getOtp();
+			String sqlquery = "update otp set otp_data = "+otp+" where user_id= "+userId;
+			Query query = session.createSQLQuery(sqlquery);
+			int updateOtpData = query.executeUpdate();
+			if(updateOtpData > 0)
+			{
+				tx.commit();
+				String message ="Dear Sir,  Send otp on  your register mobile number"+otp;
+				String mobile = user.getMobile();
+				if( mobile.length() == 12)
+				{
+					mobile = mobile.substring(2);
+				}
+				try {
+					temp = Global.sendMessage(userName, password,mobile, senderId, message);					
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}			
+		}
+		else
+		{
+			System.out.println("Inside else");
+			OtpValidate otpValidate = new OtpValidate();
+			otpValidate.setOtpData(otp);
+			otpValidate.setUserId(user);
+			session.save(otpValidate);
+			tx.commit();
+			
+			String message ="Dear Sir,  Send otp on  your register mobile number"+otpValidate.getOtpData();
+			String mobile = user.getMobile();
+			if( mobile.length() == 12)
+			{
+				mobile = mobile.substring(2);
+			}
+			try {
+				temp = Global.sendMessage(userName, password,mobile, senderId, message);					
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return temp;
 	}
 
 }

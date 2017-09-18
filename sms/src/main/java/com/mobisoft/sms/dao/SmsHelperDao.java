@@ -26,4 +26,5 @@ public interface SmsHelperDao {
 	public List<String>getGroupContact(String groupId,int userId);
 	public List<UserAuthrization> getUserAuthrizationCheck(int userId,int productId);
 	public List<Object> mobileNumber(String mobileNumber);
+	public int genrateOtp(int userId);
 }
