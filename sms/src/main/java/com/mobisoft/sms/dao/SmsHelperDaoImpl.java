@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -37,6 +38,7 @@ import com.mobisoft.sms.model.SmsDnd;
 import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
+import com.mobisoft.sms.utility.EmailAPI;
 import com.mobisoft.sms.utility.Global;
 import com.mysql.jdbc.PreparedStatement;
 
@@ -53,11 +55,9 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Value("${sms_username}")
 	private String userName;
 	
-
 	@Value("${password}")
 	private String password;
 	
-
 	@Value("${senderId}")
 	private String senderId;
 
@@ -292,10 +292,9 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		Transaction tx= session.beginTransaction();
 		User user =(User)session.get(User.class, userId);
 		Criteria criteria = session.createCriteria(UserAuthrization.class);
-		criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("productId", productId));
-		
+		criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("productId", productId));		
 		List<UserAuthrization> list = criteria.list();
-		return list;		
+		return list;
 	}
 	@Override
 	public List<Object> mobileNumber(final String mobileNumber) {
@@ -396,6 +395,8 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 
 	@Override
 	public int genrateOtp(int userId) {
+		
+		System.out.println("helooo dear");
 		Session session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
 		int temp =0;
@@ -408,9 +409,10 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		if(listOtp.size() > 0)
 		{
 			//newOtp = listOtp.get(0).getOtp();
-			String sqlquery = "update otp set otp_data = "+otp+" where user_id= "+userId;
+			String sqlquery = "update otp set otp_data = '"+otp+"' where user_id= "+userId;
 			Query query = session.createSQLQuery(sqlquery);
 			int updateOtpData = query.executeUpdate();
+			System.out.println("return valuse "+updateOtpData);
 			if(updateOtpData > 0)
 			{
 				tx.commit();
@@ -420,8 +422,17 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				{
 					mobile = mobile.substring(2);
 				}
+				/*System.out.println("helookajsdhsa ");
+				EmailAPI emailAPI = new EmailAPI();
+				Map<String,String> map =new HashMap<String, String>();
+				map.put("toAddress", user.getEmail());
+				map.put("subject", "Send Otp For Change Password");
+				map.put("msgBody", message);					
+				emailAPI.sendSimpleMail(map);*/
 				try {
-					temp = Global.sendMessage(userName, password,mobile, senderId, message);					
+					System.out.println("helookajsdhsa2342123 ");
+					temp = Global.sendMessage(userName, password,mobile, senderId, message);
+					
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -446,9 +457,37 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			try {
 				temp = Global.sendMessage(userName, password,mobile, senderId, message);					
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		
+		return temp;
+	}
+
+	@Override
+	public int varifyOtp(String otp,int userId) {
+		Session session = sessionFactory.openSession();
+		Transaction tx= session.beginTransaction();
+		int temp =0;
+		try {
+			User user = (User)session.get(User.class,userId);
+			Criteria criteria = session.createCriteria(OtpValidate.class);
+			criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("otpData",otp));
+			List<OtpValidate> list = criteria.list();
+			if(list.size() > 0)
+			{
+				if(list.get(0).getOtpData().equals(otp))
+				{
+					temp =1;
+				}		
+				tx.commit();
+			}
+			
+		} catch (Exception e) {			
+			session.close();
+		}
+		finally {
+			session.close();
 		}
 		
 		return temp;

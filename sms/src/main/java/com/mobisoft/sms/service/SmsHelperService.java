@@ -26,4 +26,5 @@ public interface SmsHelperService {
 	public List<UserAuthrization> getUserAuthrizationCheck(int userId,int productId);
 	public List<Object> mobileNumber(String mobileNumber);
 	public int genrateOtp(int userId);
+	public int varifyOtp(String otp,int userId);
 }

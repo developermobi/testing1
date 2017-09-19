@@ -66,8 +66,7 @@ public class UserRestController {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("status", 404);
-		map.put("message", "user not found");
-		
+		map.put("message", "user not found");		
 		mapper = new ObjectMapper();
 		User user = mapper.readValue(jsonString, User.class);
 		
@@ -86,14 +85,11 @@ public class UserRestController {
 				map.put("data", mapData);
 
 			}
-			
 		}
 		
 		return map;
 		
 	}
-	
-
 	@RequestMapping(value = "/saveUser",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> saveUser(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
 
@@ -790,7 +786,7 @@ public class UserRestController {
 					int i = Global.sendMessage(userName, password,mobile, senderId, message);
 					if(i == 1)
 					{
-						map.put("code", 404);
+						map.put("code", 201);
 						map.put("status", "success");
 						map.put("message", "Dear Sir, Your password has been send on your register mobile number");
 					}
@@ -815,8 +811,8 @@ public class UserRestController {
 		}		
 		return map;
 	}
-	@RequestMapping(value = "changePassword/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>changePassword(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "generateOtp/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>generateOtp(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -828,16 +824,13 @@ public class UserRestController {
 			map.put("code", 404);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
-			
 		}
 		else
 		{
-			int temp = smsHelperService.genrateOtp(userId);
-			
+			int temp = smsHelperService.genrateOtp(userId);			
 			if(temp == 1){
-				
 				// send mail and message
-				map.put("code", 404);
+				map.put("code", 201);
 				map.put("status", "success");
 				map.put("message", "Otp send on your register mobile number");
 			}
@@ -846,8 +839,7 @@ public class UserRestController {
 				map.put("status", "error");
 				map.put("message", "Not Found User name");
 			}		
-		}
-		
+		}		
 		return map;
 	}
 	@RequestMapping(value = "updatePassword",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)
@@ -867,18 +859,17 @@ public class UserRestController {
 		else
 		{
 			mapper = new ObjectMapper();
-			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
-			
+			JsonNode node = mapper.readValue(jsonString, JsonNode.class);			
 			int chnagePassword = userService.changePassword(node.get("oldPassword").asText(), node.get("newPassword").asText(), node.get("userId").asInt());			
 			System.out.println("chnpassword ----- "+chnagePassword);
 			if(chnagePassword == 1){				
-				map.put("code", 404);
+				map.put("code", 201);
 				map.put("status", "success");
 				map.put("message", "Dear User, Your new password has been send on your register mobile number");
 			}
 			else if(chnagePassword == 2){
 				
-				map.put("code", 404);
+				map.put("code", 406);
 				map.put("status", "error");
 				map.put("message", "Old Password did not match");
 			}	
@@ -889,6 +880,36 @@ public class UserRestController {
 				map.put("message", "Not Found User name");
 			}
 		}
+		return map;
+	}
+	@RequestMapping(value = "varifyOtp/{otp}/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>changePassword(@PathVariable("userId")int userId,@PathVariable("otp")String otp,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else
+		{
+			int temp = smsHelperService.varifyOtp(otp, userId);	
+			if(temp == 1){
+				// send mail and message
+				map.put("code", 404);
+				map.put("status", "success");
+				map.put("message", "Otp Match Successfully");
+			}
+			else {
+				map.put("code", 404);
+				map.put("status", "error");
+				map.put("message", "otp not match");
+			}
+		}		
 		return map;
 	}
 

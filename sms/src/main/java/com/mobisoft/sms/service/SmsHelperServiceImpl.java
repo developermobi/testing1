@@ -95,4 +95,10 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 		
 		return smsHelperDao.genrateOtp(userId);
 	}
+
+	@Override
+	public int varifyOtp(String otp, int userId) {
+		
+		return smsHelperDao.varifyOtp(otp, userId);
+	}
 }
