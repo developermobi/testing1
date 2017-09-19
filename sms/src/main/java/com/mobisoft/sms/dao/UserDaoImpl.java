@@ -124,12 +124,13 @@ public class UserDaoImpl implements UserDao {
 		Session session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
 		User user=(User)session.get(User.class, userId);
-		System.out.println("akldasdkl"+user.getStatus());
+		
 		if(user.getStatus() == 1)
 		{
 			try {
 				String remark = "Delete User By Self "+" User Name Is"+ user.getUserName();
 				temp = smsHelperService.deductBalanceDeleteUser(user.getUserId(),resellerId,  remark, 2,session,tx);
+				System.out.println("akldasdkl"+temp);
 				if(temp == 1)
 				{
 					int status =2;

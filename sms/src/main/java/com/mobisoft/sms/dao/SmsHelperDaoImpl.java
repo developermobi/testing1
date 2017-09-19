@@ -1,19 +1,14 @@
 package com.mobisoft.sms.dao;
 
-import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.nio.channels.SeekableByteChannel;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -32,13 +27,12 @@ import com.mobisoft.sms.model.Credit;
 import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.OtpValidate;
 import com.mobisoft.sms.model.Product;
-import com.mobisoft.sms.model.Route;
 import com.mobisoft.sms.model.SmsBalance;
 import com.mobisoft.sms.model.SmsDnd;
 import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
-import com.mobisoft.sms.utility.EmailAPI;
+
 import com.mobisoft.sms.utility.Global;
 import com.mysql.jdbc.PreparedStatement;
 
@@ -78,28 +72,34 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	   
 		User user=(User)session.get(User.class, userId);
 		System.out.println("Address "+user.getAddress());
+		Criteria criteria = session.createCriteria(UserProduct.class);
+		
+		criteria.add(Restrictions.eq("userId",user));
+		List<UserProduct> productList = criteria.list();
+		System.out.println("productId"+productList.size());
 		
 		Set<Product> products = new HashSet<Product>();
 		//products = user.getUserProduct();
 		
 		
-		
-		
-        /*System.out.println(products.size());
+        System.out.println(products.size());
         
-        for (Product prodcutObj : products) {
+        for (UserProduct userProduct1 : productList) {
 
-            List<Integer> balanceList = getBalance(user.getUserId(),prodcutObj.getId());
-            Iterator<Integer> iterator = balanceList.iterator();
+        	System.out.println("User product"+userProduct1.getProductId().getId());
+           List<Integer> balanceList = getBalance(user.getUserId(),userProduct1.getProductId().getId());
+           System.out.println(balanceList);
+           temp = creditBalance(resellerId, userProduct1.getProductId().getId(), resellerId, balanceList.get(0), remark, deductType,session,tx);
+       	   temp = debitBalnce(resellerId, userProduct1.getProductId().getId(), userId, balanceList.get(0), remark, deductType,session,tx);
+            /*Iterator<Integer> iterator = balanceList.iterator();
             while (iterator.hasNext()) {
             	int balance =0;
             	balance = iterator.next();
             	
-            	temp = creditBalance(user.getUserId(), prodcutObj.getId(), resellerId, balance, remark, deductType,session,tx);
-            	temp = debitBalnce(userId, prodcutObj.getId(), resellerId, balance, remark, deductType,session,tx);
             	
-			}
-        }*/
+            	
+			}*/
+        }
         
 		return temp;
 	}
