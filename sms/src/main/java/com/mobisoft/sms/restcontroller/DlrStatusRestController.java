@@ -48,7 +48,7 @@ public class DlrStatusRestController {
 	
 	//Send sms from user_jobs table
 	
-	/*@Scheduled(fixedRateString  ="${schedualTimerIn}")*/
+	@Scheduled(fixedRateString  ="${schedualTimerIn}")
 	@RequestMapping(value = "/saveDlrStatus",method = RequestMethod.POST)
 	public void saveUser() throws FileNotFoundException, IOException {
 		

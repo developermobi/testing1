@@ -24,7 +24,7 @@ public class Contact {
 	@Column(name = "id")
 	private int contactId;
 	
-	@OneToOne(fetch=FetchType.LAZY)
+	@OneToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name = "group_id")
 	private GroupDetails groupId;
 	

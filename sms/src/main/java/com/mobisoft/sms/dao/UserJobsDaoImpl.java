@@ -36,7 +36,8 @@ public class UserJobsDaoImpl implements UserJobsDao {
 					
 			session.save(userJobs);
 			int temp = smsHelperService.debitBalnce(userJobs.getUserId(), productId,userJobs.getUserId() , sentMessageBalance, "Sent Message By Self", 4, session, tx);
-			if(temp ==1)
+			System.out.println("Return update balnmce"+temp);
+			if(temp == 1)
 			{
 				tx.commit();			
 				flag = 1;

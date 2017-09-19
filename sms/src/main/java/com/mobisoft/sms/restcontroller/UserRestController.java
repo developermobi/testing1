@@ -79,7 +79,7 @@ public class UserRestController {
 				mapData.put("authorization","Basic " + token);
 				mapData.put("fullName", userList.get(0).getName());
 				mapData.put("userId", userList.get(0).getUserId());
-				
+				mapData.put("userRole", userList.get(0).getRole());
  				map.put("status", 302);
 				map.put("message", "success");
 				map.put("data", mapData);

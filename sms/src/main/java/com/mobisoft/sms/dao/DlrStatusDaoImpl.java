@@ -54,7 +54,6 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	@Override
 	public int saveDlrStatus() {
 		
-		
 		session = sessionFactory.openSession();
 		tx= session.beginTransaction();
 		final Session session = sessionFactory.openSession();

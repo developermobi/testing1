@@ -129,6 +129,7 @@ public class UserJobsResController {
 				
 			    try {
 			    	List<Object> dndNumberList=null;
+			    	List<UserAuthrization> listCheckAutherization = null;
 			    	fileName = multipartFile.getOriginalFilename().replace(" ", "-");
 			    	String newFileName = userId+fileName;
 			    	System.out.println(multipartFile.getSize());
@@ -163,7 +164,7 @@ public class UserJobsResController {
 							System.out.println("First file Mobile data"+mobileList);
 							br.close();
 							fr.close();
-							List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
+							listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
 							
 							System.out.println(listCheckAutherization.get(0).getDndCheck());
 							
@@ -217,7 +218,7 @@ public class UserJobsResController {
 								 mobileList.add(number);
 					       } 		           
 				           reader.close();
-				           List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
+				           listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
 							System.out.println(listCheckAutherization.get(0).getDndCheck());
 							
 							if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
@@ -316,7 +317,12 @@ public class UserJobsResController {
 										map.put("code", 201);
 						    			map.put("status", "Success");
 						    			map.put("message", "file Upload ");
-						    			map.put("Total Dnd Number", dndNumberList.get(1));
+						    			
+										if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+										{
+											map.put("Total Dnd Number", dndNumberList.get(1));
+										}
+										
 									}
 									else
 									{
@@ -394,6 +400,7 @@ public class UserJobsResController {
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
 			List<Object> dndNumberList=null;
+			List<UserAuthrization> listCheckAutherization=null;
 			List<String> groupContactList = smsHelperService.getGroupContact(node.get("groupId").asText(), node.get("userId").asInt());
 			if(groupContactList.size() > 0)
 			{
@@ -409,7 +416,7 @@ public class UserJobsResController {
 			            	fileData.createNewFile();
 			            }
 
-			        List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt(),node.get("productId").asInt());
+			        listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt(),node.get("productId").asInt());
 					System.out.println(listCheckAutherization.get(0).getDndCheck());
 					
 					if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
@@ -503,8 +510,12 @@ public class UserJobsResController {
 								
 								map.put("code", 201);
 				    			map.put("status", "Success");
-				    			map.put("message", "file Upload ");
-				    			map.put("Total Dnd Number", dndNumberList.get(1));
+				    			map.put("message", "Successfully send data");
+				    			if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+				    			{
+				    				map.put("Total Dnd Number", dndNumberList.get(1));
+				    			}
+				    			
 							}
 							else
 							{
@@ -557,8 +568,8 @@ public class UserJobsResController {
 		mapper = new ObjectMapper();
 		JsonNode node = mapper.readValue(jsonString,JsonNode.class);
 		List<Object> dndNumberList=null;
-		
-		List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt(),node.get("productId").asInt());
+		List<UserAuthrization> listCheckAutherization=null;
+		listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt(),node.get("productId").asInt());
 		System.out.println(listCheckAutherization.get(0).getDndCheck());
 		String mobileNumber = node.get("mobileNumber").asText();
 		if(mobileNumber != "")
@@ -671,7 +682,11 @@ public class UserJobsResController {
 									
 									map.put("code", 201);
 					    			map.put("status", "Success");
-					    			map.put("message", "file Upload ");
+					    			map.put("message", "Send Message Successfully ");
+					    			if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+					    			{
+					    				map.put("Total Dnd Number", dndNumberList.get(1));
+					    			}
 								}
 								else
 								{
@@ -740,7 +755,10 @@ public class UserJobsResController {
 								map.put("code", 201);
 				    			map.put("status", "Success");
 				    			map.put("message", "Send Quick Message Successfully");
-				    			map.put("Total Dnd Number", dndNumberList.get(1));
+				    			if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+				    			{
+				    				map.put("Total Dnd Number", dndNumberList.get(1));
+				    			}
 							}
 							else
 							{
