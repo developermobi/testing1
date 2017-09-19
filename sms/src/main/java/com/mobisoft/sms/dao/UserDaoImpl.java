@@ -124,6 +124,7 @@ public class UserDaoImpl implements UserDao {
 		Session session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
 		User user=(User)session.get(User.class, userId);
+		System.out.println("akldasdkl"+user.getStatus());
 		if(user.getStatus() == 1)
 		{
 			try {
