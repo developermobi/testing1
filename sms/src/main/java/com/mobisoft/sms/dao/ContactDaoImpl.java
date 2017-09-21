@@ -10,6 +10,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -76,13 +77,29 @@ public class ContactDaoImpl implements ContactDao{
 	@Override
 	public List<Contact> getContactByUserId(int userId, int start, int limit) {
 		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(Contact.class);
-		criteria.add(Restrictions.eq("userId", userId))
-		.add(Restrictions.ne("status", 2))
-		.setFirstResult(start)
-		.setMaxResults(limit);
-		List<Contact> list = criteria.list();
-		session.close();
+		List<Contact> list = null;
+		try {
+			Criteria criteria = session.createCriteria(Contact.class);
+			criteria.add(Restrictions.eq("userId", userId))
+			.add(Restrictions.ne("status", 2))
+			.setFirstResult(start)
+			.setMaxResults(limit).addOrder(Order.desc("created"));
+			 list = criteria.list();
+			 session.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
+		
 		return list;
 		
 	}
@@ -90,22 +107,52 @@ public class ContactDaoImpl implements ContactDao{
 	@Override
 	public List<Contact> getContactCountByUserId(int userId) {
 		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(Contact.class).setProjection(Projections.rowCount());
-		criteria.add(Restrictions.eq("userId", userId))
-		.add(Restrictions.ne("status", 2));
-		List<Contact> list = criteria.list();
-		session.close();
+		List<Contact> list = null;
+		try {
+			Criteria criteria = session.createCriteria(Contact.class).setProjection(Projections.rowCount());
+			criteria.add(Restrictions.eq("userId", userId))
+			.add(Restrictions.ne("status", 2));
+			list = criteria.list();
+			session.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return list;
 	}
 
 	@Override
 	public List<Contact> getContactByContactId(int contactId) {
 		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(Contact.class);
-		criteria.add(Restrictions.eq("contactId", contactId))
-		.add(Restrictions.ne("status", 2));
-		List<Contact> list = criteria.list();
-		session.close();
+		List<Contact> list = null;
+		try {
+			Criteria criteria = session.createCriteria(Contact.class);
+			criteria.add(Restrictions.eq("contactId", contactId))
+			.add(Restrictions.ne("status", 2));
+			list = criteria.list();
+			session.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return list;
 	}
 
@@ -131,6 +178,7 @@ public class ContactDaoImpl implements ContactDao{
 					qry.setParameter("contactId", contactId);
 					temp = qry.executeUpdate();
 					tx.commit();
+					session.close();
 				}
 				else
 				{
@@ -148,7 +196,14 @@ public class ContactDaoImpl implements ContactDao{
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
 		}
 		
 		return temp;
@@ -171,6 +226,7 @@ public class ContactDaoImpl implements ContactDao{
 				System.out.println(temp);
 				temp=1;
 				tx.commit();
+				session.close();
 			}
 			else
 			{
@@ -183,8 +239,15 @@ public class ContactDaoImpl implements ContactDao{
 			tx.rollback();
 			
 		}finally {
-			session.close();
-		}			
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}		
 
 
 		return temp;
@@ -192,10 +255,10 @@ public class ContactDaoImpl implements ContactDao{
 
 	@Override
 	public int uploadMultipleContact(int groupId, final int userId, final CSVReader reader) {
-		
+		session=sessionFactory.openSession();
 		try { 
 			
-		 	session=sessionFactory.openSession();
+		 
 			final GroupDetails groupDetails=(GroupDetails)session.get(GroupDetails.class,groupId);
 	        session.doWork(new Work() {				   
 			       @Override
@@ -230,9 +293,20 @@ public class ContactDaoImpl implements ContactDao{
 						e.printStackTrace();
 						conn.rollback();
 					} 
-			         finally{
-			        	 pstmtContact .close();
-			         }                                
+			          finally {
+			  			try {
+			  				if(conn != null)
+			  				{
+			  					conn.close();
+			  				}
+			  			} catch (Exception e2) {}
+			  			try {
+			  				if(pstmtContact != null)
+			  				{
+			  					pstmtContact.close();
+			  				}
+			  			} catch (Exception e2) {}
+			  		}		                                
 			     }
 
 			});
@@ -242,18 +316,37 @@ public class ContactDaoImpl implements ContactDao{
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
+		finally {
+  			try {
+  				if(session != null)
+  				{
+  					session.close();
+  				}
+  			} catch (Exception e2) {}
+  		}		
 		return temp;
 	}
 
 	@Override
 	public List<Contact> getContactCountByGroupId(int groupId) {
 		session = sessionFactory.openSession();
-		GroupDetails groupDetails =(GroupDetails)session.get(GroupDetails.class,groupId);
-		Criteria criteria = session.createCriteria(Contact.class);
-		criteria.add(Restrictions.eq("groupId", groupDetails))
-		.add(Restrictions.ne("status", 2));
-		List<Contact> list = criteria.list();
-		session.close();
+		List<Contact> list = null;
+		try {
+			GroupDetails groupDetails =(GroupDetails)session.get(GroupDetails.class,groupId);
+			Criteria criteria = session.createCriteria(Contact.class);
+			criteria.add(Restrictions.eq("groupId", groupDetails))
+			.add(Restrictions.ne("status", 2));
+			list = criteria.list();
+			session.close();
+		} catch (Exception e) {}
+		finally {
+  			try {
+  				if(session != null)
+  				{
+  					session.close();
+  				}
+  			} catch (Exception e2) {}
+  		}	
 		return list;
 	}
 

@@ -48,4 +48,15 @@ public class UserReportServiceImpl implements UserReportService{
 		
 		return userReportDao.scheduleReportByUserId(userId, start, max);
 	}
+
+	@Override
+	public List<Integer> messageCountDaily(int userId, String date) {
+		return userReportDao.messageCountDaily(userId, date);
+	}
+
+	@Override
+	public int messageCountScheduale(int userId) {
+		
+		return userReportDao.messageCountScheduale(userId);
+	}
 }

@@ -16,6 +16,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,28 +42,73 @@ public class UserReportDaoImpl implements UserReportDao {
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 		LocalDate localDate = LocalDate.now();
 		System.out.println(dtf.format(localDate));
-		session = sessionFactory.openSession();		
-		String sql = "SELECT sum(count) ,status  FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+localDate+"%' group by status";
-		Query query = session.createSQLQuery(sql);
-		List results = query.list();		
+		session = sessionFactory.openSession();
+		List results = null;
+		try {
+			String sql = "SELECT sum(count) ,status  FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+localDate+"%' group by status";
+			Query query = session.createSQLQuery(sql);
+			results = query.list();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return results;
 	}
 	@SuppressWarnings("rawtypes")
 	@Override
 	public List weeklyCountMessage(int userId) {
-		session = sessionFactory.openSession();		
-		String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND user_id ="+userId+" GROUP BY status";
-		Query query = session.createSQLQuery(sql);
-		List results = query.list();		
+		session = sessionFactory.openSession();	
+		List results = null;
+		try {
+			String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND user_id ="+userId+" GROUP BY status";
+			Query query = session.createSQLQuery(sql);
+			results = query.list();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return results;
 	}
 	@SuppressWarnings("rawtypes")
 	@Override
 	public List monthlyCountMessage(int userId) {
-		session = sessionFactory.openSession();		
-		String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 2 MONTH) AND user_id ="+userId+" GROUP BY status";
-		Query query = session.createSQLQuery(sql);
-		List results = query.list();		
+		session = sessionFactory.openSession();
+		List results = null;
+		try {
+			String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 2 MONTH) AND user_id ="+userId+" GROUP BY status";
+			Query query = session.createSQLQuery(sql);
+			results = query.list();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return results;
 	}
 
@@ -68,10 +116,24 @@ public class UserReportDaoImpl implements UserReportDao {
 	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max) {
 		
 		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(DlrStatus.class);
-		criteria.add(Restrictions.eq("userId",userId)).setFirstResult(start).setMaxResults(max);
-		@SuppressWarnings("unchecked")
-		List<DlrStatus> listResult = criteria.list();	
+		List<DlrStatus> listResult = null;
+		try {
+			Criteria criteria = session.createCriteria(DlrStatus.class);
+			criteria.add(Restrictions.eq("userId",userId)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("loggedAt"));
+			listResult = criteria.list();	
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				
+			}
+		}
 		return listResult;
 	}
 	@SuppressWarnings("rawtypes")
@@ -118,14 +180,72 @@ public class UserReportDaoImpl implements UserReportDao {
 	}
 	@Override
 	public List<UserJobs> scheduleReportByUserId(int userId,int start,int max) {
+		List<UserJobs> listResult = null;
 		session = sessionFactory.openSession();
-		tx= session.beginTransaction();
-		
-		Criteria criteria = session.createCriteria(UserJobs.class);
-		criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 1)).setFirstResult(start).setMaxResults(max);
-		List<UserJobs> listResult = criteria.list();	
+		try {
+			Criteria criteria = session.createCriteria(UserJobs.class);
+			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 1)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("scheduledAt"));
+			listResult = criteria.list();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return listResult;
 		
+	}
+	@Override
+	public List<Integer> messageCountDaily(int userId, String date) {
+		List<Integer> results = null;
+		session = sessionFactory.openSession();
+		try {
+			
+			String sql = "SELECT count(mobile)  FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%'";
+			Query query = session.createSQLQuery(sql);
+			results = query.list();
+			
+			System.out.println("list user"+results.size());
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			if(session != null)
+			{
+				session.close();
+			}
+		}
+		return results;
+	}
+	@Override
+	public int messageCountScheduale(int userId) {
+		int countSchedual =0;
+		session = sessionFactory.openSession();
+		List<UserJobs> listResult = null;		
+		try {
+			Criteria criteria = session.createCriteria(UserJobs.class);
+			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 1)).addOrder(Order.desc("scheduledAt"));
+			listResult = criteria.list();
+			countSchedual = listResult.size();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			if(session != null)
+			{
+				session.close();
+			}
+		}
+		return countSchedual;
 	}
 	
 }

@@ -1,6 +1,8 @@
 package com.mobisoft.sms.restcontroller;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -156,13 +158,23 @@ public class UserReportRestController {
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
+			
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			LocalDate localDate = LocalDate.now();
+			String date = dtf.format(localDate);
+			System.out.println(dtf.format(localDate));
+			List<Integer> list = userReportService.messageCountDaily(userId,date);
+			System.out.println("count"+list.get(0));
 			List<DlrStatus> dalyReport = userReportService.dailyRepotMessage(userId,start,max);
-						
 			if(dalyReport.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
 				map.put("data", dalyReport);
+				if(list.size() > 0)
+				{
+					map.put("total", list.get(0));
+				}
 				
 			}else{
 				map.put("status", "success");
@@ -212,10 +224,7 @@ public class UserReportRestController {
 					String outputString = (String) iter.next();
 					response.getOutputStream().print(outputString);
 				}
-
 				response.getOutputStream().flush();
-				return null;
-				
 			}
 			else
 			{
@@ -243,12 +252,14 @@ public class UserReportRestController {
 		}
 		else{
 			List<UserJobs> dalyReport = userReportService.scheduleReportByUserId(userId, start, max);
+			int totalSchedualCount = userReportService.messageCountScheduale(userId);
 						
 			if(dalyReport.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
 				map.put("data", dalyReport);
+				map.put("total", totalSchedualCount);
 				
 			}else{
 				map.put("status", "success");

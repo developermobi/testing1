@@ -54,7 +54,7 @@ public class DlrStatus {
 	
 	@Column(name = "logged_at", columnDefinition="TIMESTAMP", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
-	private int loggedAt;
+	private java.util.Date loggedAt = new java.util.Date();
 	
 	@Column(name="dlr_time")
 	private Date dlrTime;
@@ -68,91 +68,73 @@ public class DlrStatus {
 	@Column(name="provider_id")
 	private String providerId;
 
-
 	public int getId() {
 		return id;
 	}
-
 
 	public void setId(int id) {
 		this.id = id;
 	}
 
-
 	public int getUserId() {
 		return userId;
 	}
-
 
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
 
-
 	public String getMobile() {
 		return mobile;
 	}
-
 
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
 	}
 
-
 	public String getMessage() {
 		return message;
 	}
-
 
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
-
 	public int getCount() {
 		return count;
 	}
-
 
 	public void setCount(int count) {
 		this.count = count;
 	}
 
-
 	public int getLength() {
 		return length;
 	}
-
 
 	public void setLength(int length) {
 		this.length = length;
 	}
 
-
 	public int getType() {
 		return type;
 	}
-
 
 	public void setType(int type) {
 		this.type = type;
 	}
 
-
 	public String getMessageId() {
 		return messageId;
 	}
-
 
 	public void setMessageId(String messageId) {
 		this.messageId = messageId;
 	}
 
-
 	public int getMobiClass() {
 		return mobiClass;
 	}
-
 
 	public void setMobiClass(int mobiClass) {
 		this.mobiClass = mobiClass;
@@ -162,82 +144,65 @@ public class DlrStatus {
 		return coding;
 	}
 
-
 	public void setCoding(int coding) {
 		this.coding = coding;
 	}
-
 
 	public String getStatus() {
 		return status;
 	}
 
-
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
 
 	public int getErrorCode() {
 		return errorCode;
 	}
 
-
 	public void setErrorCode(int errorCode) {
 		this.errorCode = errorCode;
 	}
 
-
-	public int getLoggedAt() {
+	public java.util.Date getLoggedAt() {
 		return loggedAt;
 	}
 
-
-	public void setLoggedAt(int loggedAt) {
-		loggedAt = loggedAt;
+	public void setLoggedAt(java.util.Date loggedAt) {
+		this.loggedAt = loggedAt;
 	}
-
 
 	public Date getDlrTime() {
 		return dlrTime;
 	}
 
-
 	public void setDlrTime(Date dlrTime) {
 		this.dlrTime = dlrTime;
 	}
 
-
-	public int getjobId() {
+	public int getJobId() {
 		return jobId;
 	}
 
-
-	public void setjobId(int jobId) {
-		jobId = jobId;
+	public void setJobId(int jobId) {
+		this.jobId = jobId;
 	}
-
 
 	public String getSender() {
 		return Sender;
 	}
 
-
 	public void setSender(String sender) {
 		Sender = sender;
 	}
-
 
 	public String getProviderId() {
 		return providerId;
 	}
 
-
 	public void setProviderId(String providerId) {
 		this.providerId = providerId;
 	}
-	
-	
-	
+
 	
 }

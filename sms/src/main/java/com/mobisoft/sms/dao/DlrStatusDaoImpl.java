@@ -176,24 +176,18 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						        	            conn.close();
 						        	        } catch (SQLException e) { /* ignored */}
 						        	    }
-
-						         }                                
+						        }                                
 					     }
-
 					});
 						
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 					e.printStackTrace();					
 					tx.rollback();
-				}finally{
-					
-					
 				}
 			}
 			else
 			{
-				
 				return temp = 0;
 			}
 		} catch (Exception e) {
@@ -209,8 +203,6 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				
 			}
 		}
-		
-
 		return temp;
 	}
 
@@ -321,20 +313,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 
 			});
 		} catch (Exception e) {
-			
-		}
-		finally {
-			try {
-				//System.out.println("Session is not closed");
-				if(session != null)
-				{
-					//session.close();
-					//System.out.println("Session closed");	
-				}
-			} catch (Exception e2) {
-				System.out.println(e2.getMessage());
-				//tx.rollback();
-			}
+			System.out.println(e.getMessage());
 		}
 		
 		return temp;

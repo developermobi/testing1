@@ -305,13 +305,15 @@ public class ContactRestController {
 			    	
 			    	fileName = multipartFile.getOriginalFilename().replace(" ", "-");
 			    	String newFileName = userId+fileName;
-			    	System.out.println(multipartFile.getSize());
+			    	System.out.println("file size:- "+multipartFile.getSize());
 			    	if(multipartFile.getSize() <= 3000000 )
 			    	{
+			    		
 			    		if(multipartFile.getOriginalFilename().endsWith(".csv")){
-				    		
+			    			
 							String fileUploadDirectory =  uploadUserContact+"/";						
-							userContactFile = new File(fileUploadDirectory);						
+							userContactFile = new File(fileUploadDirectory);
+							System.out.println("inside if directory");
 					        if (!userContactFile.exists()) {
 					            if (!userContactFile.mkdirs()) {
 					            	
@@ -343,6 +345,12 @@ public class ContactRestController {
 					        }*/
 
 						}
+			    		else
+			    		{
+			    			map.put("code", 413);
+							map.put("status", "error");
+							map.put("message", "Invalid file format please select csv file....");	
+			    		}
 
 			    	}
 			    	else
@@ -390,8 +398,7 @@ public class ContactRestController {
 		}
 		else {
 			List<Contact> contactCount = contactService.getContactCountByUserId(userId);
-			
-			
+
 			 Map<String, Object> dataMap = new HashMap<>();
 			 dataMap.put("total", contactCount.size());
 			

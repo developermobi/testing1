@@ -51,7 +51,7 @@ public class UserRestController {
 	private ObjectMapper mapper = null;
 	
 	@Value("${sms_username}")
-	private String userName;
+	private String userNameMessage;
 	
 
 	@Value("${password}")
@@ -807,7 +807,7 @@ public class UserRestController {
 					mobile = mobile.substring(2);
 				}
 				try {
-					int i = Global.sendMessage(userName, password,mobile, senderId, message);
+					int i = Global.sendMessage(userNameMessage, password,mobile, senderId, message);
 					if(i == 1)
 					{
 						map.put("code", 201);
