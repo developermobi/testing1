@@ -56,140 +56,169 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 		
 		session = sessionFactory.openSession();
 		tx= session.beginTransaction();
-		final Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(UserJobs.class);
-		criteria.add(Restrictions.eq("jobStatus", 0)).add(Restrictions.eq("scheduleStatus", 0));
-		final List<UserJobs> list = criteria.list();
-		System.out.println("List Size data"+list.size());
+		try {
+			Criteria criteria = session.createCriteria(UserJobs.class);
+			criteria.add(Restrictions.eq("jobStatus", 0)).add(Restrictions.eq("scheduleStatus", 0));
+			final List<UserJobs> list = criteria.list();
+			System.out.println("List Size data"+list.size());
+			tx.commit();
+			if(list.size() > 0)
+			{
+				try {
+					session.doWork(new Work() {
+						   
+					       @Override
+					       public void execute(Connection conn) throws SQLException {
+					          PreparedStatement pstmtDlrStatus = null;
+					          PreparedStatement pstmtQueuedSms = null;
+					          try{
+									String sql = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
+									org.hibernate.Query qry = session.createSQLQuery(sql);
+									qry.setParameter("status", 1);
+									qry.setParameter("userId", list.get(0).getUserId());
+									qry.setParameter("id", list.get(0).getId());
+									int updateJobStatus =qry.executeUpdate();
+									final List<String> mobileList = new ArrayList<>();
+									if(updateJobStatus ==1)
+									{									
+									/*try {*/
+									String fileName = list.get(0).getFilename();
+									/*	String fileExtension = FilenameUtils.getExtension(fileName);
+										System.out.println(fileExtension);*/
+									file = new File(fileName);					
+									fr = new FileReader(file);
+									br = new BufferedReader(fr);
+									String line="";
+											
+										while((line = br.readLine()) != null)
+										{
+											mobileList.add(line);
+										}
+										if(mobileList.isEmpty())
+										{
+											 temp=0;
+										}
+									}
+						           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+						           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
+						           
+						           String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,mclass, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+						           pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
+						           int i=0;
+						           for(String mobile : mobileList){	        	   
 		
-		if(list.size() > 0)
-		{
-			try {
-				session.doWork(new Work() {
-					   
-				       @Override
-				       public void execute(Connection conn) throws SQLException {
-				          PreparedStatement pstmtDlrStatus = null;
-				          PreparedStatement pstmtQueuedSms = null;
-				          try{
-								String sql = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
-								org.hibernate.Query qry = session.createSQLQuery(sql);
-								qry.setParameter("status", 1);
-								qry.setParameter("userId", list.get(0).getUserId());
-								qry.setParameter("id", list.get(0).getId());
-								int updateJobStatus =qry.executeUpdate();
-								final List<String> mobileList = new ArrayList<>();
-								if(updateJobStatus ==1)
-								{									
-								/*try {*/
-								String fileName = list.get(0).getFilename();
-								/*	String fileExtension = FilenameUtils.getExtension(fileName);
-									System.out.println(fileExtension);*/
-								file = new File(fileName);					
-								fr = new FileReader(file);
-								br = new BufferedReader(fr);
-								String line="";
-										
-									while((line = br.readLine()) != null)
-									{
-										mobileList.add(line);
-									}
-									if(mobileList.isEmpty())
-									{
-										 temp=0;
-									}
-								}
-					           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
-					           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
-					           
-					           String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,mclass, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-					           pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
-					           int i=0;
-					           for(String mobile : mobileList){	        	   
-	
-					        	   String messId = Global.randomString(10);			        	   
-					        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
-					        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
-					        	   pstmtDlrStatus.setInt(3,0);
-					        	   pstmtDlrStatus.setInt(4, list.get(0).getCount());
-					        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
-					        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
-					        	   pstmtDlrStatus.setString(7, messId);
-					        	   pstmtDlrStatus.setInt(8, 1);
-					        	   pstmtDlrStatus.setString(9, mobile);
-					        	   pstmtDlrStatus.setString(10, list.get(0).getRoute());
-					        	   pstmtDlrStatus.setInt(11, 1);
-					        	   pstmtDlrStatus.setInt(12, list.get(0).getUserId());
-					               pstmtDlrStatus.addBatch();
-					               
-					               pstmtQueuedSms.setInt(1, list.get(0).getId());
-					               pstmtQueuedSms.setString(2,"MO");
-					               pstmtQueuedSms.setString(3,list.get(0).getSender());
-					               pstmtQueuedSms.setString(4, mobile);
-					               pstmtQueuedSms.setString(5, list.get(0).getMessage());
-					               pstmtQueuedSms.setString(6,list.get(0).getRoute());
-					               pstmtQueuedSms.setString(7,"sqlbox");
-					               pstmtQueuedSms.setInt(8, 1);
-					               pstmtQueuedSms.setInt(9, 1);
-					               pstmtQueuedSms.setInt(10, 0);
-					               pstmtQueuedSms.setInt(11,19);
-					               pstmtQueuedSms.setString(12, messId);
-					               pstmtQueuedSms.setString(13,"UTF-8");
-					               pstmtQueuedSms.addBatch(); 
-	
-					           }
-					           conn.setAutoCommit(false);
-					           pstmtDlrStatus.executeBatch();
-					           pstmtQueuedSms.executeBatch();
-					           String sql1 = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
-					           org.hibernate.Query qry1 = session.createSQLQuery(sql1);
-					           qry1.setParameter("status", 2);
-					           qry1.setParameter("userId", list.get(0).getUserId());
-					           qry1.setParameter("id", list.get(0).getId());			
-					           temp =qry1.executeUpdate();
-					           conn.commit();
-					           conn.setAutoCommit(true);
-					           
-					         } catch (FileNotFoundException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-								tx.rollback();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-								tx.rollback();
-							} 
-					         finally{
-					        	 pstmtDlrStatus .close();
-					        	 
-					         }                                
-				     }
+						        	   String messId = Global.randomString(10);			        	   
+						        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
+						        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
+						        	   pstmtDlrStatus.setInt(3,0);
+						        	   pstmtDlrStatus.setInt(4, list.get(0).getCount());
+						        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
+						        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
+						        	   pstmtDlrStatus.setString(7, messId);
+						        	   pstmtDlrStatus.setInt(8, 1);
+						        	   pstmtDlrStatus.setString(9, mobile);
+						        	   pstmtDlrStatus.setString(10, list.get(0).getRoute());
+						        	   pstmtDlrStatus.setInt(11, 1);
+						        	   pstmtDlrStatus.setInt(12, list.get(0).getUserId());
+						               pstmtDlrStatus.addBatch();
+						               
+						               pstmtQueuedSms.setInt(1, list.get(0).getId());
+						               pstmtQueuedSms.setString(2,"MO");
+						               pstmtQueuedSms.setString(3,list.get(0).getSender());
+						               pstmtQueuedSms.setString(4, mobile);
+						               pstmtQueuedSms.setString(5, list.get(0).getMessage());
+						               pstmtQueuedSms.setString(6,list.get(0).getRoute());
+						               pstmtQueuedSms.setString(7,"sqlbox");
+						               pstmtQueuedSms.setInt(8, 1);
+						               pstmtQueuedSms.setInt(9, 1);
+						               pstmtQueuedSms.setInt(10, 0);
+						               pstmtQueuedSms.setInt(11,19);
+						               pstmtQueuedSms.setString(12, messId);
+						               pstmtQueuedSms.setString(13,"UTF-8");
+						               pstmtQueuedSms.addBatch(); 
+		
+						           }
+						           conn.setAutoCommit(false);
+						           pstmtDlrStatus.executeBatch();
+						           pstmtQueuedSms.executeBatch();
+						           String sql1 = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
+						           org.hibernate.Query qry1 = session.createSQLQuery(sql1);
+						           qry1.setParameter("status", 2);
+						           qry1.setParameter("userId", list.get(0).getUserId());
+						           qry1.setParameter("id", list.get(0).getId());			
+						           temp =qry1.executeUpdate();
+						           conn.commit();
+						           conn.setAutoCommit(true);
+						           
+						         } catch (FileNotFoundException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									conn.rollback();
+								} catch (IOException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									conn.rollback();
+								} 
+						         finally{
 
-				});
+						        	    if (pstmtDlrStatus != null) {
+						        	        try {
+						        	        	pstmtDlrStatus.close();
+						        	        } catch (SQLException e) { /* ignored */}
+						        	    }
+						        	    if (pstmtQueuedSms != null) {
+						        	        try {
+						        	        	pstmtQueuedSms.close();
+						        	        } catch (SQLException e) { /* ignored */}
+						        	    }
+						        	    if (conn != null) {
+						        	        try {
+						        	            conn.close();
+						        	        } catch (SQLException e) { /* ignored */}
+						        	    }
+
+						         }                                
+					     }
+
+					});
+						
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					e.printStackTrace();					
+					tx.rollback();
+				}finally{
 					
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-				e.printStackTrace();
+					
+				}
+			}
+			else
+			{
 				
-				tx.rollback();
-			}finally{
-				session.close();
+				return temp = 0;
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				
 			}
 		}
-		else
-		{
-			
-			return temp = 0;
-		}
+		
 
 		return temp;
 	}
-
 
 	@Override
 	public int saveQuickMessage(final Map<String,Object> mapList,Session session1) {
 		String mobileNumber = (String) mapList.get("mobileNumber");
 		final List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
+		//Transaction tx = session1.beginTransaction();
 		
 		try {
 			session1.doWork(new Work() {
@@ -263,19 +292,49 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				           pstmtDlrStatus.executeBatch();
 				           pstmtQueuedSms.executeBatch();		          
 				           conn.commit();
-				           //conn.setAutoCommit(true);
+				           conn.setAutoCommit(true);
 				           temp=1;
 				           
 				         } 
 				         finally{
-				        	 pstmtDlrStatus .close();
-				        	 pstmtQueuedSms .close();
+				        	 System.out.println("colsed connection0");
+				        	    if (pstmtDlrStatus != null) {
+				        	        try {
+				        	        	pstmtDlrStatus.close();
+				        	        	//System.out.println("colsed connection1");
+				        	        } catch (SQLException e) { /* ignored */}
+				        	    }
+				        	    if (pstmtQueuedSms != null) {
+				        	        try {
+				        	        	pstmtQueuedSms.close();
+				        	        	//System.out.println("colsed connection2");
+				        	        } catch (SQLException e) { /* ignored */}
+				        	    }
+				        	    if (conn != null) {
+				        	        try {
+				        	            conn.close();
+				        	           // System.out.println("colsed connection3");
+				        	        } catch (SQLException e) { /* ignored */}
+				        	    }
 				         }
 			     }
 
 			});
 		} catch (Exception e) {
 			
+		}
+		finally {
+			try {
+				//System.out.println("Session is not closed");
+				if(session != null)
+				{
+					//session.close();
+					//System.out.println("Session closed");	
+				}
+			} catch (Exception e2) {
+				System.out.println(e2.getMessage());
+				//tx.rollback();
+			}
 		}
 		
 		return temp;

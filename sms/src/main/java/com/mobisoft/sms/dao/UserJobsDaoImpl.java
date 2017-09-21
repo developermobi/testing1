@@ -54,7 +54,6 @@ public class UserJobsDaoImpl implements UserJobsDao {
 
 	@Override
 	public int sendQuickMessage(Map<String, Object> mapList) {
-		
 		int flag = 0;
 		try {
 			session = sessionFactory.openSession(); 
@@ -67,12 +66,10 @@ public class UserJobsDaoImpl implements UserJobsDao {
 			{
 				int result = dlrStatusService.saveQuickMessage(mapList,session);
 				if(result == 1)
-				{
-					
+				{	
 					tx.commit();
 					flag = 1;
-				}
-				
+				}				
 			}	  
 		}catch (Exception ex) {
 			tx.rollback();
@@ -81,7 +78,5 @@ public class UserJobsDaoImpl implements UserJobsDao {
 			session.close();			
 		}  
 	return flag;
-	}
-
-	
+	}	
 }

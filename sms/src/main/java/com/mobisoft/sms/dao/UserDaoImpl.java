@@ -16,6 +16,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -93,7 +94,7 @@ public class UserDaoImpl implements UserDao {
 		try {
 			
 			//String sql = "UPDATE User SET user_name = :userName,address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,role = :role,state = :state, status = :status WHERE id = :id";
-			String sql = "UPDATE User SET address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,state = :state WHERE id = :id";
+			String sql = "UPDATE User SET address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,state = :state,role = :role WHERE id = :id";
 			Query qry = session.createQuery(sql);
 			//qry.setParameter("userName", user.getUserName());
 			qry.setParameter("address", user.getAddress());
@@ -103,8 +104,10 @@ public class UserDaoImpl implements UserDao {
 			qry.setParameter("email", user.getEmail());
 			qry.setParameter("mobile", user.getMobile());
 			qry.setParameter("name", user.getName());			
-			qry.setParameter("state", user.getState());			
+			qry.setParameter("state", user.getState());	
+			qry.setParameter("role", user.getRole());
 			qry.setParameter("id", user.getUserId());
+			
 			
 			temp = qry.executeUpdate();
 			tx.commit();
@@ -160,73 +163,112 @@ public class UserDaoImpl implements UserDao {
 		return temp;
 		
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> getUserByUserName(String userName) {
 
-		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(User.class);
-		criteria.add(Restrictions.eq("userName", userName));
-		List<User> list = criteria.list();
-		session.close();
+		Session session = null; 
+		List<User> list = null;
+		try {
+			session = sessionFactory.openSession();
+			Criteria criteria = session.createCriteria(User.class);
+			criteria.add(Restrictions.eq("userName", userName));
+			list = criteria.list();
+			
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				System.out.println(e2.getMessage());
+			}
+		}
 		return list;
 	}
+	@SuppressWarnings("unchecked")
 	public int getBalnce(int userId,int productId)
 	{
 		int balance = 0;
-		Session session =  sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
-		String sqlQuery = "SELECT balance FROM sms_balance WHERE user_id = :userId and product_id = :productId";
-		System.out.println(sqlQuery);
-		return balance;
+		Session session = null;
+		List<SmsBalance> list= null;
+		try {
+			
+			session = sessionFactory.openSession();
+			User user = (User)session.get(User.class,userId);
+			Product product = (Product)session.get(Product.class,productId);
+			Criteria criteria = session.createCriteria(SmsBalance.class);
+			criteria.add(Restrictions.eq("userId", user.getUserId())).add(Restrictions.eq("productId", product));
+			//String sqlQuery = "SELECT balance FROM sms_balance WHERE user_id = :userId and product_id = :productId";
+			list = criteria.list();
+			
+			//System.out.println(sqlQuery);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			
+		}
+		finally {
+			if(session != null)
+			{
+				session.close();
+			}
+		}
+		
+		return balance = list.get(0).getBalance();
 	}
 	@Override
 	public int saveUerDeatils(JsonNode jsonNode) {
-
-		String password = Global.randomString(6);
-		Session session =  sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
-		
-		//Set<Product> products =new HashSet<>();
-		Product product= (Product)session.get(Product.class, jsonNode.get("productId").asInt());	
-		//products.add(product);
-		
-		User user = new User();
-		user.setUserName(jsonNode.get("userName").asText());
-		user.setPassword(password);
-		user.setName(jsonNode.get("name").asText());
-		user.setEmail(jsonNode.get("email").asText());
-		user.setMobile(jsonNode.get("mobile").asText());
-		user.setCity(jsonNode.get("city").asText());
-		user.setState(jsonNode.get("state").asText());
-		user.setCountry(jsonNode.get("country").asText());
-		user.setAddress(jsonNode.get("address").asText());
-		user.setRole(jsonNode.get("role").asInt());
-		user.setStatus(jsonNode.get("status").asInt());
-		user.setCompanyName(jsonNode.get("companyName").asText());
-		
-		//user.setUserProduct(products);
-		
-		User resellerUser = (User)session.get(User.class,jsonNode.get("userId").asInt());
-		user.setResellerId(resellerUser.getUserId());
-		
-		UserAuthrization userAuthrization =new UserAuthrization();
-		userAuthrization.setDndCheck(jsonNode.get("dndCheck").asText());
-		userAuthrization.setSpamCheck(jsonNode.get("spamCheck").asText());
-		userAuthrization.setPercentage(jsonNode.get("percentage").asText());
-		userAuthrization.setProductId(product.getId());
-		userAuthrization.setUserId(user);
-		
-		//Find Reseller route...........
-		Criteria criteria= session.createCriteria(UserProduct.class);
-		criteria.add(Restrictions.eq("userId", resellerUser))
-				.add(Restrictions.eq("productId", product));
-		List<UserProduct>userProductsList = criteria.list();
-		
-		
 		
 		int temp = 0;
-		
+		Session session = null;
+		Transaction tx = null;
 		try {
+			
+			String password = Global.randomString(6);
+			 session =  sessionFactory.openSession();
+			 tx = session.beginTransaction();
+			
+			//Set<Product> products =new HashSet<>();
+			Product product= (Product)session.get(Product.class, jsonNode.get("productId").asInt());	
+			//products.add(product);
+			
+			User user = new User();
+			user.setUserName(jsonNode.get("userName").asText());
+			user.setPassword(password);
+			user.setName(jsonNode.get("name").asText());
+			user.setEmail(jsonNode.get("email").asText());
+			user.setMobile(jsonNode.get("mobile").asText());
+			user.setCity(jsonNode.get("city").asText());
+			user.setState(jsonNode.get("state").asText());
+			user.setCountry(jsonNode.get("country").asText());
+			user.setAddress(jsonNode.get("address").asText());
+			user.setRole(jsonNode.get("role").asInt());
+			user.setStatus(jsonNode.get("status").asInt());
+			user.setCompanyName(jsonNode.get("companyName").asText());
+			
+			//user.setUserProduct(products);
+			
+			User resellerUser = (User)session.get(User.class,jsonNode.get("userId").asInt());
+			user.setResellerId(resellerUser.getUserId());
+			
+			UserAuthrization userAuthrization =new UserAuthrization();
+			userAuthrization.setDndCheck(jsonNode.get("dndCheck").asText());
+			userAuthrization.setSpamCheck(jsonNode.get("spamCheck").asText());
+			userAuthrization.setPercentage(jsonNode.get("percentage").asText());
+			userAuthrization.setProductId(product.getId());
+			userAuthrization.setUserId(user);
+			
+			//Find Reseller route...........
+			Criteria criteria= session.createCriteria(UserProduct.class);
+			criteria.add(Restrictions.eq("userId", resellerUser))
+					.add(Restrictions.eq("productId", product));
+			List<UserProduct>userProductsList = criteria.list();
+			
 			// save user details in user table
 			session.saveOrUpdate(user);
 			
@@ -293,17 +335,43 @@ public class UserDaoImpl implements UserDao {
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+					System.out.println("session closed");
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+			
 		}
 		return temp;
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<SmsBalance> getBalanceByUserId(int userId) {
-		Session session = sessionFactory.openSession();		
-		User user=(User)session.get(User.class,userId);
-		Criteria criteria=session.createCriteria(SmsBalance.class);
-		criteria.add(Restrictions.eq("userId", user));
-		List<SmsBalance> results = criteria.list();
+		Session session = null;
+		List<SmsBalance> results = null;
+		try {
+			session = sessionFactory.openSession();		
+			User user=(User)session.get(User.class,userId);
+			Criteria criteria=session.createCriteria(SmsBalance.class);
+			criteria.add(Restrictions.eq("userId", user));
+			results = criteria.list();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				System.out.println(e2.getMessage());
+			}
+		}
 		return results;
 	}
 	@Override

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 
+import org.apache.tomcat.util.buf.UEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -330,6 +331,8 @@ public class UserRestController {
 		map.put("code", 400);
 		map.put("message", "some error occured");
 		map.put("data", null);
+		mapper = new ObjectMapper();		
+		JsonNode node = mapper.readValue(josnString, JsonNode.class);
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			
 			map.put("code", 404);
@@ -339,8 +342,7 @@ public class UserRestController {
 		}
 		else if(tokenAuthentication.validateToken(authorization) == 1){
 
-			mapper = new ObjectMapper();		
-			JsonNode node = mapper.readValue(josnString, JsonNode.class);
+			
 			
 			User user = new User();
 			
@@ -353,6 +355,7 @@ public class UserRestController {
 			user.setAddress(node.get("address").asText());
 			user.setCompanyName(node.get("companyName").asText());
 			user.setUserId(userId);
+			user.setRole(node.get("role").asInt());
 			
 			int result = userService.updateUser(user);
 			if(result == 1){
@@ -368,11 +371,31 @@ public class UserRestController {
 			}
 		}
 		else if(tokenAuthentication.validateToken(authorization) == 2){
-			map.put("code", 401);
-			map.put("status", "error");
-			map.put("message", "user not authorized");
-		}
-		
+			User user = new User();			
+			user.setName(node.get("name").asText());
+			user.setEmail(node.get("email").asText());
+			user.setMobile(node.get("mobile").asText());
+			user.setCity(node.get("city").asText());
+			user.setState(node.get("state").asText());
+			user.setCountry(node.get("country").asText());
+			user.setAddress(node.get("address").asText());
+			user.setCompanyName(node.get("companyName").asText());
+			user.setUserId(userId);
+			user.setRole(node.get("role").asInt());
+			
+			int result = userService.updateUser(user);
+			if(result == 1){
+				map.put("status", "success");
+				map.put("code", 200);
+				map.put("message", "updated successfully");
+				map.put("data", result);
+			}else{
+				map.put("status", "error");
+				map.put("code", 400);
+				map.put("message", "error occured during updation");
+				map.put("data", result);
+			}
+		}		
 		
 		return map;
 		
@@ -421,6 +444,7 @@ public class UserRestController {
 			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "user not authorized");
+	
 		}
 		return map;	
 	}
