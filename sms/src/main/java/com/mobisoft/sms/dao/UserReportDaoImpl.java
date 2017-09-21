@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -117,10 +117,19 @@ public class UserReportDaoImpl implements UserReportDao {
 		
 		session = sessionFactory.openSession();
 		List<DlrStatus> listResult = null;
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate localDate = LocalDate.now();
+		String date = dtf.format(localDate);
+		System.out.println(dtf.format(localDate));
 		try {
-			Criteria criteria = session.createCriteria(DlrStatus.class);
-			criteria.add(Restrictions.eq("userId",userId)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("loggedAt"));
-			listResult = criteria.list();	
+			//Criteria criteria = session.createCriteria(DlrStatus.class);
+			//criteria.add(Restrictions.eq("userId",userId)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("loggedAt"));
+			
+			String sql = "SELECT * FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%' limit "+start+","+max+"";
+			SQLQuery query = session.createSQLQuery(sql);
+			query.addEntity(DlrStatus.class);
+			listResult = query.list();
+			
 		} catch (Exception e) {
 			// TODO: handle exception
 		}

@@ -6,10 +6,12 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
 import com.mobisoft.sms.model.User;
 
@@ -50,27 +52,56 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 	@Override
 	public List<GroupDetails> getGroupDetailsByUserId(int userId,int start, int limit) {
 		session = sessionFactory.openSession();
-		User user= (User)session.get(User.class, userId);
-		Criteria criteria = session.createCriteria(GroupDetails.class);
-		criteria.add(Restrictions.eq("userId", user))
-		.add(Restrictions.ne("status", 2))
-		.setFirstResult(start)
-		.setMaxResults(limit);
-		@SuppressWarnings("unchecked")
-		List<GroupDetails> list = criteria.list();
-		session.close();
+		List<GroupDetails> list = null;
+		try {
+			User user= (User)session.get(User.class, userId);
+			Criteria criteria = session.createCriteria(GroupDetails.class);
+			criteria.add(Restrictions.eq("userId", user))
+			.add(Restrictions.ne("status", 2))
+			.setFirstResult(start)
+			.setMaxResults(limit);
+			
+			list = criteria.list();
+			session.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return list;
 	}
 
 	@Override
 	public List<GroupDetails> getGroupDetailsByGroupId(int groupId) {
 		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(GroupDetails.class);
-		criteria.add(Restrictions.eq("groupId", groupId))
-		.add(Restrictions.ne("status", 2));
-		@SuppressWarnings("unchecked")
-		List<GroupDetails> list = criteria.list();
-		session.close();
+		List<GroupDetails> list = null;
+		try {
+			Criteria criteria = session.createCriteria(GroupDetails.class);
+			criteria.add(Restrictions.eq("groupId", groupId))
+			.add(Restrictions.ne("status", 2));
+			list = criteria.list();
+			session.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				// TODO: handle exception
+			}
+		}
 		return list;
 	}
 
@@ -154,5 +185,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 		session.close();
 		return list;
 	}
+
+	
 
 }

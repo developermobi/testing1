@@ -328,14 +328,14 @@ public class ContactDaoImpl implements ContactDao{
 	}
 
 	@Override
-	public List<Contact> getContactCountByGroupId(int groupId) {
+	public List<Contact> getContactCountByGroupId(int groupId,int start,int max) {
 		session = sessionFactory.openSession();
 		List<Contact> list = null;
 		try {
 			GroupDetails groupDetails =(GroupDetails)session.get(GroupDetails.class,groupId);
 			Criteria criteria = session.createCriteria(Contact.class);
 			criteria.add(Restrictions.eq("groupId", groupDetails))
-			.add(Restrictions.ne("status", 2));
+			.add(Restrictions.ne("status", 2)).setFirstResult(start).setMaxResults(max);
 			list = criteria.list();
 			session.close();
 		} catch (Exception e) {}
@@ -349,6 +349,34 @@ public class ContactDaoImpl implements ContactDao{
   		}	
 		return list;
 	}
-
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Contact> countGroupConatct(int groupId) {
+		session = sessionFactory.openSession();
+		int count = 0;
+		List<Contact> list = null;
+		try {
+			GroupDetails groupDetails =(GroupDetails)session.get(GroupDetails.class,groupId);
+			Criteria criteria = session.createCriteria(Contact.class);
+			criteria.add(Restrictions.eq("groupId", groupDetails)).setProjection(Projections.rowCount())
+			.add(Restrictions.ne("status", 2));
+			list = criteria.list();
+					
+			session.close();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				System.out.println(e2.getMessage());
+			}
+		}
+		
+		return list;
+	}
 	
 }

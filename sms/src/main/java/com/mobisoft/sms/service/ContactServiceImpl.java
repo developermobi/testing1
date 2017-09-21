@@ -52,9 +52,14 @@ public class ContactServiceImpl implements ContactService{
 		return contactDao.uploadMultipleContact(groupId, userId, reader);
 	}
 	@Override
-	public List<Contact> getContactCountByGroupId(int groupId) {
+	public List<Contact> getContactCountByGroupId(int groupId,int start,int max) {
 		
-		return contactDao.getContactCountByGroupId(groupId);
+		return contactDao.getContactCountByGroupId(groupId,start,max);
+	}
+	@Override
+	public List<Contact> countGroupConatct(int groupId) {
+		
+		return contactDao.countGroupConatct(groupId);
 	}
 
 }

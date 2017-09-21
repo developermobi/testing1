@@ -14,4 +14,5 @@ public interface GroupDetailsDao {
 	public List<GroupDetails> getActiveGroupDetailsByUserId(int userId);
 	public int updateGroupDetails(GroupDetails groupDetails,int groupId);
 	public int deleteGroupDetailsByGroupId(int groupId);
+	
 }

@@ -124,8 +124,8 @@ public class GroupDetailsRestController {
 		
 		return map;
 	}
-	@RequestMapping(value = "/getGroupContact/{groupId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getAllGroupPaginate(@PathVariable("groupId")int groupId,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "/getGroupContact/{groupId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getGroupContact(@PathVariable("groupId")int groupId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
 		
 		Map<String,Object> map = new HashMap<>();
@@ -141,12 +141,14 @@ public class GroupDetailsRestController {
 			
 		}
 		else {
-			List<Contact> listContactByGroup = contactService.getContactCountByGroupId(groupId);		
+			List<Contact> listContactByGroup = contactService.getContactCountByGroupId(groupId,start,limit);		
 			
+			List<Contact> list = contactService.countGroupConatct(groupId);
+			System.out.println("row copuint:"+list);
 			System.out.println("groupDetails: "+listContactByGroup.get(0));
 			
 			 Map<String, Object> dataMap = new HashMap<>();
-			 dataMap.put("total", listContactByGroup.size());
+			 dataMap.put("total", list);
 			 dataMap.put("groupContactData", listContactByGroup);
 			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
 			if(listContactByGroup.size() > 0){

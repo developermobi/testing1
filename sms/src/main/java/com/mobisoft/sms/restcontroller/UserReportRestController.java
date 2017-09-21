@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -166,6 +167,7 @@ public class UserReportRestController {
 			List<Integer> list = userReportService.messageCountDaily(userId,date);
 			System.out.println("count"+list.get(0));
 			List<DlrStatus> dalyReport = userReportService.dailyRepotMessage(userId,start,max);
+			
 			if(dalyReport.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);

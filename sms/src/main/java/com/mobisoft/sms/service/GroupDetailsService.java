@@ -14,4 +14,5 @@ public interface GroupDetailsService {
 	public int updateGroupDetails(GroupDetails groupDetails,int groupId);
 	public int deleteGroupDetailsByGroupId(int groupId);
 	public List<GroupDetails> getGroupDetailsCountByUserId(int userId);
+	
 }
