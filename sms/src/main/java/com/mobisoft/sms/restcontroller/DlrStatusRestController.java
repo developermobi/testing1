@@ -93,7 +93,7 @@ public class DlrStatusRestController {
 		return map;
 	}
 */
-	@RequestMapping(value = "/getNumberList",method = RequestMethod.GET)
+/*	@RequestMapping(value = "/getNumberList",method = RequestMethod.GET)
 	public Map<String,Object> getNumberList() throws FileNotFoundException, IOException {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -108,5 +108,5 @@ public class DlrStatusRestController {
 		{	
 		}
 		return map;
-	}
+	}*/
 }

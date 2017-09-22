@@ -39,15 +39,23 @@ public class UserJobsDaoImpl implements UserJobsDao {
 			System.out.println("Return update balnmce"+temp);
 			if(temp == 1)
 			{
-				tx.commit();			
+				tx.commit();
+				//session.close();
 				flag = 1;
 			}
 					  
 		}catch (Exception ex) {
 			tx.rollback();
-			System.out.println(ex.getMessage());
+			ex.printStackTrace();
 		}finally {		
-			session.close();			
+			try {
+				if(session != null)
+				{
+					session.close();	
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}		
 		}  
 	return flag;
 	}
@@ -67,15 +75,21 @@ public class UserJobsDaoImpl implements UserJobsDao {
 				int result = dlrStatusService.saveQuickMessage(mapList,session);
 				if(result == 1)
 				{	
-					tx.commit();
 					flag = 1;
 				}				
 			}	  
 		}catch (Exception ex) {
 			tx.rollback();
-			System.out.println(ex.getMessage());
+			ex.printStackTrace();
 		}finally {		
-			session.close();			
+			try {
+				if(session != null)
+				{
+					session.close();	
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}		
 		}  
 	return flag;
 	}	

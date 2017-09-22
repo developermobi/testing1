@@ -21,7 +21,7 @@ public interface SmsHelperDao {
 	public int creditOnUser(int newBalance,int userId,int productId,int creditInUser,int creditByReseller,Session session,Transaction tx);
 	public List<SmsBalance> findProdcut(int userId,int prodcutId);
 	public int messageCount(int messageType,int messageLenght);
-	public List<SmsDnd> filterDndNumber();
+	/*public List<SmsDnd> filterDndNumber();*/
 	public List<UserProduct>getRouteDetails(int userId,int productId);
 	public List<String>getGroupContact(String groupId,int userId);
 	public List<UserAuthrization> getUserAuthrizationCheck(int userId,int productId);

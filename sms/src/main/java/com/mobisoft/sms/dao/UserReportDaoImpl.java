@@ -33,8 +33,7 @@ public class UserReportDaoImpl implements UserReportDao {
 	SessionFactory sessionFactory;
 	
 	Session session = null;
-	Transaction tx = null;
-	
+	Transaction tx = null;	
 	@SuppressWarnings("rawtypes")
 	@Override
 	public List todayCountMessage(int userId) {
@@ -48,8 +47,9 @@ public class UserReportDaoImpl implements UserReportDao {
 			String sql = "SELECT sum(count) ,status  FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+localDate+"%' group by status";
 			Query query = session.createSQLQuery(sql);
 			results = query.list();
+			//session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -58,7 +58,7 @@ public class UserReportDaoImpl implements UserReportDao {
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return results;
@@ -72,8 +72,9 @@ public class UserReportDaoImpl implements UserReportDao {
 			String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND user_id ="+userId+" GROUP BY status";
 			Query query = session.createSQLQuery(sql);
 			results = query.list();
+			//session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -82,7 +83,7 @@ public class UserReportDaoImpl implements UserReportDao {
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return results;
@@ -96,8 +97,9 @@ public class UserReportDaoImpl implements UserReportDao {
 			String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 2 MONTH) AND user_id ="+userId+" GROUP BY status";
 			Query query = session.createSQLQuery(sql);
 			results = query.list();
+			//session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -106,7 +108,7 @@ public class UserReportDaoImpl implements UserReportDao {
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return results;
@@ -129,9 +131,10 @@ public class UserReportDaoImpl implements UserReportDao {
 			SQLQuery query = session.createSQLQuery(sql);
 			query.addEntity(DlrStatus.class);
 			listResult = query.list();
+			//session.close();
 			
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -140,7 +143,7 @@ public class UserReportDaoImpl implements UserReportDao {
 					session.close();
 				}
 			} catch (Exception e2) {
-				
+				e2.printStackTrace();
 			}
 		}
 		return listResult;
@@ -152,14 +155,15 @@ public class UserReportDaoImpl implements UserReportDao {
 		session = sessionFactory.openSession();
 		final List list = new ArrayList<String>();
 		session.doWork(new Work() {			   
-		       @Override
+		       @SuppressWarnings("unchecked")
+			@Override
 		       public void execute(Connection conn) throws SQLException {
 		         Statement pstmtDlrStatus = conn.createStatement();
 		         System.out.println("in conn");
 		          try{
-		           String sqlInsertDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE logged_at BETWEEN '"+startDate+"' AND '"+endDate+"' AND user_id="+userId+"";
-		           System.out.println(sqlInsertDlrStatus);
-		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlInsertDlrStatus);
+		           String sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE logged_at BETWEEN '"+startDate+"' AND '"+endDate+"' AND user_id="+userId+"";
+		           System.out.println(sqlSelectDataDlrStatus);
+		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
 		           while(rs.next())
 		           {
 		        	   
@@ -177,10 +181,27 @@ public class UserReportDaoImpl implements UserReportDao {
 		           conn.commit();
 		           conn.setAutoCommit(true);
 		           
-		         } 
+		         }catch(Exception e)
+		          {
+		        	 e.printStackTrace();
+		          }
 		         finally{
-		        	 pstmtDlrStatus .close();
-		        	 conn.close();
+		        	 try {
+						if(pstmtDlrStatus != null)
+						{
+							pstmtDlrStatus.close();
+						}
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}try {
+						if(conn != null)
+						{
+							conn.close();
+						}
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+		        			        	 
 		         }                                
 		     }
 		});
@@ -195,8 +216,9 @@ public class UserReportDaoImpl implements UserReportDao {
 			Criteria criteria = session.createCriteria(UserJobs.class);
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 1)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("scheduledAt"));
 			listResult = criteria.list();
+			//session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -205,7 +227,7 @@ public class UserReportDaoImpl implements UserReportDao {
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return listResult;
@@ -216,20 +238,22 @@ public class UserReportDaoImpl implements UserReportDao {
 		List<Integer> results = null;
 		session = sessionFactory.openSession();
 		try {
-			
 			String sql = "SELECT count(mobile)  FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%'";
 			Query query = session.createSQLQuery(sql);
-			results = query.list();
-			
-			System.out.println("list user"+results.size());
+			results = query.list();			
+			//session.close();
 			
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
-			if(session != null)
-			{
-				session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
 			}
 		}
 		return results;
@@ -244,14 +268,18 @@ public class UserReportDaoImpl implements UserReportDao {
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 1)).addOrder(Order.desc("scheduledAt"));
 			listResult = criteria.list();
 			countSchedual = listResult.size();
-			
+			//session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
-			if(session != null)
-			{
-				session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
 			}
 		}
 		return countSchedual;

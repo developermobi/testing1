@@ -28,43 +28,93 @@ public class TemplateDaoImpl implements TemplateDao{
 			session.saveOrUpdate(template);
 			temp = 1;
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		return temp;
 	}
 
 	@Override
 	public List<Template> getTemplate() {
-		Session session = sessionFactory.openSession();		
-		List<Template> list = session.createCriteria(Template.class).list();
-		session.close();
+		Session session = sessionFactory.openSession();
+		List<Template> list = null;
+		try {
+			list = session.createCriteria(Template.class).list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
 	@Override
 	public List<Template> getTemplateByUserId(int userId) {
 		Session session = sessionFactory.openSession();
-		User user =(User)session.get(User.class, userId);
-		Criteria criteria = session.createCriteria(Template.class);
-		criteria.add(Restrictions.eq("userId",user))
-		.add(Restrictions.eq("status", 0));		
-		List<Template> list = criteria.list();
-		session.close();
+		List<Template> list = null;
+		try {
+			User user =(User)session.get(User.class, userId);
+			Criteria criteria = session.createCriteria(Template.class);
+			criteria.add(Restrictions.eq("userId",user))
+			.add(Restrictions.eq("status", 0));		
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
 	@Override
 	public List<Template> getTemplateById(int templateId) {
 		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(Template.class);
-		criteria.add(Restrictions.eq("id", templateId)).add(Restrictions.eq("status", 0));		
-		List<Template> list = criteria.list();
-		session.close();
+		List<Template> list = null;
+		try {
+			Criteria criteria = session.createCriteria(Template.class);
+			criteria.add(Restrictions.eq("id", templateId)).add(Restrictions.eq("status", 0));		
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
@@ -82,12 +132,20 @@ public class TemplateDaoImpl implements TemplateDao{
 			qry.setParameter("id",template.getId());
 			temp = qry.executeUpdate();
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		
 		return temp;
@@ -106,29 +164,50 @@ public class TemplateDaoImpl implements TemplateDao{
 			session.delete(template2);
 			temp =1;
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
-		
 		return temp;
 	}
 
 	@Override
 	public List<Template> getTemplateByUserIdPaginate(int userId, int start, int limit) {
 		Session session = sessionFactory.openSession();
-		User user =(User)session.get(User.class, userId);
-		System.out.println(user.getUserId());
-		Criteria criteria = session.createCriteria(Template.class);
-		criteria.add(Restrictions.eq("userId",user))
-		.add(Restrictions.eq("status", 0))
-		.setFirstResult(start)
-		.setMaxResults(limit);		
-		List<Template> list = criteria.list();
-		session.close();
+		List<Template> list = null;
+		try {
+			User user =(User)session.get(User.class, userId);
+			System.out.println(user.getUserId());
+			Criteria criteria = session.createCriteria(Template.class);
+			criteria.add(Restrictions.eq("userId",user))
+			.add(Restrictions.eq("status", 0))
+			.setFirstResult(start)
+			.setMaxResults(limit);		
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 

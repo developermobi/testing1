@@ -1,6 +1,6 @@
 package com.mobisoft.sms.dao;
 
-import java.nio.channels.SeekableByteChannel;
+
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.mobisoft.sms.model.SenderId;
-import com.mobisoft.sms.model.Template;
 import com.mobisoft.sms.model.User;
 
 @Repository("senderIdDao")
@@ -30,42 +29,97 @@ public class SenderIdDaoImpl implements SenderIDDao{
 			session.saveOrUpdate(senderId);
 			temp = 1;
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		return temp;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<SenderId> getSenderId() {
-		Session session = sessionFactory.openSession();		
-		List<SenderId> list = session.createCriteria(SenderId.class).list();
-		session.close();
+		Session session = sessionFactory.openSession();
+		List<SenderId> list = null;
+		try {
+			list = session.createCriteria(SenderId.class).list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<SenderId> getSenderIdByUserId(int userId) {
 		Session session = sessionFactory.openSession();
-		User user = (User)session.load(User.class,userId);
-		Criteria criteria = session.createCriteria(SenderId.class);
-		criteria.add(Restrictions.eq("userId", user)).add(Restrictions.eq("status", 1)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
-		List<SenderId> list = criteria.list();
-		session.close();
+		List<SenderId> list = null;
+		try {
+			User user = (User)session.load(User.class,userId);
+			Criteria criteria = session.createCriteria(SenderId.class);
+			criteria.add(Restrictions.eq("userId", user)).add(Restrictions.eq("status", 1)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
 	@Override
 	public List<SenderId> getSenderId(int senderId) {
 		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(SenderId.class);
-		criteria.add(Restrictions.eq("id", senderId)).add(Restrictions.eq("status", 1));		
-		List<SenderId> list = criteria.list();
-		session.close();
+		List<SenderId> list = null;
+		try {
+			Criteria criteria = session.createCriteria(SenderId.class);
+			criteria.add(Restrictions.eq("id", senderId)).add(Restrictions.eq("status", 1));		
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
@@ -73,8 +127,7 @@ public class SenderIdDaoImpl implements SenderIDDao{
 	public int updateSenderId(SenderId senderId) {
 		Session session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
-		int temp = 0;
-		
+		int temp = 0;		
 		try {	
 			String sql = "update sender_id SET sender_id = :senderId,status = :status WHERE id = :id";			
 			Query qry = session.createSQLQuery(sql);
@@ -83,14 +136,21 @@ public class SenderIdDaoImpl implements SenderIDDao{
 			qry.setParameter("id",senderId.getId());
 			temp = qry.executeUpdate();
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
-		}
-		
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}		
 		return temp;
 	}
 
@@ -105,29 +165,51 @@ public class SenderIdDaoImpl implements SenderIDDao{
 			session.delete(senderId2);
 			temp =1;
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
-		
 		return temp;
 	}
 
 	@Override
 	public List<SenderId> getSenderIdByUserIdPaginate(int userId, int start, int limit) {
 		Session session = sessionFactory.openSession();
-		User user = (User)session.load(User.class,userId);
-		Criteria criteria = session.createCriteria(SenderId.class);
-		criteria.add(Restrictions.eq("userId", user))
-		.add(Restrictions.eq("status", 1))
-		.setFirstResult(start)
-		.setMaxResults(limit)
-		.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
-		List<SenderId> list = criteria.list();
-		session.close();
+		List<SenderId> list = null;
+		try {
+			User user = (User)session.load(User.class,userId);
+			Criteria criteria = session.createCriteria(SenderId.class);
+			criteria.add(Restrictions.eq("userId", user))
+			.add(Restrictions.eq("status", 1))
+			.setFirstResult(start)
+			.setMaxResults(limit)
+			.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 

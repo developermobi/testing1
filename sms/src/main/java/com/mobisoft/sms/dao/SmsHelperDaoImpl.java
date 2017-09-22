@@ -42,9 +42,9 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Autowired
 	SessionFactory sessionFactory;
 	
-	@Autowired
+	/*@Autowired
 	@Qualifier("sessionFactory2")
-	SessionFactory sessionFactory2;
+	SessionFactory sessionFactory2;*/
 	
 	@Value("${sms_username}")
 	private String userName;
@@ -59,10 +59,25 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	public List<Integer> getBalance(int userId, int productId) {
 		
 		Session session =  sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
-		String sqlQuery = "select balance from sms_balance where user_id = "+userId+" and product_id ="+productId;
-		Query query = session.createSQLQuery(sqlQuery);
-		List list = query.list();
+		List list = null;
+		try {
+			String sqlQuery = "select balance from sms_balance where user_id = "+userId+" and product_id ="+productId;
+			Query query = session.createSQLQuery(sqlQuery);
+			 list = query.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
@@ -70,60 +85,56 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	public int deductBalanceDeleteUser(int userId, int resellerId, String remark, int deductType,Session session,Transaction tx) {
 		int temp = 0;
 	   
-		User user=(User)session.get(User.class, userId);
-		System.out.println("Address "+user.getAddress());
-		Criteria criteria = session.createCriteria(UserProduct.class);
-		
-		criteria.add(Restrictions.eq("userId",user));
-		List<UserProduct> productList = criteria.list();
-		System.out.println("productId"+productList.size());
-		
-		Set<Product> products = new HashSet<Product>();
-		//products = user.getUserProduct();
-		
-		
-        System.out.println(products.size());
-        
-        for (UserProduct userProduct1 : productList) {
+		try {
+			User user=(User)session.get(User.class, userId);
+			System.out.println("Address "+user.getAddress());
+			Criteria criteria = session.createCriteria(UserProduct.class);
+			
+			criteria.add(Restrictions.eq("userId",user));
+			List<UserProduct> productList = criteria.list();
+			System.out.println("productId"+productList.size());
+			
+			Set<Product> products = new HashSet<Product>();
+	        System.out.println(products.size());
+	        
+	        for (UserProduct userProduct1 : productList) {
 
-        	System.out.println("User product"+userProduct1.getProductId().getId());
-           List<Integer> balanceList = getBalance(user.getUserId(),userProduct1.getProductId().getId());
-           System.out.println(balanceList);
-           temp = creditBalance(resellerId, userProduct1.getProductId().getId(), resellerId, balanceList.get(0), remark, deductType,session,tx);
-       	   temp = debitBalnce(resellerId, userProduct1.getProductId().getId(), userId, balanceList.get(0), remark, deductType,session,tx);
-            /*Iterator<Integer> iterator = balanceList.iterator();
-            while (iterator.hasNext()) {
-            	int balance =0;
-            	balance = iterator.next();
-            	
-            	
-            	
-			}*/
-        }
-        
+	        	System.out.println("User product"+userProduct1.getProductId().getId());
+	           List<Integer> balanceList = getBalance(user.getUserId(),userProduct1.getProductId().getId());
+	           System.out.println(balanceList);
+	           temp = creditBalance(resellerId, userProduct1.getProductId().getId(), resellerId, balanceList.get(0), remark, deductType,session,tx);
+	       	   temp = debitBalnce(resellerId, userProduct1.getProductId().getId(), userId, balanceList.get(0), remark, deductType,session,tx);
+	        }
+		} catch (Exception e) {
+			e.printStackTrace();
+			tx.rollback();
+		}
+		
 		return temp;
 	}
 
 	@Override
 	public int creditBalance(int creditUserId, int productId, int creditByUserId, int balance,String remark,int creditType,Session session,Transaction tx) {
-		
-		
-		Product product = (Product)session.get(Product.class,productId);
-		User user=(User)session.get(User.class, creditUserId);
-		List<Integer> balanceList = getBalance(user.getUserId(),product.getId());
-		int newBalance = balanceList.get(0)+balance;
-		Credit credit =new Credit();
-		credit.setCredit(balance);
-		credit.setCreditBy(creditByUserId);
-		credit.setCurrentAmount(newBalance);
-		credit.setRemark(remark);
-		credit.setCreditType(creditType);
-		credit.setPreviousAmouunt(balanceList.get(0));
-		credit.setProductId(product);
-		credit.setUserId(user);		
-		session.saveOrUpdate(credit);
-		updateUserBalance(newBalance, user.getUserId(), product.getId(), session, tx);
-		
+		int newBalance =0; 
+		try {
+			Product product = (Product)session.get(Product.class,productId);
+			User user=(User)session.get(User.class, creditUserId);
+			List<Integer> balanceList = getBalance(user.getUserId(),product.getId());
+			newBalance = balanceList.get(0)+balance;
+			Credit credit =new Credit();
+			credit.setCredit(balance);
+			credit.setCreditBy(creditByUserId);
+			credit.setCurrentAmount(newBalance);
+			credit.setRemark(remark);
+			credit.setCreditType(creditType);
+			credit.setPreviousAmouunt(balanceList.get(0));
+			credit.setProductId(product);
+			credit.setUserId(user);		
+			session.saveOrUpdate(credit);
+			updateUserBalance(newBalance, user.getUserId(), product.getId(), session, tx);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return newBalance;
 	}
 
@@ -132,34 +143,43 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		
 		int temp =0;
 		
-		Product product = (Product)session.get(Product.class,productId);
-		User resellerUser=(User)session.get(User.class, debitByUserId);
-		
-		List<Integer> balanceList = getBalance(resellerUser.getUserId(),product.getId());
-		int newResellerBalance = balanceList.get(0)-balance;
-		
-		User user=(User)session.get(User.class, creditUserId);
-		Debit debit = new Debit();
-		debit.setDebit(balance);
-		debit.setCurrentAmount(newResellerBalance);
-		debit.setPreviousAmouunt(balanceList.get(0));
-		debit.setDebitBy(resellerUser.getUserId());					
-		debit.setRemark(remark);			
-		debit.setDebitType(debitType);			
-		debit.setUserId(user);
-		debit.setProductId(product);
-		
-		session.saveOrUpdate(debit);
-		temp = updateUserBalance(newResellerBalance, resellerUser.getUserId(), productId, session, tx);
+		try {
+			Product product = (Product)session.get(Product.class,productId);
+			User resellerUser=(User)session.get(User.class, debitByUserId);
+			
+			List<Integer> balanceList = getBalance(resellerUser.getUserId(),product.getId());
+			int newResellerBalance = balanceList.get(0)-balance;
+			
+			User user=(User)session.get(User.class, creditUserId);
+			Debit debit = new Debit();
+			debit.setDebit(balance);
+			debit.setCurrentAmount(newResellerBalance);
+			debit.setPreviousAmouunt(balanceList.get(0));
+			debit.setDebitBy(resellerUser.getUserId());					
+			debit.setRemark(remark);			
+			debit.setDebitType(debitType);			
+			debit.setUserId(user);
+			debit.setProductId(product);
+			
+			session.saveOrUpdate(debit);
+			temp = updateUserBalance(newResellerBalance, resellerUser.getUserId(), productId, session, tx);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		return temp;
 	}
 
 	@Override
 	public int updateUserBalance(int newBalance, int userId, int productId,Session session,Transaction tx) {		
-		String sqlquery = "update sms_balance set balance = "+newBalance+" where user_id= "+userId+" and product_id="+productId;
-		Query query = session.createSQLQuery(sqlquery);
-		int updateSmsBalanceResult = query.executeUpdate();
+		int updateSmsBalanceResult = 0;
+		try {
+			String sqlquery = "update sms_balance set balance = "+newBalance+" where user_id= "+userId+" and product_id="+productId;
+			Query query = session.createSQLQuery(sqlquery);
+			updateSmsBalanceResult = query.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return updateSmsBalanceResult;
 	}
 
@@ -190,130 +210,177 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Override
 	public  List<SmsBalance> findProdcut(int userId, int prodcutId) {
 		Session session= sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
-		User user =(User)session.load(User.class, userId);
-		Product product =(Product)session.load(Product.class, prodcutId);
-		Criteria criteria=session.createCriteria(SmsBalance.class);
-		criteria.add(Restrictions.eq("userId", user)).add(Restrictions.eq("productId", product)).setFirstResult(0);
-		 List<SmsBalance> list = criteria.list();				
+		List<SmsBalance> list = null;
+		try {
+			User user =(User)session.load(User.class, userId);
+			Product product =(Product)session.load(Product.class, prodcutId);
+			Criteria criteria=session.createCriteria(SmsBalance.class);
+			criteria.add(Restrictions.eq("userId", user)).add(Restrictions.eq("productId", product)).setFirstResult(0);
+			list = criteria.list();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 
 	@Override
 	public int messageCount(int messageType, int messageLenght) {
 		int messageCount=0;
-        
-        if(messageType == 1)
-        {
-            int part1Count = 160;
-            int part2Count = 146;
-            int part3Count = 153;
-           
-           
-            if(messageLenght <= part1Count)
+        try {
+        	if(messageType == 1)
             {
-                messageCount =1;
+                int part1Count = 160;
+                int part2Count = 146;
+                int part3Count = 153;
+                if(messageLenght <= part1Count)
+                {
+                    messageCount =1;
+                }
+                else if(messageLenght <= (part1Count + part2Count))
+                {
+                    messageCount = 2;
+                }
+                else if(messageLenght > (part1Count+part2Count)){
+                    double  count = Math.ceil(( messageLenght - part1Count - part2Count) / part3Count);
+                    System.out.println(count);
+                    messageCount = (int)(count + 3); 
+                }           
+                System.out.println("Text Message "+messageCount);
             }
-            else if(messageLenght <= (part1Count + part2Count))
+            else
             {
-                messageCount = 2;
+                int part1Count = 70;
+                int part2Count = 64;
+                int part3Count = 67;
+                if(messageLenght <= part1Count)
+                {
+                    messageCount =1;
+                }
+                else if(messageLenght <= (part1Count + part2Count))
+                {
+                    messageCount = 2;
+                }
+                else if(messageLenght > (part1Count+part2Count)){
+                    double  count = Math.ceil(( messageLenght - part1Count - part2Count) / part3Count);
+                    System.out.println(count);
+                    messageCount = (int)(count + 3);                    
+                }
+                System.out.println("Unicode "+ messageCount);
             }
-            else if(messageLenght > (part1Count+part2Count)){
-               
-               
-                double  count = Math.ceil(( messageLenght - part1Count - part2Count) / part3Count);
-                System.out.println(count);
-                messageCount = (int)(count + 3);
-                
-            }
-           
-            System.out.println("Text Message "+messageCount);
-        }
-        else
-        {
-            int part1Count = 70;
-            int part2Count = 64;
-            int part3Count = 67;
-            
-            
-            if(messageLenght <= part1Count)
-            {
-                messageCount =1;
-            }
-            else if(messageLenght <= (part1Count + part2Count))
-            {
-                messageCount = 2;
-            }
-            else if(messageLenght > (part1Count+part2Count)){
-               
-               
-                double  count = Math.ceil(( messageLenght - part1Count - part2Count) / part3Count);
-                System.out.println(count);
-                messageCount = (int)(count + 3);
-                
-            }
-           
-            System.out.println("Unicode "+ messageCount);
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         return messageCount;
 	}
-	@Override
+/*	@Override
 	public List<SmsDnd> filterDndNumber() {
 		Session session = sessionFactory2.openSession();
 		Transaction tx = session.beginTransaction();
 		List<SmsDnd> list = session.createCriteria(SmsDnd.class).list();
 		return list;
-	}
+	}*/
 	@Override
 	public List<UserProduct> getRouteDetails(int userId, int productId) {
 	
 		Session session= sessionFactory.openSession();
-		User user=(User)session.get(User.class, userId);
-		Product product= (Product)session.get(Product.class, productId);
-		Criteria criteria= session.createCriteria(UserProduct.class);
-		criteria.add(Restrictions.eq("userId", user))
-		 		.add(Restrictions.eq("productId", product));
-		List<UserProduct> userProductsList = criteria.list();		
+		List<UserProduct> userProductsList = null;
+		try {
+			User user=(User)session.get(User.class, userId);
+			Product product= (Product)session.get(Product.class, productId);
+			Criteria criteria= session.createCriteria(UserProduct.class);
+			criteria.add(Restrictions.eq("userId", user))
+			 		.add(Restrictions.eq("productId", product));
+			userProductsList = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return userProductsList;
 	}
 	@Override
 	public List<String> getGroupContact(String groupId, int userId) {
 		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
-		String sqlQuery = "SELECT mobile FROM contact WHERE group_id in("+groupId+") and user_id ="+userId;
-		Query query = session.createSQLQuery(sqlQuery);
-		List<String> list = query.list();
+		List<String> list = null;
+		try {
+			String sqlQuery = "SELECT mobile FROM contact WHERE group_id in("+groupId+") and user_id ="+userId;
+			Query query = session.createSQLQuery(sqlQuery);
+			list = query.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 		
 	}
 	@Override
 	public List<UserAuthrization> getUserAuthrizationCheck(int userId,int productId) {
 		Session session = sessionFactory.openSession();
-		Transaction tx= session.beginTransaction();
-		User user =(User)session.get(User.class, userId);
-		Criteria criteria = session.createCriteria(UserAuthrization.class);
-		criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("productId", productId));		
-		List<UserAuthrization> list = criteria.list();
+		List<UserAuthrization> list = null;
+		try {
+			User user =(User)session.get(User.class, userId);
+			Criteria criteria = session.createCriteria(UserAuthrization.class);
+			criteria.add(Restrictions.eq("userId",user)).add(Restrictions.eq("productId", productId));		
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}		
 		return list;
 	}
 	@Override
 	public List<Object> mobileNumber(final String mobileNumber) {
 		
 		Session session = sessionFactory.openSession();
-		Transaction tx =  session.beginTransaction();
+		
 		final List<Object> commonListData = new ArrayList<Object>();
 		try {
 			session.doWork(new Work() {				
 			       @Override
 			       public void execute(Connection conn) throws SQLException {
 
-				          PreparedStatement pstmtDlrStatus = null;
+				          PreparedStatement pstmtDndFilter = null;
 				          List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
 				          List<String> listMatchDndData = new ArrayList<String>();
 				          
 				          try{
 				           String sqlInsertDlrStatus = "INSERT INTO temp_dnd(mobile) VALUES (?)";
-				           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus);
+				           pstmtDndFilter = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus);
 				           int i=0;
 				           for(String mobile : mobileList){	
 				        	   
@@ -323,35 +390,31 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 					        	 	{
 					        	 		mobile = mobile.substring(2);				        	 		
 					        	 	}				        	
-					        	   pstmtDlrStatus.setString(1, mobile);
-					               pstmtDlrStatus.addBatch();
+				        		   pstmtDndFilter.setString(1, mobile);
+				        		   pstmtDndFilter.addBatch();
 				        	   }
 				        	   
 				           }
 				           conn.setAutoCommit(false);
-				           pstmtDlrStatus.executeBatch();
-				           
-				         //conn.setAutoCommit(true);
+				           pstmtDndFilter.executeBatch();
+				        
 				           String selectMobileNumberQuery ="select  Distinct t.mobile from  mobi_sms.temp_dnd t  inner join  sms_dnd.mobi_dnd d on t.mobile = d.mobile_no";
-				           System.out.println(selectMobileNumberQuery);
 				           Statement statement = conn.createStatement();
 				           ResultSet rs = statement.executeQuery(selectMobileNumberQuery);
 				           while(rs.next())
 				           {
-				        	   System.out.println(rs.getString("mobile"));
 				        	   String newMobile = rs.getString("mobile").toString();
-				        	   System.out.println("New Mobile"+newMobile);
 				        	   StringBuilder s =  new StringBuilder(newMobile);
 				        	   newMobile = s.insert(0,"91").toString();
 				        	   listMatchDndData.add(newMobile);
 				           }
 				           ///Trancute table temp table
 				           String trancuteTable ="TRUNCATE TABLE temp_dnd";
-				           System.out.println(selectMobileNumberQuery);
 				           Statement statementTrancute = conn.createStatement();
 				           ResultSet resultSetTrancute = statementTrancute.executeQuery(trancuteTable);
 				           
 				           conn.commit();
+				           conn.setAutoCommit(true);
 				        //  System.out.println("New Mobile list Size33:"+listMatchDndData);
 				        //  System.out.println("old Mobile list Size33:"+mobileList);
 				           List<String> newFilterMobileList = new ArrayList<>();
@@ -377,17 +440,32 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				           newFilterMobileList.removeAll(listMatchDndData);
 				           commonListData.add(0, newFilterMobileList);
 				           commonListData.add(1, listMatchDndData.size());
-				           System.out.println("old Mobile list Size:"+mobileList.size());
-				           System.out.println("New Mobile list Size: "+newFilterMobileList);
-				         } 
+				         }catch(Exception e){
+				        	 e.printStackTrace();
+				        	 conn.rollback();
+				         }
 				         finally{
-				        	 pstmtDlrStatus .close(); 
+				        	 try {
+				        		if(pstmtDndFilter != null)
+				        		{
+				        			pstmtDndFilter .close();
+				        		}
+							} catch (Exception e2) {
+								e2.printStackTrace();
+							}try {
+				        		if(conn != null)
+				        		{
+				        			conn .close();
+				        		}
+							} catch (Exception e2) {
+								e2.printStackTrace();
+							} 
 				         }
 			     }
 
 			});
 		} catch (Exception e) {
-			tx.rollback();
+			e.printStackTrace();
 		}
 
 		return commonListData;
@@ -400,64 +478,78 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 		Session session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
 		int temp =0;
-		User user = (User)session.get(User.class, userId);
-		Criteria criteria = session.createCriteria(OtpValidate.class);
-		criteria.add(Restrictions.eq("userId", user));
-		List<OtpValidate> listOtp = criteria.list();
-		String otp = Global.randomString(5);
-		String newOtp = "";
-		if(listOtp.size() > 0)
-		{
-			//newOtp = listOtp.get(0).getOtp();
-			String sqlquery = "update otp set otp_data = '"+otp+"' where user_id= "+userId;
-			Query query = session.createSQLQuery(sqlquery);
-			int updateOtpData = query.executeUpdate();
-			System.out.println("return valuse "+updateOtpData);
-			if(updateOtpData > 0)
+		try {
+			User user = (User)session.get(User.class, userId);
+			Criteria criteria = session.createCriteria(OtpValidate.class);
+			criteria.add(Restrictions.eq("userId", user));
+			List<OtpValidate> listOtp = criteria.list();
+			String otp = Global.randomString(5);
+			String newOtp = "";
+			if(listOtp.size() > 0)
 			{
+				//newOtp = listOtp.get(0).getOtp();
+				String sqlquery = "update otp set otp_data = '"+otp+"' where user_id= "+userId;
+				Query query = session.createSQLQuery(sqlquery);
+				int updateOtpData = query.executeUpdate();
+				System.out.println("return valuse "+updateOtpData);
+				if(updateOtpData > 0)
+				{
+					tx.commit();
+					//session.close();
+					String message ="Dear Sir,  Send otp on  your register mobile number"+otp;
+					String mobile = user.getMobile();
+					if( mobile.length() == 12)
+					{
+						mobile = mobile.substring(2);
+					}
+					/*System.out.println("helookajsdhsa ");
+					EmailAPI emailAPI = new EmailAPI();
+					Map<String,String> map =new HashMap<String, String>();
+					map.put("toAddress", user.getEmail());
+					map.put("subject", "Send Otp For Change Password");
+					map.put("msgBody", message);					
+					emailAPI.sendSimpleMail(map);*/
+					try {
+						System.out.println("helookajsdhsa2342123 ");
+						temp = Global.sendMessage(userName, password,mobile, senderId, message);
+						
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				}			
+			}
+			else
+			{
+				System.out.println("Inside else");
+				OtpValidate otpValidate = new OtpValidate();
+				otpValidate.setOtpData(otp);
+				otpValidate.setUserId(user);
+				session.save(otpValidate);
 				tx.commit();
-				String message ="Dear Sir,  Send otp on  your register mobile number"+otp;
+				//session.close();
+				String message ="Dear Sir,  Send otp on  your register mobile number"+otpValidate.getOtpData();
 				String mobile = user.getMobile();
 				if( mobile.length() == 12)
 				{
 					mobile = mobile.substring(2);
 				}
-				/*System.out.println("helookajsdhsa ");
-				EmailAPI emailAPI = new EmailAPI();
-				Map<String,String> map =new HashMap<String, String>();
-				map.put("toAddress", user.getEmail());
-				map.put("subject", "Send Otp For Change Password");
-				map.put("msgBody", message);					
-				emailAPI.sendSimpleMail(map);*/
 				try {
-					System.out.println("helookajsdhsa2342123 ");
-					temp = Global.sendMessage(userName, password,mobile, senderId, message);
-					
+					temp = Global.sendMessage(userName, password,mobile, senderId, message);					
 				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}			
-		}
-		else
-		{
-			System.out.println("Inside else");
-			OtpValidate otpValidate = new OtpValidate();
-			otpValidate.setOtpData(otp);
-			otpValidate.setUserId(user);
-			session.save(otpValidate);
-			tx.commit();
-			
-			String message ="Dear Sir,  Send otp on  your register mobile number"+otpValidate.getOtpData();
-			String mobile = user.getMobile();
-			if( mobile.length() == 12)
-			{
-				mobile = mobile.substring(2);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			tx.rollback();
+		}finally {
 			try {
-				temp = Global.sendMessage(userName, password,mobile, senderId, message);					
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
 			}
 		}
 		
@@ -481,15 +573,21 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 					temp =1;
 				}		
 				tx.commit();
+				//session.close();
 			}
-			
 		} catch (Exception e) {			
-			session.close();
+			e.printStackTrace();
 		}
 		finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
-		
 		return temp;
 	}
 

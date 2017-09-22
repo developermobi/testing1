@@ -59,12 +59,12 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 		return smsHelperDao.messageCount(messageType, messageLenght);
 	}
 
-	@Override
+/*	@Override
 	@Transactional("txManager2")
 	public List<SmsDnd> filterDndNumber() {
 		
 		return smsHelperDao.filterDndNumber();
-	}
+	}*/
 
 	@Override
 	public List<UserProduct> getRouteDetails(int userId, int productId) {

@@ -58,39 +58,75 @@ public class UserDaoImpl implements UserDao {
 			session.saveOrUpdate(user);
 			temp = 1;
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		return temp;
 	}
 	@Override
 	public List<User> getUser() {
-		Session session = sessionFactory.openSession();		
-		List<User> list = session.createCriteria(User.class).list();
-		session.close();
+		Session session = sessionFactory.openSession();	
+		List<User> list = null;
+		try {
+			list = session.createCriteria(User.class).list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 	@Override
 	public List<User> getUserById(int userId) {
 
-		Session session = sessionFactory.openSession();	
-		String sql = "SELECT * FROM user_product WHERE user_id = :userId";
-		SQLQuery query = session.createSQLQuery(sql);
-		query.addEntity(UserProduct.class);
-		query.setParameter("userId", userId);
-		List results = query.list();
+		Session session = sessionFactory.openSession();
+		List results = null;
+		try {
+			String sql = "SELECT * FROM user_product WHERE user_id = :userId";
+			SQLQuery query = session.createSQLQuery(sql);
+			query.addEntity(UserProduct.class);
+			query.setParameter("userId", userId);
+			results = query.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return results;
 	}
 	@Override
 	public int updateUser(User user) {
 		Session session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
-		int temp = 0;
-		
+		int temp = 0;		
 		try {
 			
 			//String sql = "UPDATE User SET user_name = :userName,address = :address,city = :city,company_name = :companyName,country = :country,email = :email,mobile = :mobile, name = :name,role = :role,state = :state, status = :status WHERE id = :id";
@@ -111,12 +147,20 @@ public class UserDaoImpl implements UserDao {
 			
 			temp = qry.executeUpdate();
 			tx.commit();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		
 		return temp;
@@ -145,6 +189,7 @@ public class UserDaoImpl implements UserDao {
 					System.out.println(temp);
 					temp=1;
 					tx.commit();
+					//session.close();
 				}
 				
 			} catch (Exception e) {
@@ -153,8 +198,15 @@ public class UserDaoImpl implements UserDao {
 				tx.rollback();
 				
 			}finally {
-				session.close();
-			}			
+				try {
+					if(session != null)
+					{
+						session.close();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
+			}		
 		}
 		else
 		{
@@ -174,9 +226,9 @@ public class UserDaoImpl implements UserDao {
 			Criteria criteria = session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("userName", userName));
 			list = criteria.list();
-			
+			//session.close();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -185,7 +237,7 @@ public class UserDaoImpl implements UserDao {
 					session.close();
 				}
 			} catch (Exception e2) {
-				System.out.println(e2.getMessage());
+				e2.printStackTrace();
 			}
 		}
 		return list;
@@ -205,12 +257,9 @@ public class UserDaoImpl implements UserDao {
 			criteria.add(Restrictions.eq("userId", user.getUserId())).add(Restrictions.eq("productId", product));
 			//String sqlQuery = "SELECT balance FROM sms_balance WHERE user_id = :userId and product_id = :productId";
 			list = criteria.list();
-			
-			//System.out.println(sqlQuery);
-			
+			//session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
-			
+			e.printStackTrace();			
 		}
 		finally {
 			if(session != null)
@@ -218,7 +267,6 @@ public class UserDaoImpl implements UserDao {
 				session.close();
 			}
 		}
-		
 		return balance = list.get(0).getBalance();
 	}
 	@Override
@@ -339,10 +387,9 @@ public class UserDaoImpl implements UserDao {
 				if(session != null)
 				{
 					session.close();
-					System.out.println("session closed");
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 			
 		}
@@ -359,48 +406,91 @@ public class UserDaoImpl implements UserDao {
 			Criteria criteria=session.createCriteria(SmsBalance.class);
 			criteria.add(Restrictions.eq("userId", user));
 			results = criteria.list();
+			//session.close();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-		finally {
+			e.printStackTrace();
+		}finally {
 			try {
 				if(session != null)
 				{
 					session.close();
 				}
 			} catch (Exception e2) {
-				System.out.println(e2.getMessage());
+				e2.printStackTrace();
 			}
 		}
 		return results;
 	}
 	@Override
 	public List<Credit> getCreditDetailsByUserId(int userId) {
-		Session session = sessionFactory.openSession();	
-		String sql = "SELECT * FROM credit WHERE credit_by = :userId";
-		SQLQuery query = session.createSQLQuery(sql);
-		query.addEntity(Credit.class);
-		query.setParameter("userId", userId);
-		List results = query.list();
+		Session session = sessionFactory.openSession();
+		List results = null;
+		try {
+			String sql = "SELECT * FROM credit WHERE credit_by = :userId";
+			SQLQuery query = session.createSQLQuery(sql);
+			query.addEntity(Credit.class);
+			query.setParameter("userId", userId);
+			results = query.list();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return results;
 	}
 	@Override
 	public List<Debit> getDebitByUserId(int userId) {
-		Session session = sessionFactory.openSession();	
-		String sql = "SELECT * FROM debit WHERE user_id = :userId";
-		SQLQuery query = session.createSQLQuery(sql);
-		query.addEntity(Debit.class);
-		query.setParameter("userId", userId);
-		List results = query.list();
+		Session session = sessionFactory.openSession();
+		List results = null;
+		try {
+			String sql = "SELECT * FROM debit WHERE user_id = :userId";
+			SQLQuery query = session.createSQLQuery(sql);
+			query.addEntity(Debit.class);
+			query.setParameter("userId", userId);
+			results = query.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return results;
 	}
 	@Override
 	public List<User> getUserByResellerId(int resellerId) {
 		Session session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(User.class);
-		criteria.add(Restrictions.eq("resellerId", resellerId)).add(Restrictions.eq("status", 1));
-		List<User> list = criteria.list();
-		session.close();
+		List<User> list = null;
+		try {
+			Criteria criteria = session.createCriteria(User.class);
+			criteria.add(Restrictions.eq("resellerId", resellerId)).add(Restrictions.eq("status", 1));
+			list = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return list;
 	}
 	@Override
@@ -420,13 +510,21 @@ public class UserDaoImpl implements UserDao {
 				if(temp == 1)
 				{
 					tx.commit();
+					//session.close();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				temp = 0;
 				tx.rollback();
 			}finally {
-				session.close();
+				try {
+					if(session != null)
+					{
+						session.close();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
 			}
 		}
 		else
@@ -499,6 +597,7 @@ public class UserDaoImpl implements UserDao {
 					{
 						temp = 1;
 						tx.commit();
+						//session.close();
 					}
 				}
 				else
@@ -516,7 +615,14 @@ public class UserDaoImpl implements UserDao {
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		return temp;
 
@@ -543,7 +649,14 @@ public class UserDaoImpl implements UserDao {
 				temp = 0;
 				tx.rollback();
 			}finally {
-				session.close();
+				try {
+					if(session != null)
+					{
+						session.close();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
 			}
 		}
 		else
@@ -583,7 +696,7 @@ public class UserDaoImpl implements UserDao {
 						i = Global.sendMessage(userName, password,mobile, senderId, message);
 						
 					} catch (MalformedURLException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 				}			
@@ -595,11 +708,17 @@ public class UserDaoImpl implements UserDao {
 			}
 			
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 			tx.rollback();
-		}
-		finally {
-			session.close();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		return i;
 	}
@@ -607,13 +726,26 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<User> validateUserName(String userName) {
 		Session session = sessionFactory.openSession();
-		@SuppressWarnings("unused")
-		Transaction tx= session.beginTransaction();
-		Criteria criteria = session.createCriteria(User.class);
-		criteria.add(Restrictions.eq("userName", userName));
-		@SuppressWarnings("unchecked")
-		List<User> userList = criteria.list();
-		session.close();		
+		List<User> userList = null;
+		try {
+			@SuppressWarnings("unused")
+			Transaction tx= session.beginTransaction();
+			Criteria criteria = session.createCriteria(User.class);
+			criteria.add(Restrictions.eq("userName", userName));
+			userList = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return userList;
 	}
 

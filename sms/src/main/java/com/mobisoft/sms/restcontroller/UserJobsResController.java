@@ -733,11 +733,11 @@ public class UserJobsResController {
 			    				int updateNewBalance = balance.get(0)-sentMessage; 
 			    				System.out.println(updateNewBalance);
 			    				
-			    				int coding = 0;
+			    				/*int coding = 0;
 			    				if(node.get("messageType").asInt() == 2)
 			    				{
 			    					coding =2;
-			    				}
+			    				}*/
 			    				Map<String,Object> mapList = new HashMap<>();
 			    				mapList.put("mobileNumber", mobileNumber);
 			    				mapList.put("userId", node.get("userId").asInt());
@@ -751,7 +751,7 @@ public class UserJobsResController {
 			    				mapList.put("productId", node.get("productId").asInt());
 			    				mapList.put("updateNewBalance", updateNewBalance);
 			    				mapList.put("routeName", routeList.get(0).getRouteId().getSmppName());
-			    				mapList.put("coding", coding);
+			    				/*mapList.put("coding", coding);*/
 								int result = userJobsService.sendQuickMessage(mapList);								
 								if(result == 1)
 								{

@@ -58,7 +58,7 @@ public class ContactDaoImpl implements ContactDao{
 				session.saveOrUpdate(contact);					
 				temp = 1;
 				tx.commit();
-				session.close();
+				//session.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 				temp = 0;
@@ -93,7 +93,7 @@ public class ContactDaoImpl implements ContactDao{
 			.setFirstResult(start)
 			.setMaxResults(limit).addOrder(Order.desc("created"));
 			 list = criteria.list();
-			 session.close();
+			 //session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -121,7 +121,7 @@ public class ContactDaoImpl implements ContactDao{
 			criteria.add(Restrictions.eq("userId", userId))
 			.add(Restrictions.ne("status", 2));
 			list = criteria.list();
-			session.close();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -147,7 +147,7 @@ public class ContactDaoImpl implements ContactDao{
 			criteria.add(Restrictions.eq("contactId", contactId))
 			.add(Restrictions.ne("status", 2));
 			list = criteria.list();
-			session.close();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -186,7 +186,7 @@ public class ContactDaoImpl implements ContactDao{
 					qry.setParameter("contactId", contactId);
 					temp = qry.executeUpdate();
 					tx.commit();
-					session.close();
+					//session.close();
 				}
 				else
 				{
@@ -234,7 +234,7 @@ public class ContactDaoImpl implements ContactDao{
 				System.out.println(temp);
 				temp=1;
 				tx.commit();
-				session.close();
+				//session.close();
 			}
 			else
 			{
@@ -345,7 +345,7 @@ public class ContactDaoImpl implements ContactDao{
 			criteria.add(Restrictions.eq("groupId", groupDetails))
 			.add(Restrictions.ne("status", 2)).setFirstResult(start).setMaxResults(max);
 			list = criteria.list();
-			session.close();
+			//session.close();
 		} catch (Exception e) {e.printStackTrace();}
 		finally {
   			try {
@@ -369,7 +369,7 @@ public class ContactDaoImpl implements ContactDao{
 			criteria.add(Restrictions.eq("groupId", groupDetails)).setProjection(Projections.rowCount())
 			.add(Restrictions.ne("status", 2));
 			list = criteria.list();					
-			session.close();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally {

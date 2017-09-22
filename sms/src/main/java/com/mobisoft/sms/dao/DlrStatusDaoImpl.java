@@ -99,6 +99,17 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 											 temp=0;
 										}
 									}
+								   int code = 0;
+								   if(list.get(0).getMessageType() == 1)
+								   {
+									   code =0;
+								   }else if(list.get(0).getMessageType() == 2)
+								   {
+									   code = 4;
+								   }else if(list.get(0).getMessageType() == 3)
+								   {
+									   code = 2;
+								   }
 						           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 						           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
 						           
@@ -110,7 +121,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						        	   String messId = Global.randomString(10);			        	   
 						        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
 						        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
-						        	   pstmtDlrStatus.setInt(3,0);
+						        	   pstmtDlrStatus.setInt(3,code);
 						        	   pstmtDlrStatus.setInt(4, list.get(0).getCount());
 						        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
 						        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
@@ -123,7 +134,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						               pstmtDlrStatus.addBatch();
 						               
 						               pstmtQueuedSms.setInt(1, list.get(0).getId());
-						               pstmtQueuedSms.setString(2,"MO");
+						               pstmtQueuedSms.setString(2,"MT");
 						               pstmtQueuedSms.setString(3,list.get(0).getSender());
 						               pstmtQueuedSms.setString(4, mobile);
 						               pstmtQueuedSms.setString(5, list.get(0).getMessage());
@@ -131,7 +142,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						               pstmtQueuedSms.setString(7,"sqlbox");
 						               pstmtQueuedSms.setInt(8, 1);
 						               pstmtQueuedSms.setInt(9, 1);
-						               pstmtQueuedSms.setInt(10, 0);
+						               pstmtQueuedSms.setInt(10, code);
 						               pstmtQueuedSms.setInt(11,19);
 						               pstmtQueuedSms.setString(12, messId);
 						               pstmtQueuedSms.setString(13,"UTF-8");
@@ -217,7 +228,18 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 			    	   	  int jobId = (int) (System.currentTimeMillis() & 0xfffffff);	
 				    	  String sender = (String)mapList.get("sender");
 				    	  
-				    	  int coding = (int)mapList.get("coding");
+				    	  int messageType = (int)mapList.get("messageType");
+				    	  int coding = 0;
+				    	  if(messageType == 1)
+				    	  {
+				    		coding = 0;  
+				    	  }else if(messageType == 2)
+				    	  {
+				    		  coding = 4;
+				    	  }else if(messageType == 3)
+				    	  {
+				    		  coding = 2;
+				    	  }
 				    	  int messageCount = (int)mapList.get("messageCount");
 				    	  int length = (int)mapList.get("messageLength");
 				    	  String message = (String)mapList.get("message");
@@ -283,7 +305,10 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				           conn.setAutoCommit(true);
 				           temp=1;
 				           
-				         } 
+				         }catch(Exception e){
+				        	 conn.rollback();
+				        	 e.printStackTrace();
+				          }
 				         finally{
 				        	    if (pstmtDlrStatus != null) {
 				        	        try {
