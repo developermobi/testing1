@@ -150,32 +150,29 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						           conn.commit();
 						           conn.setAutoCommit(true);
 						           
-						         } catch (FileNotFoundException e) {
-									// TODO Auto-generated catch block
+						         } catch (FileNotFoundException e) {									
 									e.printStackTrace();
 									conn.rollback();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
+								} catch (IOException e) {									
 									e.printStackTrace();
 									conn.rollback();
 								} 
-						         finally{
-
-						        	    if (pstmtDlrStatus != null) {
+						        finally{
+						        	if (pstmtDlrStatus != null) {
 						        	        try {
 						        	        	pstmtDlrStatus.close();
-						        	        } catch (SQLException e) { /* ignored */}
+						        	        } catch (SQLException e) { e.printStackTrace();}
 						        	    }
-						        	    if (pstmtQueuedSms != null) {
-						        	        try {
-						        	        	pstmtQueuedSms.close();
-						        	        } catch (SQLException e) { /* ignored */}
-						        	    }
-						        	    if (conn != null) {
-						        	        try {
-						        	            conn.close();
-						        	        } catch (SQLException e) { /* ignored */}
-						        	    }
+					        	    if (pstmtQueuedSms != null) {
+					        	        try {
+					        	        	pstmtQueuedSms.close();
+					        	        } catch (SQLException e) { e.printStackTrace();}
+					        	    }
+					        	    if (conn != null) {
+					        	        try {
+					        	            conn.close();
+					        	        } catch (SQLException e) {e.printStackTrace();}
+					        	    }
 						        }                                
 					     }
 					});
@@ -191,7 +188,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				return temp = 0;
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();	
 		}
 		finally {
 			try {
@@ -200,7 +197,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				
+				e2.printStackTrace();	
 			}
 		}
 		return temp;
@@ -210,7 +207,6 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	public int saveQuickMessage(final Map<String,Object> mapList,Session session1) {
 		String mobileNumber = (String) mapList.get("mobileNumber");
 		final List<String> mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
-		//Transaction tx = session1.beginTransaction();
 		
 		try {
 			session1.doWork(new Work() {
@@ -289,31 +285,30 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				           
 				         } 
 				         finally{
-				        	 System.out.println("colsed connection0");
 				        	    if (pstmtDlrStatus != null) {
 				        	        try {
 				        	        	pstmtDlrStatus.close();
-				        	        	//System.out.println("colsed connection1");
-				        	        } catch (SQLException e) { /* ignored */}
+				        	        	
+				        	        } catch (SQLException e) {e.printStackTrace();}
 				        	    }
 				        	    if (pstmtQueuedSms != null) {
 				        	        try {
 				        	        	pstmtQueuedSms.close();
-				        	        	//System.out.println("colsed connection2");
-				        	        } catch (SQLException e) { /* ignored */}
+				        	        	
+				        	        } catch (SQLException e) {e.printStackTrace();	}
 				        	    }
 				        	    if (conn != null) {
 				        	        try {
 				        	            conn.close();
-				        	           // System.out.println("colsed connection3");
-				        	        } catch (SQLException e) { /* ignored */}
+				        	           
+				        	        } catch (SQLException e) {e.printStackTrace();}
 				        	    }
 				         }
 			     }
 
 			});
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 		
 		return temp;

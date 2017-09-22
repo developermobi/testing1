@@ -58,12 +58,20 @@ public class ContactDaoImpl implements ContactDao{
 				session.saveOrUpdate(contact);					
 				temp = 1;
 				tx.commit();
+				session.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 				temp = 0;
 				tx.rollback();
 			}finally {
-				session.close();
+				try {
+					if(session != null)
+					{
+						session.close();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
+				}
 			}
 		}
 		else
@@ -87,7 +95,7 @@ public class ContactDaoImpl implements ContactDao{
 			 list = criteria.list();
 			 session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -96,7 +104,7 @@ public class ContactDaoImpl implements ContactDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		
@@ -115,7 +123,7 @@ public class ContactDaoImpl implements ContactDao{
 			list = criteria.list();
 			session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -124,7 +132,7 @@ public class ContactDaoImpl implements ContactDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return list;
@@ -141,7 +149,7 @@ public class ContactDaoImpl implements ContactDao{
 			list = criteria.list();
 			session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -150,7 +158,7 @@ public class ContactDaoImpl implements ContactDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return list;
@@ -202,7 +210,7 @@ public class ContactDaoImpl implements ContactDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		
@@ -245,9 +253,9 @@ public class ContactDaoImpl implements ContactDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
-		}		
+		}
 
 
 		return temp;
@@ -299,13 +307,13 @@ public class ContactDaoImpl implements ContactDao{
 			  				{
 			  					conn.close();
 			  				}
-			  			} catch (Exception e2) {}
+			  			} catch (Exception e2) {e2.printStackTrace();}
 			  			try {
 			  				if(pstmtContact != null)
 			  				{
 			  					pstmtContact.close();
 			  				}
-			  			} catch (Exception e2) {}
+			  			} catch (Exception e2) {e2.printStackTrace();}
 			  		}		                                
 			     }
 
@@ -322,7 +330,7 @@ public class ContactDaoImpl implements ContactDao{
   				{
   					session.close();
   				}
-  			} catch (Exception e2) {}
+  			} catch (Exception e2) {e2.printStackTrace();}
   		}		
 		return temp;
 	}
@@ -338,14 +346,14 @@ public class ContactDaoImpl implements ContactDao{
 			.add(Restrictions.ne("status", 2)).setFirstResult(start).setMaxResults(max);
 			list = criteria.list();
 			session.close();
-		} catch (Exception e) {}
+		} catch (Exception e) {e.printStackTrace();}
 		finally {
   			try {
   				if(session != null)
   				{
   					session.close();
   				}
-  			} catch (Exception e2) {}
+  			} catch (Exception e2) {e2.printStackTrace();}
   		}	
 		return list;
 	}
@@ -360,11 +368,10 @@ public class ContactDaoImpl implements ContactDao{
 			Criteria criteria = session.createCriteria(Contact.class);
 			criteria.add(Restrictions.eq("groupId", groupDetails)).setProjection(Projections.rowCount())
 			.add(Restrictions.ne("status", 2));
-			list = criteria.list();
-					
+			list = criteria.list();					
 			session.close();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}finally {
 			try {
 				if(session != null)
@@ -372,7 +379,7 @@ public class ContactDaoImpl implements ContactDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				System.out.println(e2.getMessage());
+				e2.printStackTrace();
 			}
 		}
 		

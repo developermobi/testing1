@@ -906,8 +906,8 @@ public class UserRestController {
 		}
 		return map;
 	}
-	@RequestMapping(value = "varifyOtp/{otp}/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>changePassword(@PathVariable("userId")int userId,@PathVariable("otp")String otp,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "verifyOtp/{otp}/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>verifyOtp(@PathVariable("userId")int userId,@PathVariable("otp")String otp,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -924,7 +924,7 @@ public class UserRestController {
 			int temp = smsHelperService.varifyOtp(otp, userId);	
 			if(temp == 1){
 				// send mail and message
-				map.put("code", 404);
+				map.put("code", 201);
 				map.put("status", "success");
 				map.put("message", "Otp Match Successfully");
 			}

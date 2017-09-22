@@ -39,12 +39,20 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 			session.saveOrUpdate(groupDetails);					
 			temp = 1;
 			tx.commit();
+			session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		return temp;
 	}
@@ -59,12 +67,11 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 			criteria.add(Restrictions.eq("userId", user))
 			.add(Restrictions.ne("status", 2))
 			.setFirstResult(start)
-			.setMaxResults(limit);
-			
+			.setMaxResults(limit);			
 			list = criteria.list();
 			session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -73,7 +80,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return list;
@@ -90,7 +97,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 			list = criteria.list();
 			session.close();
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		finally {
 			try {
@@ -99,7 +106,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 					session.close();
 				}
 			} catch (Exception e2) {
-				// TODO: handle exception
+				e2.printStackTrace();
 			}
 		}
 		return list;
@@ -119,12 +126,20 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 			qry.setParameter("groupId", groupId);
 			temp = qry.executeUpdate();
 			tx.commit();
+			session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
 			tx.rollback();
 		}finally {
-			session.close();
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		
 		return temp;
@@ -145,6 +160,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 			System.out.println(temp);
 			temp=1;
 			tx.commit();
+			session.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -152,10 +168,15 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 			tx.rollback();
 			
 		}finally {
-			session.close();
-		}			
-
-
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
 		return temp;
 	}
 
