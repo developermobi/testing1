@@ -37,6 +37,10 @@ public class UserDaoImpl implements UserDao {
 	@Autowired
 	SessionFactory sessionFactory;
 	
+	Session session = null;
+	
+	Transaction tx = null;
+	
 	@Value("${sms_username}")
 	private String userName;
 	
@@ -51,8 +55,8 @@ public class UserDaoImpl implements UserDao {
 	@Autowired
 	private SmsHelperService smsHelperService;
 	public int saveUser(User user) {
-		Session session =  sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session =  sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;		
 		try {
 			session.saveOrUpdate(user);
@@ -77,7 +81,7 @@ public class UserDaoImpl implements UserDao {
 	}
 	@Override
 	public List<User> getUser() {
-		Session session = sessionFactory.openSession();	
+		session = sessionFactory.openSession();	
 		List<User> list = null;
 		try {
 			list = session.createCriteria(User.class).list();
@@ -99,7 +103,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<User> getUserById(int userId) {
 
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List results = null;
 		try {
 			String sql = "SELECT * FROM user_product WHERE user_id = :userId";
@@ -124,8 +128,8 @@ public class UserDaoImpl implements UserDao {
 	}
 	@Override
 	public int updateUser(User user) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;		
 		try {
 			
@@ -168,8 +172,8 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public int deleteUser(int userId,int resellerId) {
 		int temp = 0;
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
 		User user=(User)session.get(User.class, userId);
 		
 		if(user.getStatus() == 1)
@@ -219,10 +223,10 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<User> getUserByUserName(String userName) {
 
-		Session session = null; 
+		session = sessionFactory.openSession(); 
 		List<User> list = null;
 		try {
-			session = sessionFactory.openSession();
+			
 			Criteria criteria = session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("userName", userName));
 			list = criteria.list();
@@ -246,11 +250,11 @@ public class UserDaoImpl implements UserDao {
 	public int getBalnce(int userId,int productId)
 	{
 		int balance = 0;
-		Session session = null;
+		session = sessionFactory.openSession();
 		List<SmsBalance> list= null;
 		try {
 			
-			session = sessionFactory.openSession();
+			
 			User user = (User)session.get(User.class,userId);
 			Product product = (Product)session.get(Product.class,productId);
 			Criteria criteria = session.createCriteria(SmsBalance.class);
@@ -273,13 +277,12 @@ public class UserDaoImpl implements UserDao {
 	public int saveUerDeatils(JsonNode jsonNode) {
 		
 		int temp = 0;
-		Session session = null;
-		Transaction tx = null;
+		session =  sessionFactory.openSession();
+		tx = session.beginTransaction();
 		try {
 			
 			String password = Global.randomString(6);
-			 session =  sessionFactory.openSession();
-			 tx = session.beginTransaction();
+			 
 			
 			//Set<Product> products =new HashSet<>();
 			Product product= (Product)session.get(Product.class, jsonNode.get("productId").asInt());	
@@ -398,10 +401,10 @@ public class UserDaoImpl implements UserDao {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SmsBalance> getBalanceByUserId(int userId) {
-		Session session = null;
+		session = sessionFactory.openSession();
 		List<SmsBalance> results = null;
 		try {
-			session = sessionFactory.openSession();		
+					
 			User user=(User)session.get(User.class,userId);
 			Criteria criteria=session.createCriteria(SmsBalance.class);
 			criteria.add(Restrictions.eq("userId", user));
@@ -472,7 +475,7 @@ public class UserDaoImpl implements UserDao {
 	}
 	@Override
 	public List<User> getUserByResellerId(int resellerId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<User> list = null;
 		try {
 			Criteria criteria = session.createCriteria(User.class);
@@ -495,8 +498,8 @@ public class UserDaoImpl implements UserDao {
 	}
 	@Override
 	public int addCreditUser(int creditUserId, int creditByUserId, int productId,int balance) {
-		Session session=sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session=sessionFactory.openSession();
+		tx = session.beginTransaction();
 		User user = (User)session.get(User.class, creditUserId);
 		int temp = 0;
 		if(user.getUserId() != 0)
@@ -537,8 +540,8 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public int addProdcut(int reselerId, int userId, int ProductId,int balance) {
 		
-		Session session=sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session=sessionFactory.openSession();
+		tx = session.beginTransaction();
 		User user = (User)session.get(User.class, userId);
 		User reseller = (User)session.get(User.class,reselerId);
 		Product product=(Product)session.get(Product.class, ProductId);
@@ -630,8 +633,8 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public int deductCreditUser(int deductUserId, int dedcutByUserId, int productId, int balance) {
 		
-		Session session=sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session=sessionFactory.openSession();
+		tx = session.beginTransaction();
 		User user = (User)session.get(User.class, dedcutByUserId);
 		int temp = 0;
 		if(user.getUserId() != 0)
@@ -667,7 +670,7 @@ public class UserDaoImpl implements UserDao {
 	}
 	@Override
 	public int changePassword(String oldPassword, String newPassword,int userId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		@SuppressWarnings("unused")
 		Transaction tx= session.beginTransaction();
 		int i=0;
@@ -725,11 +728,12 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	public List<User> validateUserName(String userName) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
+		tx= session.beginTransaction();
 		List<User> userList = null;
 		try {
 			@SuppressWarnings("unused")
-			Transaction tx= session.beginTransaction();
+			
 			Criteria criteria = session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("userName", userName));
 			userList = criteria.list();
