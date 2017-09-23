@@ -54,11 +54,15 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	
 	@Value("${senderId}")
 	private String senderId;
+	
+	Session session = null;
+	
+	Transaction tx = null;
 
 	@Override
 	public List<Integer> getBalance(int userId, int productId) {
 		
-		Session session =  sessionFactory.openSession();
+		session =  sessionFactory.openSession();
 		List list = null;
 		try {
 			String sqlQuery = "select balance from sms_balance where user_id = "+userId+" and product_id ="+productId;
@@ -209,7 +213,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 
 	@Override
 	public  List<SmsBalance> findProdcut(int userId, int prodcutId) {
-		Session session= sessionFactory.openSession();
+		session= sessionFactory.openSession();
 		List<SmsBalance> list = null;
 		try {
 			User user =(User)session.load(User.class, userId);
@@ -291,7 +295,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Override
 	public List<UserProduct> getRouteDetails(int userId, int productId) {
 	
-		Session session= sessionFactory.openSession();
+		 session= sessionFactory.openSession();
 		List<UserProduct> userProductsList = null;
 		try {
 			User user=(User)session.get(User.class, userId);
@@ -317,7 +321,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	}
 	@Override
 	public List<String> getGroupContact(String groupId, int userId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<String> list = null;
 		try {
 			String sqlQuery = "SELECT mobile FROM contact WHERE group_id in("+groupId+") and user_id ="+userId;
@@ -341,7 +345,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	}
 	@Override
 	public List<UserAuthrization> getUserAuthrizationCheck(int userId,int productId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<UserAuthrization> list = null;
 		try {
 			User user =(User)session.get(User.class, userId);
@@ -366,7 +370,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Override
 	public List<Object> mobileNumber(final String mobileNumber) {
 		
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		
 		final List<Object> commonListData = new ArrayList<Object>();
 		try {
@@ -475,7 +479,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	public int genrateOtp(int userId) {
 		
 		System.out.println("helooo dear");
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		Transaction tx = session.beginTransaction();
 		int temp =0;
 		try {
@@ -558,8 +562,8 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 
 	@Override
 	public int varifyOtp(String otp,int userId) {
-		Session session = sessionFactory.openSession();
-		Transaction tx= session.beginTransaction();
+		session = sessionFactory.openSession();
+		tx= session.beginTransaction();
 		int temp =0;
 		try {
 			User user = (User)session.get(User.class,userId);

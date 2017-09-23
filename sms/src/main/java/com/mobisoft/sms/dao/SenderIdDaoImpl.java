@@ -20,10 +20,16 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Autowired
 	SessionFactory sessionFactory;
+	
+	Session session = null;
+	
+	Transaction tx = null;
+	
+	
 	@Override
 	public int saveSenderId(SenderId senderId) {
-		Session session =  sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session =  sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;		
 		try {
 			session.saveOrUpdate(senderId);
@@ -50,7 +56,7 @@ public class SenderIdDaoImpl implements SenderIDDao{
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SenderId> getSenderId() {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<SenderId> list = null;
 		try {
 			list = session.createCriteria(SenderId.class).list();
@@ -74,7 +80,7 @@ public class SenderIdDaoImpl implements SenderIDDao{
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<SenderId> getSenderIdByUserId(int userId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<SenderId> list = null;
 		try {
 			User user = (User)session.load(User.class,userId);
@@ -100,7 +106,7 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Override
 	public List<SenderId> getSenderId(int senderId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<SenderId> list = null;
 		try {
 			Criteria criteria = session.createCriteria(SenderId.class);
@@ -125,8 +131,8 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Override
 	public int updateSenderId(SenderId senderId) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;		
 		try {	
 			String sql = "update sender_id SET sender_id = :senderId,status = :status WHERE id = :id";			
@@ -156,8 +162,8 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Override
 	public int deleteSenderId(SenderId senderId) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;		
 		try {
 			Object object = session.load(SenderId.class,new Integer(senderId.getId()));
@@ -185,7 +191,7 @@ public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Override
 	public List<SenderId> getSenderIdByUserIdPaginate(int userId, int start, int limit) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<SenderId> list = null;
 		try {
 			User user = (User)session.load(User.class,userId);

@@ -19,10 +19,15 @@ public class TemplateDaoImpl implements TemplateDao{
 
 	@Autowired
 	SessionFactory sessionFactory;
+	
+	Session session = null;
+	
+	Transaction tx = null;
+	
 	@Override
 	public int saveTemplate(Template template) {
-		Session session =  sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session =  sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;		
 		try {
 			session.saveOrUpdate(template);
@@ -48,7 +53,7 @@ public class TemplateDaoImpl implements TemplateDao{
 
 	@Override
 	public List<Template> getTemplate() {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<Template> list = null;
 		try {
 			list = session.createCriteria(Template.class).list();
@@ -70,7 +75,7 @@ public class TemplateDaoImpl implements TemplateDao{
 
 	@Override
 	public List<Template> getTemplateByUserId(int userId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<Template> list = null;
 		try {
 			User user =(User)session.get(User.class, userId);
@@ -96,7 +101,7 @@ public class TemplateDaoImpl implements TemplateDao{
 
 	@Override
 	public List<Template> getTemplateById(int templateId) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<Template> list = null;
 		try {
 			Criteria criteria = session.createCriteria(Template.class);
@@ -120,8 +125,8 @@ public class TemplateDaoImpl implements TemplateDao{
 
 	@Override
 	public int updateTemplate(Template template) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;
 		
 		try {	
@@ -153,8 +158,8 @@ public class TemplateDaoImpl implements TemplateDao{
 
 	@Override
 	public int deleteTemplate(Template template) {
-		Session session = sessionFactory.openSession();
-		Transaction tx = session.beginTransaction();
+		session = sessionFactory.openSession();
+		tx = session.beginTransaction();
 		int temp = 0;		
 		try {
 			/*Object object = session.load(Template.class,new Integer(template.getId()));
@@ -184,7 +189,7 @@ public class TemplateDaoImpl implements TemplateDao{
 
 	@Override
 	public List<Template> getTemplateByUserIdPaginate(int userId, int start, int limit) {
-		Session session = sessionFactory.openSession();
+		session = sessionFactory.openSession();
 		List<Template> list = null;
 		try {
 			User user =(User)session.get(User.class, userId);
