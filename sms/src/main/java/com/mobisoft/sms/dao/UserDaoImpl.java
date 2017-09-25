@@ -231,6 +231,8 @@ public class UserDaoImpl implements UserDao {
 			criteria.add(Restrictions.eq("userName", userName));
 			list = criteria.list();
 			//session.close();
+			session.flush();
+			session.clear();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
