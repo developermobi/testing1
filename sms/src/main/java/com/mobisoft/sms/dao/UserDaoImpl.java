@@ -114,7 +114,7 @@ public class UserDaoImpl implements UserDao {
 	//@javax.transaction.Transactional
 	public List<User> getUserById(int userId) {
 
-		session = sessionFactory.openSession();
+		Session session = sessionFactory.openSession();
 		List results = null;
 		try {
 			String sql = "SELECT * FROM user_product WHERE user_id = :userId";
@@ -793,7 +793,8 @@ public class UserDaoImpl implements UserDao {
 								.add(Restrictions.eq("productId",product))
 								.setProjection(Projections.rowCount());
 						countlist = criteria.list();
-						mapList.put(3,countlist.get(0));
+						count = countlist.get(0);
+						mapList.put(3,count);
 					}else if(type == 2){
 						Criteria criteria = session.createCriteria(Debit.class)
 								.add(Restrictions.eq("userId",user))
@@ -801,7 +802,8 @@ public class UserDaoImpl implements UserDao {
 								.setProjection(Projections.rowCount());
 					
 						countlist = criteria.list();
-						mapList.put(3,countlist.get(0));
+						count = countlist.get(0);
+						mapList.put(3,count);
 					}
 				}
 				else

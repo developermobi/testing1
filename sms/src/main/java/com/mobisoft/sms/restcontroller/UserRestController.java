@@ -486,8 +486,8 @@ public class UserRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "getCreditByUserId/{userId}/start/limit",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getCreditByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "getCreditByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getCreditByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -935,6 +935,68 @@ public class UserRestController {
 			}
 		}		
 		return map;
+	}
+	@RequestMapping(value="/getTransactionDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object> getTransactionDetails(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		if(tokenAuthentication.validateToken(authorization) == 0){			
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else
+		{
+			mapper = new ObjectMapper();
+			JsonNode node = mapper.readValue(jsonString,JsonNode.class);
+			if(node.get("userId").asInt() != 0 &&  node.get("type").asInt() != 0 && node.get("productId").asInt() != 0)
+			{
+				Map<Integer,Integer> mapList = userService.countTransactionList(node.get("userId").asInt(), node.get("type").asInt(), node.get("productId").asInt());
+				if(mapList.get(0) != 1 && mapList.get(1) != 2 && mapList.get(3) > 0)
+				{
+					Map<Integer, List> mapTranactionList = userService.transactionList(node.get("userId").asInt(),
+							node.get("type").asInt(), node.get("productId").asInt(), node.get("start").asInt(), 
+							node.get("limit").asInt());
+					List transactionList = mapTranactionList.get(3);
+					if(transactionList.size() > 0)
+					{
+						map.put("status", "error");
+						map.put("code", 204);
+						map.put("message", "No data found");
+						map.put("data", transactionList);
+						map.put("total", mapList.get(3));
+					}
+					else
+					{
+						map.put("status", "error");
+						map.put("code", 204);
+						map.put("message", "No data found");
+						map.put("data", null);
+					}
+				}
+				else
+				{
+					map.put("status", "error");
+					map.put("code", 404);
+					map.put("message", "Some parameter is not match in our pannel Db");
+					map.put("data", null);
+				}
+			}
+			else
+			{
+				map.put("status", "error");
+				map.put("code", 422);
+				map.put("message", "Invalid Parameter ");
+				map.put("data", null);
+			}
+			
+		}		
+		return map;
+		
 	}
 
 }

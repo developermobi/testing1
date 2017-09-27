@@ -1,6 +1,7 @@
 package com.mobisoft.sms.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,16 @@ public class UserServiceImpl implements UserService{
 	public int changePassword(String oldPassword, String newPassword, int userId) {
 	
 		return userDao.changePassword(oldPassword, newPassword, userId);
+	}
+	@Override
+	public Map<Integer, Integer> countTransactionList(int userId, int type, int productType) {
+		
+		return countTransactionList(userId, type, productType);
+	}
+	@Override
+	public Map<Integer, List> transactionList(int userId, int type, int productType, int start, int limt) {
+	
+		return transactionList(userId, type, productType, start, limt);
 	}
 
 }
