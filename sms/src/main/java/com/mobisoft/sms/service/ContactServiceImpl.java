@@ -15,7 +15,7 @@ import au.com.bytecode.opencsv.CSVReader;
 public class ContactServiceImpl implements ContactService{
 
 	@Autowired
-	ContactDao contactDao;
+	private ContactDao contactDao;
 	
 	@Override
 	public int saveConact(JsonNode node) {		

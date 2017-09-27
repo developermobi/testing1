@@ -3,9 +3,11 @@ package com.mobisoft.sms.dao;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,11 +17,15 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.mobisoft.sms.model.Credit;
 import com.mobisoft.sms.model.Debit;
 import com.mobisoft.sms.model.Product;
@@ -35,11 +41,11 @@ import com.mobisoft.sms.utility.Global;
 public class UserDaoImpl implements UserDao {
 
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
-	Session session = null;
+	private Session session = null;
 	
-	Transaction tx = null;
+	private Transaction tx = null;
 	
 	@Value("${sms_username}")
 	private String userName;
@@ -54,6 +60,7 @@ public class UserDaoImpl implements UserDao {
 	
 	@Autowired
 	private SmsHelperService smsHelperService;
+	
 	public int saveUser(User user) {
 		session =  sessionFactory.openSession();
 		tx = session.beginTransaction();
@@ -62,7 +69,7 @@ public class UserDaoImpl implements UserDao {
 			session.saveOrUpdate(user);
 			temp = 1;
 			tx.commit();
-			//session.close();
+			session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
@@ -79,16 +86,18 @@ public class UserDaoImpl implements UserDao {
 		}
 		return temp;
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> getUser() {
 		session = sessionFactory.openSession();	
 		List<User> list = null;
 		try {
 			list = session.createCriteria(User.class).list();
-			//session.close();
+			session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally {
+			
 			try {
 				if(session != null)
 				{
@@ -101,6 +110,8 @@ public class UserDaoImpl implements UserDao {
 		return list;
 	}
 	@Override
+	//@Transactional(readOnly = true)
+	//@javax.transaction.Transactional
 	public List<User> getUserById(int userId) {
 
 		session = sessionFactory.openSession();
@@ -111,9 +122,12 @@ public class UserDaoImpl implements UserDao {
 			query.addEntity(UserProduct.class);
 			query.setParameter("userId", userId);
 			results = query.list();
+			session.flush();
+			session.clear();
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+			
 		}finally {
 			try {
 				if(session != null)
@@ -151,7 +165,7 @@ public class UserDaoImpl implements UserDao {
 			
 			temp = qry.executeUpdate();
 			tx.commit();
-			//session.close();
+			session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			temp = 0;
@@ -221,18 +235,22 @@ public class UserDaoImpl implements UserDao {
 	}
 	@SuppressWarnings("unchecked")
 	@Override
+	@Transactional(readOnly = true)
+	@javax.transaction.Transactional
 	public List<User> getUserByUserName(String userName) {
 
-		session = sessionFactory.openSession(); 
+		Session session = sessionFactory.openSession();
+		//Transaction tx = session.beginTransaction();
 		List<User> list = null;
 		try {
 			
 			Criteria criteria = session.createCriteria(User.class);
 			criteria.add(Restrictions.eq("userName", userName));
-			list = criteria.list();
-			//session.close();
+			list = criteria.list();			
 			session.flush();
+			//tx.commit();
 			session.clear();
+			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -731,7 +749,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public List<User> validateUserName(String userName) {
 		session = sessionFactory.openSession();
-		tx= session.beginTransaction();
+		
 		List<User> userList = null;
 		try {
 			@SuppressWarnings("unused")
@@ -753,6 +771,125 @@ public class UserDaoImpl implements UserDao {
 			}
 		}
 		return userList;
+	}
+	@SuppressWarnings({ "unused", "unchecked"})
+	@Override
+	public Map<Integer,Integer> countTransactionList(int userId, int type, int productType) {
+		session = sessionFactory.openSession();
+		int count = 0;
+		Map<Integer,Integer> mapList = new HashMap<Integer, Integer>();
+		try {
+			User user = (User)session.get(User.class,userId);
+			Product product = (Product)session.get(Product.class,productType);
+			
+			if(user.getUserId() != 0)
+			{
+				if(product.getId() != 0)
+				{
+					List<Integer>countlist = null;
+					if(type == 1){
+						Criteria criteria = session.createCriteria(Credit.class)
+								.add(Restrictions.eq("userId",user))
+								.add(Restrictions.eq("productId",product))
+								.setProjection(Projections.rowCount());
+						countlist = criteria.list();
+						mapList.put(3,countlist.get(0));
+					}else if(type == 2){
+						Criteria criteria = session.createCriteria(Debit.class)
+								.add(Restrictions.eq("userId",user))
+								.add(Restrictions.eq("productId",product))
+								.setProjection(Projections.rowCount());
+					
+						countlist = criteria.list();
+						mapList.put(3,countlist.get(0));
+					}
+				}
+				else
+				{
+					mapList.put(1,2);
+				}
+			}
+			else
+			{
+				mapList.put(0,1);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return mapList;
+	}
+	@SuppressWarnings({ "rawtypes", "unchecked", "null"})
+	@Override
+	public Map<Integer, List> transactionList(int userId, int type, int productType, int start,int limt) {
+		session = sessionFactory.openSession();
+		List transactionList = null;
+		Map<Integer,List> mapList = new HashMap<Integer, List>();
+		
+		try {
+			User user = (User)session.get(User.class,userId);
+			Product product = (Product)session.get(Product.class,productType);
+			
+			if(user.getUserId() != 0)
+			{
+				if(product.getId() != 0)
+				{
+					
+					if(type == 1){
+						Criteria criteria = session.createCriteria(Credit.class)
+								.add(Restrictions.eq("userId",user))
+								.add(Restrictions.eq("productId",product))
+								.setFirstResult(start)
+								.setMaxResults(limt)
+								.addOrder(Order.desc("id"));
+						transactionList = criteria.list();
+						mapList.put(3,transactionList);
+					}else if(type == 2){
+						Criteria criteria = session.createCriteria(Debit.class)
+								.add(Restrictions.eq("userId",user))
+								.add(Restrictions.eq("productId",product))
+								.setFirstResult(start)
+								.setMaxResults(limt)
+								.addOrder(Order.desc("id"));					
+						transactionList = criteria.list();
+						mapList.put(3,transactionList);
+					}
+				}
+				else
+				{
+					transactionList.add(1,"NoProduct");
+					mapList.put(1,transactionList);
+				}
+			}
+			else
+			{
+				transactionList.add(0,"NoUserId");
+				mapList.put(0,transactionList);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		
+		return mapList;
 	}
 
 

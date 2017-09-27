@@ -15,7 +15,7 @@ import com.mobisoft.sms.model.DlrStatus;
 public class DlrStatusServiceImpl implements DlrStatusService{
 
 	@Autowired
-	DlrStatusDao dlrStatusDao;
+	private DlrStatusDao dlrStatusDao;
 	
 	@Override
 	public int saveDlrStatus() throws FileNotFoundException, IOException {

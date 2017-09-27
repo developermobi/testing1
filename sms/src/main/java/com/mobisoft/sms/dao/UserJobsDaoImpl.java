@@ -16,16 +16,16 @@ import com.mobisoft.sms.service.SmsHelperService;
 public class UserJobsDaoImpl implements UserJobsDao {
 
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
 	@Autowired
-	SmsHelperService smsHelperService;
+	private SmsHelperService smsHelperService;
 
 	@Autowired
-	DlrStatusService dlrStatusService;
+	private DlrStatusService dlrStatusService;
 	
-	 Session session = null;
-	 Transaction tx = null;
+	 private Session session = null;
+	 private Transaction tx = null;
 	
 	@Override
 	public int saveUserJobs(UserJobs userJobs,int productId,int sentMessageBalance, int updateNewBalance) {

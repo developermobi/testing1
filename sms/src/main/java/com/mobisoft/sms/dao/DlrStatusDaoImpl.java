@@ -38,13 +38,13 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 
 	
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
 	@Value("${uploadUserTextFile}")
 	private String uploadUserTextFile;
 	
-	Session session = null;
-	Transaction tx = null;
+	private Session session = null;
+	private Transaction tx = null;
 	File file;
 	FileReader fr = null;
 	BufferedReader br = null;

@@ -14,7 +14,7 @@ import com.mobisoft.sms.model.User;
 public class GroupDetailsServiceImpl implements GroupDetailsService{
 
 	@Autowired
-	GroupDetailsDao groupDetailsDao;
+	private GroupDetailsDao groupDetailsDao;
 
 	@Override
 	public int saveGroupDetails(JsonNode node) {		

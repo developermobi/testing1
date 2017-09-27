@@ -1,6 +1,7 @@
 package com.mobisoft.sms.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Credit;
@@ -41,6 +42,10 @@ public interface UserDao {
 	public int changePassword(String oldPassword, String newPassword,int userId);
 	
 	public List<User> validateUserName(String userName);
+	
+	public  Map<Integer,Integer>  countTransactionList(int userId,int type,int productType);
+	
+	public Map<Integer, List> transactionList(int userId,int type,int productType, int start,int limt);
 	
 	
 }

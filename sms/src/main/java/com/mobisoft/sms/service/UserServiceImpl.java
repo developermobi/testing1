@@ -16,7 +16,7 @@ import com.mobisoft.sms.model.User;
 public class UserServiceImpl implements UserService{
 
 	@Autowired
-	UserDao userDao;
+	private UserDao userDao;
 	public int saveUser(User user) {
 		
 		return userDao.saveUser(user);

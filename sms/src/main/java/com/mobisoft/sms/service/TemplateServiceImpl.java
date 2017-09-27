@@ -12,7 +12,7 @@ import com.mobisoft.sms.model.Template;
 public class TemplateServiceImpl implements TemplateService {
 	
 	@Autowired
-	TemplateDao templateDao;
+	private TemplateDao templateDao;
 
 	@Override
 	public int saveTemplate(Template template) {

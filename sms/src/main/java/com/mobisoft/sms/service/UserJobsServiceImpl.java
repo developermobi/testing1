@@ -11,7 +11,7 @@ import com.mobisoft.sms.model.UserJobs;
 @Service
 public class UserJobsServiceImpl implements UserJobsService{
 	@Autowired
-	UserJobsDao userJobsDao;
+	private UserJobsDao userJobsDao;
 
 	@Override
 	public int saveUserJobs(UserJobs userJobs, int productId,int sentMessageBalance,int updateNewBalance) {

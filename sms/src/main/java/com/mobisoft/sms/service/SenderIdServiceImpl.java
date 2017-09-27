@@ -12,7 +12,7 @@ import com.mobisoft.sms.model.SenderId;
 public class SenderIdServiceImpl implements SenderIdService{
 
 	@Autowired
-	SenderIDDao senderIdDao;
+	private SenderIDDao senderIdDao;
 	@Override
 	public int saveSenderId(SenderId senderId) {
 		

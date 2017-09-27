@@ -48,7 +48,7 @@ public class DlrStatusRestController {
 	
 	//Send sms from user_jobs table
 	
-	/*@Scheduled(fixedRateString  ="${schedualTimerIn}")*/
+	@Scheduled(fixedRateString  ="${schedualTimerIn}")
 	@RequestMapping(value = "/saveDlrStatus",method = RequestMethod.POST)
 	public void saveUser() throws FileNotFoundException, IOException {
 		
@@ -56,7 +56,7 @@ public class DlrStatusRestController {
 		map.put("status", 404);
 		map.put("message", "Data Not Inserted");
 		
-		System.out.println("askldjalskdjlasdjlasdjasjd akjsdhklasd adbasd asdas");
+		System.out.println("Schedular Method Start");
 		//DlrStatus dlrStatus = new DlrStatus();
 		int result = dlrStatusService.saveDlrStatus();
 		System.out.println(result);

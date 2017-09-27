@@ -486,8 +486,8 @@ public class UserRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "getCreditByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getCreditByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "getCreditByUserId/{userId}/start/limit",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getCreditByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("limit")int limit,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");

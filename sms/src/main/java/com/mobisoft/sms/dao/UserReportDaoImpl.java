@@ -30,10 +30,10 @@ import com.mobisoft.sms.model.UserJobs;
 public class UserReportDaoImpl implements UserReportDao {
 
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
-	Session session = null;
-	Transaction tx = null;	
+	private Session session = null;
+	private Transaction tx = null;	
 	@SuppressWarnings("rawtypes")
 	@Override
 	public List todayCountMessage(int userId) {

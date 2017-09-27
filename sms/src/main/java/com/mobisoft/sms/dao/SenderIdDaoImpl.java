@@ -11,6 +11,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mobisoft.sms.model.SenderId;
 import com.mobisoft.sms.model.User;
@@ -19,11 +20,11 @@ import com.mobisoft.sms.model.User;
 public class SenderIdDaoImpl implements SenderIDDao{
 
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
-	Session session = null;
+	private Session session = null;
 	
-	Transaction tx = null;
+	private Transaction tx = null;
 	
 	
 	@Override
@@ -87,24 +88,28 @@ public class SenderIdDaoImpl implements SenderIDDao{
 			Criteria criteria = session.createCriteria(SenderId.class);
 			criteria.add(Restrictions.eq("userId", user)).add(Restrictions.eq("status", 1)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
 			list = criteria.list();
+			session.flush();
+			session.clear();
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		finally {
-			try {
+			session.close();
+			/*try {
 				if(session != null)
 				{
-					session.close();
+					
 				}
 			} catch (Exception e2) {
 				e2.printStackTrace();
-			}
+			}*/
 		}
 		return list;
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<SenderId> getSenderId(int senderId) {
 		session = sessionFactory.openSession();
 		List<SenderId> list = null;

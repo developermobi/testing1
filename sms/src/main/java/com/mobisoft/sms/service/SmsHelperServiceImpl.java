@@ -19,7 +19,7 @@ import com.mobisoft.sms.model.UserProduct;
 public class SmsHelperServiceImpl implements SmsHelperService{
 
 	@Autowired
-	SmsHelperDao smsHelperDao;
+	private SmsHelperDao smsHelperDao;
 
 	@Override
 	public List<Integer> getBalance(int userId, int productId) {		

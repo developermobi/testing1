@@ -12,7 +12,7 @@ import com.mobisoft.sms.model.UserJobs;
 @Service
 public class UserReportServiceImpl implements UserReportService{
 	@Autowired
-	UserReportDao userReportDao;
+	private UserReportDao userReportDao;
 
 	@Override
 	public List todayCountMessage(int userId) {

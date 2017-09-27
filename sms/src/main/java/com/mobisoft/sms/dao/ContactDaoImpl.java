@@ -30,11 +30,11 @@ import au.com.bytecode.opencsv.CSVReader;
 public class ContactDaoImpl implements ContactDao{
 
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
-	Session session = null;
+	private Session session = null;
 	
-	Transaction tx = null;
+	private Transaction tx = null;
 	private int temp=0;
 
 	@Override

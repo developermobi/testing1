@@ -10,6 +10,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
@@ -19,11 +21,11 @@ import com.mobisoft.sms.model.User;
 public class GroupDetailsDaoImpl implements GroupDetailsDao{
 
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
-	Session session = null;
+	private Session session = null;
 	
-	Transaction tx = null;
+	private Transaction tx = null;
 	@Override
 	public int saveGroupDetails(JsonNode node) {
 		session =  sessionFactory.openSession();
@@ -212,6 +214,7 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 
 	@SuppressWarnings("unchecked")
 	@Override
+	@Transactional(readOnly = true)
 	public List<GroupDetails> getActiveGroupDetailsByUserId(int userId) {
 		session = sessionFactory.openSession();
 		List<GroupDetails> list = null;
@@ -221,11 +224,15 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 			criteria.add(Restrictions.eq("userId", user))
 			.add(Restrictions.eq("status", 1));
 			list = criteria.list();
+			session.flush();
+			session.clear();
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+			
 		}
 		finally {
+			//
 			try {
 				if(session != null)
 				{

@@ -18,11 +18,11 @@ import com.mobisoft.sms.model.User;
 public class TemplateDaoImpl implements TemplateDao{
 
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
-	Session session = null;
+	private Session session = null;
 	
-	Transaction tx = null;
+	private Transaction tx = null;
 	
 	@Override
 	public int saveTemplate(Template template) {

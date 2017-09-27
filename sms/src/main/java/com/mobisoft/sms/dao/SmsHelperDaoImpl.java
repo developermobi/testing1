@@ -40,7 +40,7 @@ import com.mysql.jdbc.PreparedStatement;
 public class SmsHelperDaoImpl implements SmsHelperDao{
 	
 	@Autowired
-	SessionFactory sessionFactory;
+	private SessionFactory sessionFactory;
 	
 	/*@Autowired
 	@Qualifier("sessionFactory2")
@@ -55,9 +55,9 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Value("${senderId}")
 	private String senderId;
 	
-	Session session = null;
+	private Session session = null;
 	
-	Transaction tx = null;
+	private Transaction tx = null;
 
 	@Override
 	public List<Integer> getBalance(int userId, int productId) {
