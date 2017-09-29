@@ -43,9 +43,9 @@ public interface UserDao {
 	
 	public List<User> validateUserName(String userName);
 	
-	public  Map<Integer,Integer>  countTransactionList(int userId,int type,int productType);
+	public  Map<Integer,List>  countTransactionList(int userId,int type,int productType);
 	
-	public Map<Integer, List> transactionList(int userId,int type,int productType, int start,int limt);
+	public List transactionList(int userId,int type,int productType, int start,int limt);
 	
 	
 }

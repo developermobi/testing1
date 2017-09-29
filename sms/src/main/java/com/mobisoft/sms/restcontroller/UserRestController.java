@@ -936,6 +936,7 @@ public class UserRestController {
 		}		
 		return map;
 	}
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value="/getTransactionDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object> getTransactionDetails(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
 		
@@ -955,20 +956,25 @@ public class UserRestController {
 			JsonNode node = mapper.readValue(jsonString,JsonNode.class);
 			if(node.get("userId").asInt() != 0 &&  node.get("type").asInt() != 0 && node.get("productId").asInt() != 0)
 			{
-				Map<Integer,Integer> mapList = userService.countTransactionList(node.get("userId").asInt(), node.get("type").asInt(), node.get("productId").asInt());
-				if(mapList.get(0) != 1 && mapList.get(1) != 2 && mapList.get(3) > 0)
+				Map<Integer,List> mapList = userService.countTransactionList(node.get("userId").asInt(), node.get("type").asInt(), node.get("productId").asInt());
+				System.out.println("map "+mapList.get(0));
+				
+				List list = new ArrayList<>();
+				list.add(mapList.get(0).get(0));
+				System.out.println("list"+list.get(0));
+				
+				if(!list.isEmpty() && (!list.get(0).equals("noUserId")) && (!list.get(0).equals("noProductId")))
 				{
-					Map<Integer, List> mapTranactionList = userService.transactionList(node.get("userId").asInt(),
+					List transactionList = userService.transactionList(node.get("userId").asInt(),
 							node.get("type").asInt(), node.get("productId").asInt(), node.get("start").asInt(), 
-							node.get("limit").asInt());
-					List transactionList = mapTranactionList.get(3);
+							node.get("limit").asInt());					
 					if(transactionList.size() > 0)
 					{
 						map.put("status", "error");
 						map.put("code", 204);
 						map.put("message", "No data found");
 						map.put("data", transactionList);
-						map.put("total", mapList.get(3));
+						map.put("total", list.get(0));
 					}
 					else
 					{
@@ -982,9 +988,12 @@ public class UserRestController {
 				{
 					map.put("status", "error");
 					map.put("code", 404);
-					map.put("message", "Some parameter is not match in our pannel Db");
+					map.put("message", "Some parameter is not match in our  Db");
 					map.put("data", null);
 				}
+				
+				
+				
 			}
 			else
 			{

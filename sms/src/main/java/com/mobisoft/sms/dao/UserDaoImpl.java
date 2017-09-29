@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
@@ -772,48 +773,52 @@ public class UserDaoImpl implements UserDao {
 		}
 		return userList;
 	}
-	@SuppressWarnings({ "unused", "unchecked"})
+	@SuppressWarnings({ "unused", "unchecked", "null", "deprecation"})
 	@Override
-	public Map<Integer,Integer> countTransactionList(int userId, int type, int productType) {
+	public Map<Integer,List> countTransactionList(int userId, int type, int productType) {
 		session = sessionFactory.openSession();
-		int count = 0;
-		Map<Integer,Integer> mapList = new HashMap<Integer, Integer>();
+		long count;
+		Map<Integer, List> mapList = new HashMap<Integer, List>();
 		try {
 			User user = (User)session.get(User.class,userId);
 			Product product = (Product)session.get(Product.class,productType);
-			
+			List countlist = null;
 			if(user.getUserId() != 0)
 			{
 				if(product.getId() != 0)
 				{
-					List<Integer>countlist = null;
+					
 					if(type == 1){
 						Criteria criteria = session.createCriteria(Credit.class)
 								.add(Restrictions.eq("userId",user))
 								.add(Restrictions.eq("productId",product))
 								.setProjection(Projections.rowCount());
 						countlist = criteria.list();
-						count = countlist.get(0);
-						mapList.put(3,count);
+						System.out.println(countlist.size());
+						mapList.put(0,countlist);
 					}else if(type == 2){
 						Criteria criteria = session.createCriteria(Debit.class)
 								.add(Restrictions.eq("userId",user))
 								.add(Restrictions.eq("productId",product))
+
 								.setProjection(Projections.rowCount());
 					
 						countlist = criteria.list();
-						count = countlist.get(0);
-						mapList.put(3,count);
+						
+						mapList.put(0,countlist);
+					 					
 					}
 				}
 				else
 				{
-					mapList.put(1,2);
+					countlist.add("noProductId");
+					mapList.put(0,countlist);
 				}
 			}
 			else
 			{
-				mapList.put(0,1);
+				countlist.add("noUserId");
+				mapList.put(0,countlist);
 			}
 			
 		} catch (Exception e) {
@@ -830,54 +835,34 @@ public class UserDaoImpl implements UserDao {
 		}
 		return mapList;
 	}
-	@SuppressWarnings({ "rawtypes", "unchecked", "null"})
+	@SuppressWarnings({ "rawtypes", "unchecked", "null", "deprecation"})
 	@Override
-	public Map<Integer, List> transactionList(int userId, int type, int productType, int start,int limt) {
+	public List  transactionList(int userId, int type, int productType, int start,int limt) {
 		session = sessionFactory.openSession();
 		List transactionList = null;
 		Map<Integer,List> mapList = new HashMap<Integer, List>();
-		
 		try {
 			User user = (User)session.get(User.class,userId);
-			Product product = (Product)session.get(Product.class,productType);
-			
-			if(user.getUserId() != 0)
-			{
-				if(product.getId() != 0)
-				{
-					
-					if(type == 1){
-						Criteria criteria = session.createCriteria(Credit.class)
-								.add(Restrictions.eq("userId",user))
-								.add(Restrictions.eq("productId",product))
-								.setFirstResult(start)
-								.setMaxResults(limt)
-								.addOrder(Order.desc("id"));
-						transactionList = criteria.list();
-						mapList.put(3,transactionList);
-					}else if(type == 2){
-						Criteria criteria = session.createCriteria(Debit.class)
-								.add(Restrictions.eq("userId",user))
-								.add(Restrictions.eq("productId",product))
-								.setFirstResult(start)
-								.setMaxResults(limt)
-								.addOrder(Order.desc("id"));					
-						transactionList = criteria.list();
-						mapList.put(3,transactionList);
-					}
-				}
-				else
-				{
-					transactionList.add(1,"NoProduct");
-					mapList.put(1,transactionList);
-				}
-			}
-			else
-			{
-				transactionList.add(0,"NoUserId");
+			Product product =(Product)session.get(Product.class, productType);
+			if(type == 1){
+				Criteria criteria = session.createCriteria(Credit.class)
+						.add(Restrictions.eq("userId",user))
+						.add(Restrictions.eq("productId",product))
+						.setFirstResult(start)
+						.setMaxResults(limt)
+						.addOrder(Order.desc("id"));
+				transactionList = criteria.list();
 				mapList.put(0,transactionList);
-			}
-			
+			}else if(type == 2){
+				Criteria criteria = session.createCriteria(Debit.class)
+						.add(Restrictions.eq("userId",user))
+						.add(Restrictions.eq("productId",product))
+						.setFirstResult(start)
+						.setMaxResults(limt)
+						.addOrder(Order.desc("id"));					
+				transactionList = criteria.list();
+				mapList.put(0,transactionList);
+			}	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
@@ -891,7 +876,7 @@ public class UserDaoImpl implements UserDao {
 			}
 		}
 		
-		return mapList;
+		return transactionList;
 	}
 
 

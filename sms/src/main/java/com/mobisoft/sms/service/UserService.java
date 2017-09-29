@@ -43,9 +43,9 @@ public interface UserService {
 	
 	public int changePassword(String oldPassword, String newPassword,int userId);
 	
-	public  Map<Integer,Integer>  countTransactionList(int userId,int type,int productType);
+	public  Map<Integer,List>  countTransactionList(int userId,int type,int productType);
 	
-	public Map<Integer, List> transactionList(int userId,int type,int productType, int start,int limt);
+	public List transactionList(int userId,int type,int productType, int start,int limt);
 	
 	
 }

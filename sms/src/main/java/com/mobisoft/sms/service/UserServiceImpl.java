@@ -85,14 +85,14 @@ public class UserServiceImpl implements UserService{
 		return userDao.changePassword(oldPassword, newPassword, userId);
 	}
 	@Override
-	public Map<Integer, Integer> countTransactionList(int userId, int type, int productType) {
+	public Map<Integer, List> countTransactionList(int userId, int type, int productType) {
 		
-		return countTransactionList(userId, type, productType);
+		return userDao.countTransactionList(userId, type, productType);
 	}
 	@Override
-	public Map<Integer, List> transactionList(int userId, int type, int productType, int start, int limt) {
+	public List transactionList(int userId, int type, int productType, int start, int limt) {
 	
-		return transactionList(userId, type, productType, start, limt);
+		return userDao.transactionList(userId, type, productType, start, limt);
 	}
 
 }
