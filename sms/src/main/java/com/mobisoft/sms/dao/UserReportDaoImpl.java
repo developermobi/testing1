@@ -1,5 +1,6 @@
 package com.mobisoft.sms.dao;
 
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,9 +23,13 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import com.mobisoft.sms.model.DlrStatus;
 import com.mobisoft.sms.model.UserJobs;
+import com.mobisoft.sms.utility.Global;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 @Repository("userReportDao")
 public class UserReportDaoImpl implements UserReportDao {
@@ -34,6 +39,11 @@ public class UserReportDaoImpl implements UserReportDao {
 	
 	private Session session = null;
 	private Transaction tx = null;	
+	
+	@Value("${uploadUserCsvFile}")
+	private String uploadCsvTextFile;
+	
+	
 	@SuppressWarnings("rawtypes")
 	@Override
 	public List todayCountMessage(int userId) {
@@ -155,7 +165,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		session = sessionFactory.openSession();
 		final List list = new ArrayList<String>();
 		session.doWork(new Work() {			   
-		       @SuppressWarnings("unchecked")
+		    @SuppressWarnings("unchecked")
 			@Override
 		       public void execute(Connection conn) throws SQLException {
 		         Statement pstmtDlrStatus = conn.createStatement();
@@ -164,7 +174,13 @@ public class UserReportDaoImpl implements UserReportDao {
 		           String sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE logged_at BETWEEN '"+startDate+"' AND '"+endDate+"' AND user_id="+userId+"";
 		           System.out.println(sqlSelectDataDlrStatus);
 		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
-		           while(rs.next())
+		           //Global.convertToCsv(rs, uploadCsvTextFile+"number.csv");
+		           CSVWriter writer = new CSVWriter(new FileWriter("E:\\uploadUserCsvFile\\number.csv"));
+		            String[] header="Mobile,Sender,Message,Status,logged_at,dlr_time".split(",");
+		            writer.writeNext(header);
+		            writer.writeAll(rs, true); //And the second argument is boolean which represents whether you want to write header columns (table column names) to file or not.
+		            writer.close();
+		           /*while(rs.next())
 		           {
 		        	   
 		        	   String message = rs.getString("message");
@@ -176,7 +192,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		        	   list.add(rs.getString("logged_at"));
 		        	   list.add(rs.getString("dlr_time"));
        	   
-		           }
+		           }*/
 		           conn.setAutoCommit(false);
 		           conn.commit();
 		           conn.setAutoCommit(true);

@@ -1,18 +1,24 @@
 package com.mobisoft.sms.utility;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mysql.jdbc.ResultSetMetaData;
 
 
 public class Global {
@@ -74,5 +80,23 @@ public class Global {
 			System.out.println("Msg Url="+smsUrl);
 		return temp;
 	}
+	public static void convertToCsv(ResultSet rs, String fileName) throws SQLException, FileNotFoundException {
+        PrintWriter csvWriter = new PrintWriter(new File(fileName)) ;
+        java.sql.ResultSetMetaData meta = rs.getMetaData() ; 
+        int numberOfColumns = meta.getColumnCount() ; 
+        String dataHeaders = "\"" + meta.getColumnName(1) + "\"" ; 
+        for (int i = 2 ; i < numberOfColumns + 1 ; i ++ ) { 
+                dataHeaders += ",\"" + meta.getColumnName(i).replaceAll("\"","\\\"") + "\"" ;
+        }
+        csvWriter.println(dataHeaders) ;
+        while (rs.next()) {
+            String row = "\"" + rs.getString(1).replaceAll("\"","\\\"") + "\""  ; 
+            for (int i = 2 ; i < numberOfColumns + 1 ; i ++ ) {
+                row += ",\"" + rs.getString(i).replaceAll("\"","\\\"") + "\"" ;
+            }
+        csvWriter.println(row) ;
+        }
+        csvWriter.close();
+    }
 	
 }

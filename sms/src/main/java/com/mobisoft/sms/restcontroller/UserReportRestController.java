@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Produces;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,7 +41,8 @@ public class UserReportRestController {
 	
 	private ObjectMapper mapper = null;
 	
-	@RequestMapping(value = "getTodayMessageCount/{userId}",method = RequestMethod.GET)
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@RequestMapping(value = "getDashboardCount/{userId}",method = RequestMethod.GET)
 	public Map<String,Object>getTodayMessageCount(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
@@ -57,14 +59,34 @@ public class UserReportRestController {
 			List<DlrStatus> todayMessageCount = userReportService.todayCountMessage(userId);
 			System.out.println(todayMessageCount);
 			Iterator itr = todayMessageCount.iterator();
+			Map< String,Object> mapListToday = new HashMap<>();
 			while (itr.hasNext()) {
 				Object[] obj = (Object[])itr.next();
-				map.put(obj[1].toString(), obj[0]);	
+				mapListToday.put(obj[1].toString(), obj[0]);	
+			}
+			Map< String,Object> mapListWeakly = new HashMap<>();
+			List<DlrStatus> weaklyCountMessage = userReportService.weeklyCountMessage(userId);
+			System.out.println(weaklyCountMessage);
+			Iterator itrWeakly = weaklyCountMessage.iterator();
+			while (itrWeakly.hasNext()) {
+				Object[] obj = (Object[])itrWeakly.next();
+				mapListWeakly.put(obj[1].toString(), obj[0]);	
+			}
+			Map< String,Object> mapListMonthly = new HashMap<>();
+			List<DlrStatus> monthlyCountMessage = userReportService.monthlyCountMessage(userId);
+			System.out.println(monthlyCountMessage);
+			Iterator monthlyTtr = monthlyCountMessage.iterator();
+			while (monthlyTtr.hasNext()) {
+				Object[] obj = (Object[])monthlyTtr.next();
+				mapListMonthly.put(obj[1].toString(), obj[0]);	
 			}
 			if(todayMessageCount.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
+				map.put("todayCount",mapListToday);
+				map.put("weaklyCount",mapListWeakly);
+				map.put("monthlyCount",mapListMonthly);
 				
 			}else{
 				map.put("status", "success");
@@ -75,7 +97,7 @@ public class UserReportRestController {
 		
 		return map;
 	}
-	@RequestMapping(value = "weeklyCountMessage/{userId}",method = RequestMethod.GET)
+	/*@RequestMapping(value = "weeklyCountMessage/{userId}",method = RequestMethod.GET)
 	public Map<String,Object>weeklyCountMessage(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
@@ -144,7 +166,7 @@ public class UserReportRestController {
 		}
 		
 		return map;
-	}
+	}*/
 	@RequestMapping(value = "dailyRepotMessage/{userId}/{start}/{max}",method = RequestMethod.GET)
 	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
 	{
@@ -188,56 +210,26 @@ public class UserReportRestController {
 		
 		return map;
 	}
+
 	@RequestMapping(value = "archiveRepotMessage/{userId}/{startDate}/{endDate}",method = RequestMethod.GET)
-	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("startDate")String startDate,@PathVariable("endDate")String endDate,@RequestHeader("Authorization") String authorization,HttpServletResponse response) throws IOException
+	public HttpServletResponse archiveRepotMessage(@PathVariable("userId")int userId,@PathVariable("startDate")String startDate,@PathVariable("endDate")String endDate,@RequestHeader("Authorization") String authorization) throws IOException
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
 		map.put("message", "some error occured");
-			
+		HttpServletResponse response = null;
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			map.put("code", 404);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			response.setContentType("text/csv");
-			String reportName = "CSV_Report_Name.csv";
-			response.setHeader("Content-disposition", "attachment;filename="+reportName);
-			ArrayList<String> rows = new ArrayList<String>();
-			rows.add("mobile,Sender,message,STATUS,logged_at,dlr_time");
-			List dalyReport = userReportService.archiveReportByUserId(userId,startDate,endDate);
-			if(dalyReport.size() > 0)
-			{
-				for(int i =0; i < dalyReport.size(); i++)
-				{
-					System.out.println(dalyReport.get(i));
-					
-					if(i % 6 == 0){
-						rows.add("\n");
-						rows.add((String) dalyReport.get(i)+",");
-					}else{
-						rows.add((String) dalyReport.get(i)+",");
-					}
-				}
-				Iterator<String> iter = rows.iterator();
-				while (iter.hasNext()) {
-					String outputString = (String) iter.next();
-					response.getOutputStream().print(outputString);
-				}
-				response.getOutputStream().flush();
-			}
-			else
-			{
-				map.put("status", "success");
-				map.put("code", 204);
-				map.put("message", "No data found");
-				map.put("data", dalyReport);
-			}
-
+			System.out.println("in list");
+			List list = userReportService.archiveReportByUserId(userId, startDate, endDate);
+			System.out.println("in list");
 		}
-		return map;
+		return response;
 	}
 	@RequestMapping(value = "scheduleReportByUserId/{userId}/{start}/{max}",method = RequestMethod.GET)
 	public Map<String,Object>scheduleReportByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)

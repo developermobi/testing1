@@ -82,8 +82,7 @@ public class UserJobsResController {
 	@Value("${uploadUserGroupData}")
 	private String uploadUserGroupData;
 	
-	/*@Value("${uploadUserCsvFile}")
-	private String uploadCsvTextFile;*/
+
 	
 	/*@Value("${uploadLiveUrl}")
 	private String uploadLiveUrl;*/
@@ -243,7 +242,6 @@ public class UserJobsResController {
 							        	bw.write(contact);
 								        bw.newLine();
 							        }
-							        
 							        bw.close();
 							        System.out.println("fileter mobile number"+mobileList);
 	  
