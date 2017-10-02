@@ -3,15 +3,14 @@ package com.mobisoft.sms.restcontroller;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Produces;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -80,7 +79,7 @@ public class UserReportRestController {
 				Object[] obj = (Object[])monthlyTtr.next();
 				mapListMonthly.put(obj[1].toString(), obj[0]);	
 			}
-			if(todayMessageCount.size() > 0){
+			if(todayMessageCount.size() > 0 || weaklyCountMessage.size() > 0 || monthlyCountMessage.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
