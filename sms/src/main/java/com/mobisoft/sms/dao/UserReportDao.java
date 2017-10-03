@@ -2,6 +2,9 @@ package com.mobisoft.sms.dao;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.mobisoft.sms.model.DlrStatus;
 import com.mobisoft.sms.model.UserJobs;
 

@@ -1,5 +1,6 @@
 package com.mobisoft.sms.restcontroller;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -9,11 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -39,6 +41,10 @@ public class UserReportRestController {
 	private UserReportService userReportService;
 	
 	private ObjectMapper mapper = null;
+	
+	@Value("${downloadUserCsvFile}")
+	private String downloadUserCsvFile;
+	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(value = "getDashboardCount/{userId}",method = RequestMethod.GET)
@@ -96,76 +102,7 @@ public class UserReportRestController {
 		
 		return map;
 	}
-	/*@RequestMapping(value = "weeklyCountMessage/{userId}",method = RequestMethod.GET)
-	public Map<String,Object>weeklyCountMessage(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
-	{
-		Map<String,Object> map = new HashMap<>();
-		map.put("status", "error");
-		map.put("code", 400);
-		map.put("message", "some error occured");
-			
-		if(tokenAuthentication.validateToken(authorization) == 0){
-			map.put("code", 404);
-			map.put("status", "error");
-			map.put("message", "Invalid User Name Password");
-		}
-		else{
-			List<DlrStatus> weeklyCountMessage = userReportService.weeklyCountMessage(userId);
-			System.out.println(weeklyCountMessage);
-			Iterator itr = weeklyCountMessage.iterator();
-			while (itr.hasNext()) {
-				Object[] obj = (Object[])itr.next();
-				map.put(obj[1].toString(), obj[0]);	
-			}
-			if(weeklyCountMessage.size() > 0){
-				map.put("status", "success");
-				map.put("code", 302);
-				map.put("message", "data found");
-				
-			}else{
-				map.put("status", "success");
-				map.put("code", 204);
-				map.put("message", "No data found");
-			}
-		}
-		
-		return map;
-	}
-	@RequestMapping(value = "monthlyCountMessage/{userId}",method = RequestMethod.GET)
-	public Map<String,Object>monthlyCountMessage(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
-	{
-		Map<String,Object> map = new HashMap<>();
-		map.put("status", "error");
-		map.put("code", 400);
-		map.put("message", "some error occured");
-			
-		if(tokenAuthentication.validateToken(authorization) == 0){
-			map.put("code", 404);
-			map.put("status", "error");
-			map.put("message", "Invalid User Name Password");
-		}
-		else{
-			List<DlrStatus> monthlyCountMessage = userReportService.monthlyCountMessage(userId);
-			System.out.println(monthlyCountMessage);
-			Iterator itr = monthlyCountMessage.iterator();
-			while (itr.hasNext()) {
-				Object[] obj = (Object[])itr.next();
-				map.put(obj[1].toString(), obj[0]);	
-			}
-			if(monthlyCountMessage.size() > 0){
-				map.put("status", "success");
-				map.put("code", 302);
-				map.put("message", "data found");
-				
-			}else{
-				map.put("status", "success");
-				map.put("code", 204);
-				map.put("message", "No data found");
-			}
-		}
-		
-		return map;
-	}*/
+	
 	@RequestMapping(value = "dailyRepotMessage/{userId}/{start}/{max}",method = RequestMethod.GET)
 	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
 	{
@@ -197,8 +134,7 @@ public class UserReportRestController {
 				if(list.size() > 0)
 				{
 					map.put("total", list.get(0));
-				}
-				
+				}				
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
@@ -211,13 +147,15 @@ public class UserReportRestController {
 	}
 
 	@RequestMapping(value = "archiveRepotMessage/{userId}/{startDate}/{endDate}",method = RequestMethod.GET)
-	public HttpServletResponse archiveRepotMessage(@PathVariable("userId")int userId,@PathVariable("startDate")String startDate,@PathVariable("endDate")String endDate,@RequestHeader("Authorization") String authorization) throws IOException
+	public Map<String,Object> archiveRepotMessage(@PathVariable("userId")int userId,@PathVariable("startDate")String startDate,
+			@PathVariable("endDate")String endDate,@RequestHeader("Authorization") String authorization
+			) throws IOException
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
 		map.put("message", "some error occured");
-		HttpServletResponse response = null;
+		
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			map.put("code", 404);
 			map.put("status", "error");
@@ -227,8 +165,30 @@ public class UserReportRestController {
 			System.out.println("in list");
 			List list = userReportService.archiveReportByUserId(userId, startDate, endDate);
 			System.out.println("in list");
+			if(list.size() > 0)
+			{
+				map.put("code", 302);
+				map.put("status", "success");
+				map.put("message", "Create File Successfully");
+				map.put("fileName", list.get(0));
+			}
 		}
-		return response;
+		return map;
+	}
+	@RequestMapping(value = "deleteFile",method = RequestMethod.POST)
+	public void  deleteFile() throws IOException
+	{
+		try{
+    		File file = new File(downloadUserCsvFile);    		
+    		if(file.isDirectory()){
+    			FileUtils.cleanDirectory(file);
+    			System.out.println(file.getName() + " is deleted!");
+    		}else{
+    			System.out.println("Delete operation is failed.");
+    		}
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}		
 	}
 	@RequestMapping(value = "scheduleReportByUserId/{userId}/{start}/{max}",method = RequestMethod.GET)
 	public Map<String,Object>scheduleReportByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)

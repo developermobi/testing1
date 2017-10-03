@@ -1,6 +1,11 @@
 package com.mobisoft.sms.dao;
 
+import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,7 +13,12 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
@@ -40,8 +50,8 @@ public class UserReportDaoImpl implements UserReportDao {
 	private Session session = null;
 	private Transaction tx = null;	
 	
-	@Value("${uploadUserCsvFile}")
-	private String uploadCsvTextFile;
+	@Value("${downloadUserCsvFile}")
+	private String downloadUserCsvFile;
 	
 	
 	@SuppressWarnings("rawtypes")
@@ -175,11 +185,32 @@ public class UserReportDaoImpl implements UserReportDao {
 		           System.out.println(sqlSelectDataDlrStatus);
 		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
 		           //Global.convertToCsv(rs, uploadCsvTextFile+"number.csv");
-		           CSVWriter writer = new CSVWriter(new FileWriter("E:\\uploadUserCsvFile\\number.csv"));
-		            String[] header="Mobile,Sender,Message,Status,logged_at,dlr_time".split(",");
-		            writer.writeNext(header);
-		            writer.writeAll(rs, true); //And the second argument is boolean which represents whether you want to write header columns (table column names) to file or not.
-		            writer.close();
+		           Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+		           long time = cal.getTimeInMillis();
+		           
+		           /* String rootPath = System.getProperty("catalina.home");
+		              File dir = new File(rootPath + File.separator + "downloadUserCsvFile");
+		           File file =null;
+					if (!dir.exists())
+					{
+						dir.mkdirs();  	  
+					}
+					file = new File(dir.getAbsolutePath()+"/"+fileName);*/
+		           String fileName = "archive"+time+".csv";
+		           File dir = new File(downloadUserCsvFile);
+		           File file =null;
+					if (!dir.exists())
+					{
+						dir.mkdirs();  	  
+					}
+					file = new File(dir.getAbsolutePath()+"/"+fileName);
+					CSVWriter writer = new CSVWriter(new FileWriter(file));
+					String[] header="Mobile,Sender,Message,Status,logged_at,dlr_time".split(",");
+					//writer.writeAll(allLines);(header);
+					writer.writeAll(rs, true); //And the second argument is boolean which represents whether you want to write header columns (table column names) to file or not.
+					writer.close();
+					
+					list.add(file.getAbsolutePath());
 		           /*while(rs.next())
 		           {
 		        	   
