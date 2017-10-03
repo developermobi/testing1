@@ -27,11 +27,13 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.jdbc.Work;
+import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -210,7 +212,7 @@ public class UserReportDaoImpl implements UserReportDao {
 					writer.writeAll(rs, true); //And the second argument is boolean which represents whether you want to write header columns (table column names) to file or not.
 					writer.close();
 					
-					list.add(file.getAbsolutePath());
+					list.add(fileName);
 		           /*while(rs.next())
 		           {
 		        	   
@@ -330,6 +332,59 @@ public class UserReportDaoImpl implements UserReportDao {
 			}
 		}
 		return countSchedual;
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserJobs> compaignStatus(int userId, int start, int max) {
+		
+		session = sessionFactory.openSession();
+		List<UserJobs> listResult = null;		
+		try {
+			Criteria criteria = session.createCriteria(UserJobs.class);
+			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
+			.addOrder(Order.desc("queuedAt")).setFirstResult(start).setMaxResults(max);
+			listResult = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return listResult;
+	}
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UserJobs> compaignStatusCount(int userId) {
+		session = sessionFactory.openSession();
+		List<UserJobs> listResult = null;		
+		try {
+			Criteria criteria = session.createCriteria(UserJobs.class);				
+			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
+			.setProjection(Projections.rowCount());
+			listResult = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return listResult;
 	}
 	
 }

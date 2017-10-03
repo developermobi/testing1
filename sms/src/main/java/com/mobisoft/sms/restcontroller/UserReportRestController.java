@@ -224,6 +224,44 @@ public class UserReportRestController {
 		
 		return map;
 	}
+	@RequestMapping(value = "compaignReportByUserId/{userId}/{start}/{max}",method = RequestMethod.GET)
+	public Map<String,Object>compaignReportByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+			
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else{
+			List<UserJobs> compaignReport = userReportService.compaignStatus(userId, start, max);
+			List<UserJobs> totalCompaignCount = userReportService.compaignStatusCount(userId);
+						
+			if(totalCompaignCount.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				if(totalCompaignCount.size() > 0)
+				{
+					map.put("data", compaignReport);
+					map.put("total", totalCompaignCount.get(0));
+				}
+				
+				
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", compaignReport);
+			}
+		}
+		
+		return map;
+	}
 	
 	
 }

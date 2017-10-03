@@ -1,13 +1,8 @@
 package com.mobisoft.sms.service;
 
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.mobisoft.sms.dao.UserReportDao;
 import com.mobisoft.sms.model.DlrStatus;
 import com.mobisoft.sms.model.UserJobs;
@@ -17,38 +12,37 @@ public class UserReportServiceImpl implements UserReportService{
 	@Autowired
 	private UserReportDao userReportDao;
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public List todayCountMessage(int userId) {
-		
+	public List todayCountMessage(int userId) {		
 		return userReportDao.todayCountMessage(userId);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public List weeklyCountMessage(int userId) {
-		// TODO Auto-generated method stub
+	public List weeklyCountMessage(int userId) {		
 		return userReportDao.weeklyCountMessage(userId);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public List monthlyCountMessage(int userId) {
-		// TODO Auto-generated method stub
+	public List monthlyCountMessage(int userId) {		
 		return userReportDao.monthlyCountMessage(userId);
 	}
 
 	@Override
-	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max) {
-		
+	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max) {		
 		return userReportDao.dailyRepotMessage(userId,start,max);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public List archiveReportByUserId(int userId,String startDate,String endDate) {
 		return userReportDao.archiveReportByUserId(userId,startDate,endDate);
 	}
 
 	@Override
-	public List<UserJobs> scheduleReportByUserId(int userId, int start, int max) {
-		
+	public List<UserJobs> scheduleReportByUserId(int userId, int start, int max) {		
 		return userReportDao.scheduleReportByUserId(userId, start, max);
 	}
 
@@ -58,8 +52,17 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public int messageCountScheduale(int userId) {
-		
+	public int messageCountScheduale(int userId) {		
 		return userReportDao.messageCountScheduale(userId);
+	}
+
+	@Override
+	public List<UserJobs> compaignStatus(int userId, int start, int max) {		
+		return userReportDao.compaignStatus(userId, start, max);
+	}
+
+	@Override
+	public List<UserJobs> compaignStatusCount(int userId) {		
+		return userReportDao.compaignStatusCount(userId);
 	}
 }

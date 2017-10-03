@@ -21,4 +21,7 @@ public interface UserReportService {
 	public List archiveReportByUserId(int userId,String startDate,String endDate);
 	
 	public List<UserJobs> scheduleReportByUserId(int userId,int start,int max);
+	
+	public List<UserJobs> compaignStatus(int userId,int start, int max);
+	public List<UserJobs> compaignStatusCount(int userId);
 }

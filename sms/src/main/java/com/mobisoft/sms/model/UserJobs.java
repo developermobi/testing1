@@ -52,12 +52,10 @@ public class UserJobs {
 	
 	@Column(name="duplicate_status")
 	private int duplicateStatus;
-
 	
 	@Column(name = "scheduled_at", columnDefinition="DATETIME", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
-	private Date scheduledAt;
-	
+	private Date scheduledAt;	
 	
 	@Column(name = "queued_at", columnDefinition="TIMESTAMP", nullable=true)
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="IST")
