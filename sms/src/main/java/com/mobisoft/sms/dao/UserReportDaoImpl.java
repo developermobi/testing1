@@ -199,7 +199,7 @@ public class UserReportDaoImpl implements UserReportDao {
 						dir.mkdirs();  	  
 					}
 					file = new File(dir.getAbsolutePath()+"/"+fileName);*/
-		           String fileName = "archive"+time+".csv";
+		           String fileName = "Report"+time+".csv";
 		           File dir = new File(downloadUserCsvFile);
 		           File file =null;
 					if (!dir.exists())
@@ -452,7 +452,7 @@ public class UserReportDaoImpl implements UserReportDao {
 							dir.mkdirs();  	  
 						}
 						file = new File(dir.getAbsolutePath()+"/"+fileName);*/
-			           String fileName = "archive"+time+".csv";
+			           String fileName = "Report"+time+".csv";
 			           File dir = new File(downloadUserCsvFile);
 			           File file =null;
 						if (!dir.exists())

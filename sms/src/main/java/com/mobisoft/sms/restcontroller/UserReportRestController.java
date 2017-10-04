@@ -336,6 +336,7 @@ public class UserReportRestController {
 				map.put("code", 302);
 				map.put("status", "success");
 				map.put("message", "Create File Successfully");
+				map.put("fileName", list.get(0));
 			}
 			else if(list.get(0).equals("2"))
 			{
