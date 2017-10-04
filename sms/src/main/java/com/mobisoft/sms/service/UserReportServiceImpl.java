@@ -71,4 +71,9 @@ public class UserReportServiceImpl implements UserReportService{
 		
 		return userReportDao.dlrStatusGroupBy(jobId, userId);
 	}
+
+	@Override
+	public List dlrStausRepotDetails(int userId, int jobId, String status) {
+		return userReportDao.dlrStausRepotDetails(userId, jobId, status);
+	}
 }

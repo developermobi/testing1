@@ -411,5 +411,112 @@ public class UserReportDaoImpl implements UserReportDao {
 		}
 		return listResult;
 	}
+	@Override
+	public List dlrStausRepotDetails(int userId, int jobId, String status) {
+		
+		System.out.println("in");
+		session = sessionFactory.openSession();
+		final List list = new ArrayList<String>();
+		int temp = 0;
+		
+		session.doWork(new Work() {			   
+		    @SuppressWarnings("unchecked")
+			@Override
+		       public void execute(Connection conn) throws SQLException {
+		         Statement pstmtDlrStatus = conn.createStatement();
+		         System.out.println("in conn");
+		         String sqlSelectDataDlrStatus = "";
+		          try{
+		        	  
+		           if(!status.trim().equals(""))
+		           {
+		        	   sqlSelectDataDlrStatus ="SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE job_id= "+jobId+" AND user_id="+userId+" and status = '"+status+"'";
+		           }
+		           else
+		           {
+		        	  sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE job_id= "+jobId+" AND user_id="+userId+"";
+		           }
+		           
+		           System.out.println(sqlSelectDataDlrStatus);
+		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
+		          /* if(rs != null)
+		           {*/
+		        	   //Global.convertToCsv(rs, uploadCsvTextFile+"number.csv");
+			           Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			           long time = cal.getTimeInMillis();
+			           
+			           /* String rootPath = System.getProperty("catalina.home");
+			              File dir = new File(rootPath + File.separator + "downloadUserCsvFile");
+			           File file =null;
+						if (!dir.exists())
+						{
+							dir.mkdirs();  	  
+						}
+						file = new File(dir.getAbsolutePath()+"/"+fileName);*/
+			           String fileName = "archive"+time+".csv";
+			           File dir = new File(downloadUserCsvFile);
+			           File file =null;
+						if (!dir.exists())
+						{
+							dir.mkdirs();  	  
+						}
+						file = new File(dir.getAbsolutePath()+"/"+fileName);
+						CSVWriter writer = new CSVWriter(new FileWriter(file));
+						String[] header="Mobile,Sender,Message,Status,logged_at,dlr_time".split(",");
+						//writer.writeAll(allLines);(header);
+						writer.writeAll(rs, true); //And the second argument is boolean which represents whether you want to write header columns (table column names) to file or not.
+						writer.close();
+						
+						list.add(fileName);
+			           /*while(rs.next())
+			           {
+			        	   
+			        	   String message = rs.getString("message");
+			        	   message = message.replaceAll(",", "");
+			        	   list.add(rs.getString("mobile"));
+			        	   list.add(rs.getString("Sender"));
+			        	   list.add(message);
+			        	   list.add(rs.getString("STATUS"));
+			        	   list.add(rs.getString("logged_at"));
+			        	   list.add(rs.getString("dlr_time"));
+	       	   
+			           }*/
+			           conn.setAutoCommit(false);
+			           conn.commit();
+			           conn.setAutoCommit(true);
+			           list.add("1");
+		         /*  }
+		           else
+		           {
+		        	   list.add(2);
+		           }*/
+		          
+		         }catch(Exception e)
+		          {
+		        	 e.printStackTrace();
+		          }
+		         finally{
+		        	 try {
+						if(pstmtDlrStatus != null)
+						{
+							pstmtDlrStatus.close();
+						}
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}try {
+						if(conn != null)
+						{
+							conn.close();
+						}
+					} catch (Exception e2) {
+						e2.printStackTrace();
+					}
+		        			        	 
+		         }                                
+		     }
+		});
+		
+		return list;
+	}
 	
 }

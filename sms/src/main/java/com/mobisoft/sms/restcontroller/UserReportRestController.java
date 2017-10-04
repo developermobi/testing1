@@ -16,13 +16,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mobisoft.sms.model.DlrStatus;
 import com.mobisoft.sms.model.UserJobs;
@@ -302,6 +307,45 @@ public class UserReportRestController {
 		}
 		
 		return map;
+	}
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value = "dlrStausRepotDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>dlrStausRepotDetails(@RequestBody String jsonString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else{
+			mapper = new ObjectMapper();
+			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
+			System.out.println("in list");
+			System.out.println( node.get("status").asText());
+			String status = "";
+			status = node.get("status").asText();
+			List list = userReportService.dlrStausRepotDetails(node.get("userId").asInt(),node.get("jobId").asInt(),status);
+			System.out.println("in list"+list.get(0));
+			if(list.size() > 0)
+			{
+				map.put("code", 302);
+				map.put("status", "success");
+				map.put("message", "Create File Successfully");
+			}
+			else if(list.get(0).equals("2"))
+			{
+				map.put("code", 302);
+				map.put("status", "success");
+				map.put("message", "No Data Found");
+			}
+		}
+		return map;
+		
 	}
 	
 }
