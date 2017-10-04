@@ -412,7 +412,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		return listResult;
 	}
 	@Override
-	public List dlrStausRepotDetails(int userId, int jobId, String status) {
+	public List dlrStausRepotExportDetails(int userId, int jobId, String status) {
 		
 		System.out.println("in");
 		session = sessionFactory.openSession();
@@ -435,8 +435,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		           else
 		           {
 		        	  sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE job_id= "+jobId+" AND user_id="+userId+"";
-		           }
-		           
+		           }		           
 		           System.out.println(sqlSelectDataDlrStatus);
 		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
 		          /* if(rs != null)

@@ -309,8 +309,8 @@ public class UserReportRestController {
 		return map;
 	}
 	@SuppressWarnings("rawtypes")
-	@RequestMapping(value = "dlrStausRepotDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>dlrStausRepotDetails(@RequestBody String jsonString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
+	@RequestMapping(value = "dlrStausRepotExportDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>dlrStausRepotExportDetails(@RequestBody String jsonString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -329,7 +329,7 @@ public class UserReportRestController {
 			System.out.println( node.get("status").asText());
 			String status = "";
 			status = node.get("status").asText();
-			List list = userReportService.dlrStausRepotDetails(node.get("userId").asInt(),node.get("jobId").asInt(),status);
+			List list = userReportService.dlrStausRepotExportDetails(node.get("userId").asInt(),node.get("jobId").asInt(),status);
 			System.out.println("in list"+list.get(0));
 			if(list.size() > 0)
 			{

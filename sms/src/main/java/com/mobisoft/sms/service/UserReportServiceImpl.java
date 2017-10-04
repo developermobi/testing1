@@ -73,7 +73,7 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public List dlrStausRepotDetails(int userId, int jobId, String status) {
-		return userReportDao.dlrStausRepotDetails(userId, jobId, status);
+	public List dlrStausRepotExportDetails(int userId, int jobId, String status) {
+		return userReportDao.dlrStausRepotExportDetails(userId, jobId, status);
 	}
 }

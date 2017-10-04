@@ -27,5 +27,5 @@ public interface UserReportService {
 	
 	public List<DlrStatus> dlrStatusGroupBy(int jobId,int userId); 
 	
-	public List dlrStausRepotDetails(int userId,int jobId,String status);
+	public List dlrStausRepotExportDetails(int userId,int jobId,String status);
 }
