@@ -262,6 +262,46 @@ public class UserReportRestController {
 		
 		return map;
 	}
-	
+	@RequestMapping(value = "dlrStatusGroupBy/{userId}/{jobId}",method = RequestMethod.GET)
+	public Map<String,Object>dlrStatusGroupBy(@PathVariable("userId")int userId,@PathVariable("jobId")int jobId,@RequestHeader("Authorization") String authorization)
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+			
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else{
+			List<DlrStatus> dlrStausReport = userReportService.dlrStatusGroupBy(jobId, userId);
+			System.out.println(dlrStausReport.get(0));
+			Map<Object,Object> mapDlrStatus = new HashMap<>();
+			Iterator itr = dlrStausReport.iterator();
+			while (itr.hasNext()) {
+				Object[] object = (Object[]) itr.next();
+				System.out.println(object[0]);
+				System.out.println(object[1]);
+				mapDlrStatus.put(object[0], object[1]);
+				
+			}
+			if(dlrStausReport.size() > 0){
+				map.put("status", "success");
+				map.put("code", 302);
+				map.put("message", "data found");
+				map.put("data", mapDlrStatus);
+				
+			}else{
+				map.put("status", "success");
+				map.put("code", 204);
+				map.put("message", "No data found");
+				map.put("data", mapDlrStatus);
+			}
+		}
+		
+		return map;
+	}
 	
 }

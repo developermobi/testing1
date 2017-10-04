@@ -30,6 +30,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.jdbc.Work;
@@ -370,6 +371,30 @@ public class UserReportDaoImpl implements UserReportDao {
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
 			.setProjection(Projections.rowCount());
 			listResult = criteria.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return listResult;
+	}
+	@Override
+	public List<DlrStatus> dlrStatusGroupBy(int jobId, int userId) {
+		session = sessionFactory.openSession();
+		List<DlrStatus> listResult = null;		
+		try {
+			 Query q = session.createSQLQuery("SELECT STATUS,COUNT(MOBILE) AS mobile FROM DLR_STATUS WHERE job_id = "+jobId+" and user_id="+userId+" GROUP BY STATUS");
+			    //q.addEntity(DlrStatus.class);			   
+			listResult = q.list();
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();

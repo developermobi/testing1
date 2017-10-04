@@ -65,4 +65,10 @@ public class UserReportServiceImpl implements UserReportService{
 	public List<UserJobs> compaignStatusCount(int userId) {		
 		return userReportDao.compaignStatusCount(userId);
 	}
+
+	@Override
+	public List<DlrStatus> dlrStatusGroupBy(int jobId, int userId) {
+		
+		return userReportDao.dlrStatusGroupBy(jobId, userId);
+	}
 }

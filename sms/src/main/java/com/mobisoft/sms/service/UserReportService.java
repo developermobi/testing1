@@ -24,4 +24,6 @@ public interface UserReportService {
 	
 	public List<UserJobs> compaignStatus(int userId,int start, int max);
 	public List<UserJobs> compaignStatusCount(int userId);
+	
+	public List<DlrStatus> dlrStatusGroupBy(int jobId,int userId); 
 }

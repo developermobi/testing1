@@ -21,5 +21,8 @@ public interface UserReportDao {
 	public List<UserJobs> compaignStatusCount(int userId);
 	public List<UserJobs> scheduleReportByUserId(int userId,int start,int max);
 	
+	public List<DlrStatus> dlrStatusGroupBy(int jobId,int userId); 
+	
+	
 	
 }
