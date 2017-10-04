@@ -348,5 +348,58 @@ public class UserReportRestController {
 		return map;
 		
 	}
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value = "dlrReportDetails",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>dlrReportDetails(@RequestBody String jsonString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else{
+			mapper = new ObjectMapper();
+			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
+			System.out.println("in list");
+			System.out.println( node.get("status").asText());
+			String status = "";
+			status = node.get("status").asText();
+			Map<Integer,List<DlrStatus>> maplist = userReportService.dlrReportDetails(node.get("userId").asInt(),node.get("jobId").asInt(),status,node.get("start").asInt(),node.get("max").asInt());
+	
+			System.out.println("in list"+maplist.get(0));
+			if(maplist.size() > 0)
+			{
+				List<DlrStatus> list = maplist.get(1);				
+				if(list.size() > 0)
+				{
+					map.put("code", 302);
+					map.put("status", "success");
+					map.put("message", "Show Data Successfully");
+					map.put("data", list);
+					map.put("total", maplist.get(2).get(0));
+				}
+				else
+				{
+					map.put("code", 201);
+					map.put("status", "error");
+					map.put("message", "No Data Found");
+					map.put("data", list);
+				}
+				
+			}
+			else
+			{
+				
+			}
+			
+		}
+		return map;
+		
+	}
 	
 }

@@ -14,7 +14,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
@@ -516,6 +518,35 @@ public class UserReportDaoImpl implements UserReportDao {
 		});
 		
 		return list;
+	}
+	@Override
+	public Map<Integer, List<DlrStatus>> dlrReportDetails(int userId, int jobId, String status,int start,int max) {
+		Map<Integer,List<DlrStatus>> mapList= new HashMap<Integer, List<DlrStatus>>();
+		session = sessionFactory.openSession();
+		Criteria criteria = session.createCriteria(DlrStatus.class);
+		criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("jobId",jobId))
+		.add(Restrictions.eq("status", status)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("id"));
+		ProjectionList projectionList = Projections.projectionList();
+		projectionList.add(Projections.property("mobile").as("mobile"));
+		projectionList.add(Projections.property("Sender").as("sender"));
+		projectionList.add(Projections.property("message").as("message"));
+		projectionList.add(Projections.property("loggedAt").as("loggedAt"));
+		projectionList.add(Projections.property("dlrTime").as("dlrTime"));
+		criteria.setProjection(projectionList);
+		criteria.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+		List<DlrStatus> list = criteria.list();
+		
+		//total count
+		Criteria criteriaCount = session.createCriteria(DlrStatus.class);
+		criteriaCount.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("jobId",jobId))
+		.add(Restrictions.eq("status", status)).setProjection(Projections.rowCount());
+		List<DlrStatus> countList = criteriaCount.list();
+		if(countList.size() > 0)
+		{
+			mapList.put(1,list);
+			mapList.put(2, countList);
+		}
+		return mapList;
 	}
 	
 }

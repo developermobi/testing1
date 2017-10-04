@@ -1,6 +1,8 @@
 package com.mobisoft.sms.service;
 
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.mobisoft.sms.dao.UserReportDao;
@@ -75,5 +77,11 @@ public class UserReportServiceImpl implements UserReportService{
 	@Override
 	public List dlrStausRepotExportDetails(int userId, int jobId, String status) {
 		return userReportDao.dlrStausRepotExportDetails(userId, jobId, status);
+	}
+
+	@Override
+	public Map<Integer, List<DlrStatus>> dlrReportDetails(int userId, int jobId, String status,int start,int max) {
+		
+		return userReportDao.dlrReportDetails(userId, jobId, status,start,max);
 	}
 }

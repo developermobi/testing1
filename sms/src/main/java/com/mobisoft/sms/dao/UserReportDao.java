@@ -1,6 +1,7 @@
 package com.mobisoft.sms.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,6 +25,8 @@ public interface UserReportDao {
 	public List<DlrStatus> dlrStatusGroupBy(int jobId,int userId); 
 	
 	public List dlrStausRepotExportDetails(int userId,int jobId,String status);
+	
+	public  Map<Integer,List<DlrStatus>> dlrReportDetails(int userId,int jobId,String status,int start,int max);
 	
 	
 	
