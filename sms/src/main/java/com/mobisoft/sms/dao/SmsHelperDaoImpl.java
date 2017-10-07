@@ -62,7 +62,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Override
 	public List<Integer> getBalance(int userId, int productId) {
 		
-		session =  sessionFactory.openSession();
+		final Session session =  sessionFactory.openSession();
 		List list = null;
 		try {
 			String sqlQuery = "select balance from sms_balance where user_id = "+userId+" and product_id ="+productId;
@@ -295,7 +295,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	@Override
 	public List<UserProduct> getRouteDetails(int userId, int productId) {
 	
-		 session= sessionFactory.openSession();
+		final Session session= sessionFactory.openSession();
 		List<UserProduct> userProductsList = null;
 		try {
 			User user=(User)session.get(User.class, userId);

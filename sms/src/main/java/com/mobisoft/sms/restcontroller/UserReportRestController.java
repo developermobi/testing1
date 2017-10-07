@@ -374,13 +374,14 @@ public class UserReportRestController {
 			System.out.println("in list"+maplist.get(0));
 			if(maplist.size() > 0)
 			{
-				List<DlrStatus> list = maplist.get(1);				
-				if(list.size() > 0)
+				//List<DlrStatus> list = maplist.get(1);	
+				
+				if(maplist.size() > 0)
 				{
 					map.put("code", 302);
 					map.put("status", "success");
 					map.put("message", "Show Data Successfully");
-					map.put("data", list);
+					map.put("data", maplist.get(1));
 					map.put("total", maplist.get(2).get(0));
 				}
 				else
@@ -388,7 +389,7 @@ public class UserReportRestController {
 					map.put("code", 201);
 					map.put("status", "error");
 					map.put("message", "No Data Found");
-					map.put("data", list);
+					
 				}
 				
 			}

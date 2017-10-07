@@ -29,7 +29,7 @@ public class SenderId {
 	private int id;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name = "u_id")
+	@JoinColumn(name = "user_id")
 	@JsonIgnore
 	private User userId;
 	

@@ -24,7 +24,7 @@ public class UserProduct {
 	private User userId;
 	
 	@ManyToOne
-	@JoinColumn(name = "prodcut_id")
+	@JoinColumn(name = "product_id")
 	private Product productId;
 	
 	@ManyToOne

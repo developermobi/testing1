@@ -30,7 +30,7 @@ public class Template {
 	private int id;
 	
 	@ManyToOne
-	@JoinColumn(name = "u_id")
+	@JoinColumn(name = "user_id")
 	private User userId;
 	
 	@Column(name = "name")

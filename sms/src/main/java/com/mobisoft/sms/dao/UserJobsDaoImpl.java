@@ -31,8 +31,8 @@ public class UserJobsDaoImpl implements UserJobsDao {
 	public int saveUserJobs(UserJobs userJobs,int productId,int sentMessageBalance, int updateNewBalance) {
 		int flag = 0;
 		try {
-			session = sessionFactory.openSession();
-			tx = session.beginTransaction();	
+			final Session session = sessionFactory.openSession();
+			final Transaction tx = session.beginTransaction();	
 					
 			session.save(userJobs);
 			int temp = smsHelperService.debitBalnce(userJobs.getUserId(), productId,userJobs.getUserId() , sentMessageBalance, "Sent Message By Self", 4, session, tx);
@@ -64,8 +64,8 @@ public class UserJobsDaoImpl implements UserJobsDao {
 	public int sendQuickMessage(Map<String, Object> mapList) {
 		int flag = 0;
 		try {
-			session = sessionFactory.openSession(); 
-			tx = session.beginTransaction();
+			final Session session = sessionFactory.openSession(); 
+			final Transaction tx = session.beginTransaction();
 			int userId= (int)mapList.get("userId");			
 			int productId =(int) mapList.get("productId");
 			int sentMessage = (int)mapList.get("sentMessage");			

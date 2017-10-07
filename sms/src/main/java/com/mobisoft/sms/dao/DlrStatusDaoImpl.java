@@ -9,6 +9,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +45,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	@Value("${uploadUserTextFile}")
 	private String uploadUserTextFile;
 	
-	private Session session = null;
-	private Transaction tx = null;
+	
 	File file;
 	FileReader fr = null;
 	BufferedReader br = null;
@@ -52,16 +53,12 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	private int temp=0;
 	
 	@Override
-	public int saveDlrStatus() {
+	public int saveDlrStatus(List<UserJobs> list) {
 		
-		session = sessionFactory.openSession();
-		tx= session.beginTransaction();
+		final Session session = sessionFactory.openSession();
+		
 		try {
-			Criteria criteria = session.createCriteria(UserJobs.class);
-			criteria.add(Restrictions.eq("jobStatus", 0)).add(Restrictions.eq("scheduleStatus", 0));
-			final List<UserJobs> list = criteria.list();
-			System.out.println("List Size data"+list.size());
-			tx.commit();
+		
 			if(list.size() > 0)
 			{
 				try {
@@ -99,6 +96,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 											 temp=0;
 										}
 									}
+									
 								   int code = 0;
 								   if(list.get(0).getMessageType() == 1)
 								   {
@@ -191,7 +189,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 					e.printStackTrace();					
-					tx.rollback();
+					
 				}
 			}
 			else
@@ -338,6 +336,79 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 		
 		return temp;
 	}
-	
 
+	@Override
+	public List<UserJobs> userJobsCheck(int jobStatus, int schedualStatus) {
+		final Session session = sessionFactory.openSession();
+		List<UserJobs> list = null;
+		try {
+			Criteria criteria = session.createCriteria(UserJobs.class);
+			criteria.add(Restrictions.eq("jobStatus", jobStatus)).add(Restrictions.eq("scheduleStatus", schedualStatus)).setFirstResult(0);
+			list = criteria.list();
+			System.out.println("List Size data"+list.size());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public List<UserJobs> userJobsCheckSchedule(int jobStatus, int schedualStatus, Date dateTime) {
+		final Session session = sessionFactory.openSession();
+		List<UserJobs> list = null;
+		try {
+			Criteria criteria = session.createCriteria(UserJobs.class);
+			criteria.add(Restrictions.eq("jobStatus", jobStatus))
+			.add(Restrictions.eq("scheduleStatus", schedualStatus))
+			.add(Restrictions.le("scheduledAt", dateTime))
+			.setFirstResult(0);
+			list = criteria.list();		
+			/*String sql = "SELECT * FROM user_jobs WHERE job_status = 0 AND scheduled_at = '"+dateTime+"' AND schedule_status=1";
+			org.hibernate.Query qry = session.createSQLQuery(sql);			
+			list = qry.list();*/
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return list;
+	}
+	
+	 public static <T> List<List<T>> chunk(List<T> input, int chunkSize) {
+
+	        int inputSize = input.size();
+	        int chunkCount = (int) Math.ceil(inputSize / (double) chunkSize);
+
+	        Map<Integer, List<T>> map = new HashMap<>(chunkCount);
+	        List<List<T>> chunks = new ArrayList<>(chunkCount);
+
+	        for (int i = 0; i < inputSize; i++) {
+
+	            map.computeIfAbsent(i / chunkSize, (ignore) -> {
+
+	                List<T> chunk = new ArrayList<>();
+	                chunks.add(chunk);
+	                return chunk;
+
+	            }).add(input.get(i));
+	        }
+
+	        return chunks;
+	    }
 }

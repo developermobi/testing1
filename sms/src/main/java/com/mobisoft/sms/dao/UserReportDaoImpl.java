@@ -186,7 +186,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		         Statement pstmtDlrStatus = conn.createStatement();
 		         System.out.println("in conn");
 		          try{
-		           String sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE logged_at BETWEEN '"+startDate+"' AND '"+endDate+"' AND user_id="+userId+"";
+		           String sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, status, logged_at, dlr_time FROM dlr_status WHERE logged_at BETWEEN '"+startDate+"' AND '"+endDate+"' AND user_id="+userId+"";
 		           System.out.println(sqlSelectDataDlrStatus);
 		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
 		           //Global.convertToCsv(rs, uploadCsvTextFile+"number.csv");
@@ -394,7 +394,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		session = sessionFactory.openSession();
 		List<DlrStatus> listResult = null;		
 		try {
-			 Query q = session.createSQLQuery("SELECT STATUS,COUNT(MOBILE) AS mobile FROM DLR_STATUS WHERE job_id = "+jobId+" and user_id="+userId+" GROUP BY STATUS");
+			 Query q = session.createSQLQuery("SELECT STATUS,COUNT(MOBILE) AS mobile FROM dlr_status WHERE job_id = "+jobId+" and user_id="+userId+" GROUP BY STATUS");
 			    //q.addEntity(DlrStatus.class);			   
 			listResult = q.list();
 			//session.close();
