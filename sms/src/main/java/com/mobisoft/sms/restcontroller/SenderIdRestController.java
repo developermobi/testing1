@@ -169,7 +169,7 @@ public class SenderIdRestController {
 		else {
 			List<SenderId> allSenderIdList = senderIdService.getSenderIdByUserId(userId);			
 						
-			if(allSenderIdList.size() > 0){
+			if((allSenderIdList.size() > 0) && (!allSenderIdList.get(0).equals(""))){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "Data found");
@@ -177,7 +177,7 @@ public class SenderIdRestController {
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
-				map.put("message", "No data found");
+				map.put("message", "No data found, please add Sender id");
 				map.put("data", allSenderIdList);
 			}
 		}		

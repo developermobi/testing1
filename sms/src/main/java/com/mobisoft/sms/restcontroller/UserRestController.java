@@ -258,7 +258,7 @@ public class UserRestController {
 			map.put("message", "Invalid User Name Password");
 			
 		}
-		else if(tokenAuthentication.validateToken(authorization) == 1){
+		else if(tokenAuthentication.validateToken(authorization) == 1 || tokenAuthentication.validateToken(authorization) == 2){
 
 			List<User> userList = userService.getUserById(userId);
 			if(userList.size() > 0){
@@ -282,8 +282,8 @@ public class UserRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "getUserByResellerId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getUserByResellerId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "getUserByResellerId/{userId}/{start}/{max}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>getUserByResellerId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -298,14 +298,15 @@ public class UserRestController {
 			map.put("message", "Invalid User Name Password");
 			
 		}
-		else if(tokenAuthentication.validateToken(authorization) == 1){
+		else if(tokenAuthentication.validateToken(authorization) == 1 ){
 
-			List<User> userList = userService.getUserByResellerId(userId);
-			if(userList.size() > 0){
+			Map<Integer,List<User>> userList = userService.getUserByResellerId(userId,start,max);
+			if((userList.size() > 0) && (!userList.get(0).get(0).equals(""))){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
-				map.put("data", userList);
+				map.put("data", userList.get(0));
+				map.put("total", userList.get(1));
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
@@ -340,10 +341,7 @@ public class UserRestController {
 			map.put("message", "Invalid User Name Password");
 			
 		}
-		else if(tokenAuthentication.validateToken(authorization) == 1){
-
-			
-			
+		else if(tokenAuthentication.validateToken(authorization) == 1 || tokenAuthentication.validateToken(authorization) == 2){
 			User user = new User();
 			
 			user.setName(node.get("name").asText());
@@ -370,31 +368,10 @@ public class UserRestController {
 				map.put("data", result);
 			}
 		}
-		else if(tokenAuthentication.validateToken(authorization) == 2){
-			User user = new User();			
-			user.setName(node.get("name").asText());
-			user.setEmail(node.get("email").asText());
-			user.setMobile(node.get("mobile").asText());
-			user.setCity(node.get("city").asText());
-			user.setState(node.get("state").asText());
-			user.setCountry(node.get("country").asText());
-			user.setAddress(node.get("address").asText());
-			user.setCompanyName(node.get("companyName").asText());
-			user.setUserId(userId);
-			user.setRole(node.get("role").asInt());
-			
-			int result = userService.updateUser(user);
-			if(result == 1){
-				map.put("status", "success");
-				map.put("code", 200);
-				map.put("message", "updated successfully");
-				map.put("data", result);
-			}else{
-				map.put("status", "error");
-				map.put("code", 400);
-				map.put("message", "error occured during updation");
-				map.put("data", result);
-			}
+		else{
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");
 		}		
 		
 		return map;

@@ -495,13 +495,29 @@ public class UserDaoImpl implements UserDao {
 		return results;
 	}
 	@Override
-	public List<User> getUserByResellerId(int resellerId) {
+	public Map<Integer,List<User>> getUserByResellerId(int resellerId,int start,int max) {
 		session = sessionFactory.openSession();
 		List<User> list = null;
+		List<User> listCount = null;
+		Map<Integer,List<User>> mapResult = new HashMap<>();
 		try {
 			Criteria criteria = session.createCriteria(User.class);
-			criteria.add(Restrictions.eq("resellerId", resellerId)).add(Restrictions.eq("status", 1));
+			criteria.add(Restrictions.eq("resellerId", resellerId))
+					.add(Restrictions.eq("status", 1))
+					.setFirstResult(start)
+					.setMaxResults(max)
+					.addOrder(Order.desc("id"));
 			list = criteria.list();
+			
+			Criteria criteriaCount = session.createCriteria(User.class);
+			criteriaCount.add(Restrictions.eq("resellerId", resellerId))
+					.add(Restrictions.eq("status", 1))
+					.setProjection(Projections.rowCount());
+			
+			listCount = criteriaCount.list();
+			mapResult.put(0,list);
+			mapResult.put(1,listCount);
+			System.out.println("List count :----"+listCount.get(0));
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -515,7 +531,7 @@ public class UserDaoImpl implements UserDao {
 				e2.printStackTrace();
 			}
 		}
-		return list;
+		return mapResult;
 	}
 	@Override
 	public int addCreditUser(int creditUserId, int creditByUserId, int productId,int balance) {

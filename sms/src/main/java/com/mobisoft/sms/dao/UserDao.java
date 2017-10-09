@@ -21,7 +21,7 @@ public interface UserDao {
 	
 	public List<Debit> getDebitByUserId(int userId);
 	
-	public List<User> getUserByResellerId(int resellerId);
+	public Map<Integer,List<User>> getUserByResellerId(int resellerId,int start,int max);
 	
 	public List<User> getUser();
 	

@@ -59,8 +59,8 @@ public class UserServiceImpl implements UserService{
 		return userDao.getDebitByUserId(userId);
 	}
 	@Override
-	public List<User> getUserByResellerId(int resellerId) {
-		return userDao.getUserByResellerId(resellerId);
+	public Map<Integer,List<User>> getUserByResellerId(int resellerId,int start,int max) {
+		return userDao.getUserByResellerId(resellerId,start,max);
 	}
 	@Override
 	public int addCreditUser(int userId, int resellerId, int productId, int balance) {

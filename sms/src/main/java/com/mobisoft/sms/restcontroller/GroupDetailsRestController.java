@@ -186,7 +186,7 @@ public class GroupDetailsRestController {
 			List<GroupDetails> groupActiveDetails = groupDetailsService.getActiveGroupDetailsByUserId(userId);
 			
 			//System.out.println("get Data :-- " + alltemplateList.get(4).getDescription());
-			if(groupActiveDetails.size() > 0){
+			if((groupActiveDetails.size() > 0) && (!groupActiveDetails.get(0).equals(""))){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "Data found");
@@ -194,7 +194,7 @@ public class GroupDetailsRestController {
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
-				map.put("message", "No data found");
+				map.put("message", "No data found, Please Add group..");
 				map.put("data", groupActiveDetails);
 			}
 		}		
