@@ -168,6 +168,9 @@ public class UserReportRestController {
 		}
 		else{
 			System.out.println("in list");
+			/*
+			startDate = startDate.replaceAll("[\\s\\-()]", "");
+			endDate = endDate.replaceAll("[\\s\\-()]", "");*/
 			List list = userReportService.archiveReportByUserId(userId, startDate, endDate);
 			System.out.println("in list");
 			if(list.size() > 0)
@@ -229,8 +232,8 @@ public class UserReportRestController {
 		
 		return map;
 	}
-	@RequestMapping(value = "compaignReportByUserId/{userId}/{start}/{max}",method = RequestMethod.GET)
-	public Map<String,Object>compaignReportByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "compaignReportByUserId/{userId}/{date}/{start}/{max}",method = RequestMethod.GET)
+	public Map<String,Object>compaignReportByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@PathVariable("date")String date,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -243,9 +246,9 @@ public class UserReportRestController {
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			List<UserJobs> compaignReport = userReportService.compaignStatus(userId, start, max);
-			List<UserJobs> totalCompaignCount = userReportService.compaignStatusCount(userId);
-						
+			List<UserJobs> compaignReport = userReportService.compaignStatus(userId, start, max,date);
+			List<UserJobs> totalCompaignCount = userReportService.compaignStatusCount(userId,date);
+			System.out.println(totalCompaignCount.get(0));		
 			if(totalCompaignCount.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
@@ -396,6 +399,40 @@ public class UserReportRestController {
 			else
 			{
 				
+			}
+			
+		}
+		return map;
+		
+	}
+	@SuppressWarnings("rawtypes")
+	@RequestMapping(value = "searchMobile",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String,Object>searchMobile(@RequestBody String jsonString,@RequestHeader("Authorization") String authorization) throws JsonParseException, JsonMappingException, IOException
+	{
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			map.put("code", 404);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+		}
+		else{
+			mapper = new ObjectMapper();
+			JsonNode node = mapper.readValue(jsonString, JsonNode.class);		
+			List<DlrStatus> serchList = userReportService.searchMobileStatus(node.get("mobile").asText(),node.get("date").asText());
+			if(serchList.size() > 0)
+			{
+				map.put("code", 302);
+				map.put("status", "success");
+				map.put("data",serchList);
+			}
+			else			{
+				map.put("code", 201);
+				map.put("status", "error");
+				map.put("message", "No Data Found");
 			}
 			
 		}

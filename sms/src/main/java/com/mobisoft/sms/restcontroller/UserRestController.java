@@ -878,7 +878,7 @@ public class UserRestController {
 			{
 				map.put("code", 404);
 				map.put("status", "error");
-				map.put("message", "Not Found User name");
+				map.put("message", "Somthig Going Worg...");
 			}
 		}
 		return map;

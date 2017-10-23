@@ -71,12 +71,12 @@ public class TemplateRestController {
 				if(result == 1){
 					map.put("status", "success");
 					map.put("code", 201);
-					map.put("message", "inserted successfully");
+					map.put("message", "Template added successfully");
 					map.put("data", result);
 				}else{
 					map.put("status", "error");
 					map.put("code", 400);
-					map.put("message", "error occured during insertion");
+					map.put("message", "Somthig Going Worng...");
 					map.put("data", result);
 				}
 			}

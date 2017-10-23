@@ -59,13 +59,13 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public List<UserJobs> compaignStatus(int userId, int start, int max) {		
-		return userReportDao.compaignStatus(userId, start, max);
+	public List<UserJobs> compaignStatus(int userId, int start, int max,String date) {		
+		return userReportDao.compaignStatus(userId, start, max,date);
 	}
 
 	@Override
-	public List<UserJobs> compaignStatusCount(int userId) {		
-		return userReportDao.compaignStatusCount(userId);
+	public List<UserJobs> compaignStatusCount(int userId,String date) {		
+		return userReportDao.compaignStatusCount(userId,date);
 	}
 
 	@Override
@@ -83,5 +83,11 @@ public class UserReportServiceImpl implements UserReportService{
 	public Map<Integer, List<DlrStatus>> dlrReportDetails(int userId, int jobId, String status,int start,int max) {
 		
 		return userReportDao.dlrReportDetails(userId, jobId, status,start,max);
+	}
+
+	@Override
+	public List<DlrStatus> searchMobileStatus(String moblieNumber, String date) {
+	
+		return userReportDao.searchMobileStatus(moblieNumber, date);
 	}
 }

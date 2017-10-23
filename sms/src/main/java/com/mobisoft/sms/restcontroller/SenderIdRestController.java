@@ -68,7 +68,7 @@ public class SenderIdRestController {
 				{
 					map.put("status", "error");
 					map.put("code", 411);
-					map.put("message", "Please Enter Valid Lenght Sender Id");
+					map.put("message", "Please Enter Valid Sender Id");
 					map.put("data", null);
 				}
 				else
@@ -84,12 +84,12 @@ public class SenderIdRestController {
 						if(result == 1){
 							map.put("status", "success");
 							map.put("code", 201);
-							map.put("message", "inserted successfully");
+							map.put("message", "Sender ID added Succesfully");
 							map.put("data", result);
 						}else{
 							map.put("status", "error");
 							map.put("code", 400);
-							map.put("message", "error occured during insertion");
+							map.put("message", "Somthing Going Worng...");
 							map.put("data", result);
 						}
 					}

@@ -94,7 +94,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		session = sessionFactory.openSession();	
 		List results = null;
 		try {
-			String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND user_id ="+userId+" GROUP BY status";
+			String sql = "SELECT sum(count),status FROM dlr_status WHERE `logged_at` > DATE_SUB(NOW(), INTERVAL 1 WEEK) AND user_id ="+userId+" GROUP BY status ";
 			Query query = session.createSQLQuery(sql);
 			results = query.list();
 			//session.close();
@@ -152,7 +152,7 @@ public class UserReportDaoImpl implements UserReportDao {
 			//Criteria criteria = session.createCriteria(DlrStatus.class);
 			//criteria.add(Restrictions.eq("userId",userId)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("loggedAt"));
 			
-			String sql = "SELECT * FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%' limit "+start+","+max+"";
+			String sql = "SELECT * FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%'  order by id desc limit "+start+","+max+"";
 			SQLQuery query = session.createSQLQuery(sql);
 			query.addEntity(DlrStatus.class);
 			listResult = query.list();
@@ -186,7 +186,9 @@ public class UserReportDaoImpl implements UserReportDao {
 		         Statement pstmtDlrStatus = conn.createStatement();
 		         System.out.println("in conn");
 		          try{
-		           String sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, status, logged_at, dlr_time FROM dlr_status WHERE logged_at BETWEEN '"+startDate+"' AND '"+endDate+"' AND user_id="+userId+"";
+		        	  
+		        	  
+		           String sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, status, logged_at, dlr_time FROM dlr_status WHERE  DATE_FORMAT(logged_at,'%Y-%m-%d') >= '"+startDate+"' AND DATE_FORMAT(logged_at,'%Y-%m-%d')  <= '"+endDate+"' AND user_id="+userId+"";
 		           System.out.println(sqlSelectDataDlrStatus);
 		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
 		           //Global.convertToCsv(rs, uploadCsvTextFile+"number.csv");
@@ -338,15 +340,18 @@ public class UserReportDaoImpl implements UserReportDao {
 	}
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserJobs> compaignStatus(int userId, int start, int max) {
+	public List<UserJobs> compaignStatus(int userId, int start, int max,String date) {
 		
 		session = sessionFactory.openSession();
 		List<UserJobs> listResult = null;		
 		try {
-			Criteria criteria = session.createCriteria(UserJobs.class);
+			/*Criteria criteria = session.createCriteria(UserJobs.class);
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
-			.addOrder(Order.desc("queuedAt")).setFirstResult(start).setMaxResults(max);
-			listResult = criteria.list();
+			.addOrder(Order.desc("queuedAt")).setFirstResult(start).setMaxResults(max);*/
+			
+			SQLQuery query = session.createSQLQuery("select * from user_jobs where user_id ="+userId+" and  completed_at like '%"+date+"%'");	
+		    query.addEntity(UserJobs.class);
+			listResult = query.list();
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -365,14 +370,18 @@ public class UserReportDaoImpl implements UserReportDao {
 	}
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserJobs> compaignStatusCount(int userId) {
+	public List<UserJobs> compaignStatusCount(int userId,String date) {
 		session = sessionFactory.openSession();
 		List<UserJobs> listResult = null;		
 		try {
-			Criteria criteria = session.createCriteria(UserJobs.class);				
+			/*Criteria criteria = session.createCriteria(UserJobs.class);				
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
 			.setProjection(Projections.rowCount());
-			listResult = criteria.list();
+			listResult = criteria.list();*/
+			SQLQuery query = session.createSQLQuery("select count(*) as count from user_jobs where user_id ="+userId+" and  completed_at like '%"+date+"%'");	
+		   
+			listResult = query.list();
+			
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -523,30 +532,70 @@ public class UserReportDaoImpl implements UserReportDao {
 	public Map<Integer, List<DlrStatus>> dlrReportDetails(int userId, int jobId, String status,int start,int max) {
 		Map<Integer,List<DlrStatus>> mapList= new HashMap<Integer, List<DlrStatus>>();
 		session = sessionFactory.openSession();
-		Criteria criteria = session.createCriteria(DlrStatus.class);
-		criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("jobId",jobId))
-		.add(Restrictions.eq("status", status)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("id"));
-		ProjectionList projectionList = Projections.projectionList();
-		projectionList.add(Projections.property("mobile").as("mobile"));
-		projectionList.add(Projections.property("Sender").as("sender"));
-		projectionList.add(Projections.property("message").as("message"));
-		projectionList.add(Projections.property("loggedAt").as("loggedAt"));
-		projectionList.add(Projections.property("dlrTime").as("dlrTime"));
-		criteria.setProjection(projectionList);
-		criteria.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
-		List<DlrStatus> list = criteria.list();
-		
-		//total count
-		Criteria criteriaCount = session.createCriteria(DlrStatus.class);
-		criteriaCount.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("jobId",jobId))
-		.add(Restrictions.eq("status", status)).setProjection(Projections.rowCount());
-		List<DlrStatus> countList = criteriaCount.list();
-		if(countList.size() > 0)
-		{
-			mapList.put(1,list);
-			mapList.put(2, countList);
+		try {
+			Criteria criteria = session.createCriteria(DlrStatus.class);
+			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("jobId",jobId))
+			.add(Restrictions.eq("status", status)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("id"));
+			ProjectionList projectionList = Projections.projectionList();
+			projectionList.add(Projections.property("mobile").as("mobile"));
+			projectionList.add(Projections.property("Sender").as("sender"));
+			projectionList.add(Projections.property("message").as("message"));
+			projectionList.add(Projections.property("loggedAt").as("loggedAt"));
+			projectionList.add(Projections.property("dlrTime").as("dlrTime"));
+			criteria.setProjection(projectionList);
+			criteria.setResultTransformer(Criteria.ALIAS_TO_ENTITY_MAP);
+			List<DlrStatus> list = criteria.list();
+			
+			//total count
+			Criteria criteriaCount = session.createCriteria(DlrStatus.class);
+			criteriaCount.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("jobId",jobId))
+			.add(Restrictions.eq("status", status)).setProjection(Projections.rowCount());
+			List<DlrStatus> countList = criteriaCount.list();
+			if(countList.size() > 0)
+			{
+				mapList.put(1,list);
+				mapList.put(2, countList);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			if(session != null)
+			{
+				session.close();
+			}
+		} catch (Exception e2) {
+			e2.printStackTrace();
 		}
 		return mapList;
+	}
+	@Override
+	public List<DlrStatus> searchMobileStatus(String moblieNumber,String date) {
+		session = sessionFactory.openSession();
+		List<DlrStatus> listResult = null;		
+		try {
+			/*Criteria criteria = session.createCriteria(UserJobs.class);
+			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
+			.addOrder(Order.desc("queuedAt")).setFirstResult(start).setMaxResults(max);*/
+			
+			SQLQuery query = session.createSQLQuery("select * from dlr_status where mobile ="+moblieNumber+" and  logged_at like '%"+date+"%'");	
+		    query.addEntity(DlrStatus.class);
+			listResult = query.list();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return listResult;
 	}
 	
 }

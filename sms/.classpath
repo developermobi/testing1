@@ -28,16 +28,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Sani/.m2/repository/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.jar">
-		<attributes>
-			<attribute name="maven.pomderived" value="true"/>
-			<attribute name="org.eclipse.jst.component.archivename" value="jsr311-api-1.1.1.jar"/>
-			<attribute name="maven.groupId" value="javax.ws.rs"/>
-			<attribute name="maven.artifactId" value="jsr311-api"/>
-			<attribute name="maven.version" value="1.1.1"/>
-			<attribute name="maven.scope" value="compile"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="src" path="/ajesha"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

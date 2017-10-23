@@ -23,11 +23,13 @@ public interface UserReportService {
 	
 	public List<UserJobs> scheduleReportByUserId(int userId,int start,int max);
 	
-	public List<UserJobs> compaignStatus(int userId,int start, int max);
-	public List<UserJobs> compaignStatusCount(int userId);
+	public List<UserJobs> compaignStatus(int userId,int start, int max,String date);
+	public List<UserJobs> compaignStatusCount(int userId,String date);
 	
 	public List<DlrStatus> dlrStatusGroupBy(int jobId,int userId); 
 	
 	public List dlrStausRepotExportDetails(int userId,int jobId,String status);
 	public  Map<Integer,List<DlrStatus>> dlrReportDetails(int userId,int jobId,String status,int start,int max);
+	
+	public List<DlrStatus> searchMobileStatus(String moblieNumber,String date);
 }

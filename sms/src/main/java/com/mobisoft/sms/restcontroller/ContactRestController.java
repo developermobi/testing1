@@ -131,7 +131,6 @@ public class ContactRestController {
 			if(contactCount.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
-				map.put("message", "Data found");
 				map.put("data", dataMap);
 			}else{
 				map.put("status", "success");
@@ -162,7 +161,6 @@ public class ContactRestController {
 			if(groupList.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
-				map.put("message", "data found");
 				map.put("data", groupList);
 			}else{
 				map.put("status", "success");
@@ -203,7 +201,7 @@ public class ContactRestController {
 			}else{
 				map.put("status", "error");
 				map.put("code", 400);
-				map.put("message", "error occured during updation");
+				map.put("message", "Something Going Worng...");
 				map.put("data", result);
 			}
 		}
@@ -296,8 +294,9 @@ public class ContactRestController {
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 			
-		}else if(tokenAuthentication.validateToken(authorization) == 1){
-			
+		}
+		else
+		{
 			String fileName = "";
 			if(!multipartFile.isEmpty()){
 				
@@ -335,7 +334,7 @@ public class ContactRestController {
 							}else if(result == 2 || result == 0){
 								map.put("status", "error");
 								map.put("code", 400);
-								map.put("message", "error occured during Insert Contact");
+								map.put("message", "Somethig Going Worng...");
 								map.put("data", result);
 							}
 					       /* String [] nextLine;
@@ -366,13 +365,7 @@ public class ContactRestController {
 	    			map.put("status", e.getMessage());
 	    			map.put("message", "File Not Upload");
 				}
-			}
-		}
-		else
-		{
-			map.put("code", 401);
-			map.put("status", "error");
-			map.put("message", "user not authorized");	
+			}	
 		}
 		return map;
 		
@@ -406,7 +399,6 @@ public class ContactRestController {
 			if(contactCount.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
-				map.put("message", "Data found");
 				map.put("data", dataMap);
 			}else{
 				map.put("status", "success");

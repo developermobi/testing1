@@ -118,7 +118,7 @@ public class UserDaoImpl implements UserDao {
 		Session session = sessionFactory.openSession();
 		List results = null;
 		try {
-			String sql = "SELECT * FROM user_product WHERE user_id = :userId";
+			String sql = "SELECT * FROM user_product WHERE user_id = :userId order by product_id desc";
 			SQLQuery query = session.createSQLQuery(sql);
 			query.addEntity(UserProduct.class);
 			query.setParameter("userId", userId);
