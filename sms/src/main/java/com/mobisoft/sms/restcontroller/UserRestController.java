@@ -301,12 +301,14 @@ public class UserRestController {
 		else if(tokenAuthentication.validateToken(authorization) == 1 ){
 
 			Map<Integer,List<User>> userList = userService.getUserByResellerId(userId,start,max);
+			List total = userList.get(1);
+			
 			if((userList.size() > 0) && (!userList.get(0).get(0).equals(""))){
 				map.put("status", "success");
 				map.put("code", 302);
 				map.put("message", "data found");
 				map.put("data", userList.get(0));
-				map.put("total", userList.get(1));
+				map.put("total", total.get(0));
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
