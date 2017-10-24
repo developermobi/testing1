@@ -325,8 +325,7 @@ public class UserJobsResController {
 										{
 											map.put("code", 201);
 							    			map.put("status", "Success");
-							    			map.put("message", "file Upload ");
-							    			
+							    			map.put("message", "file Upload ");							    			
 											if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
 											{
 												map.put("Total Dnd Number", dndNumberList.get(1));
