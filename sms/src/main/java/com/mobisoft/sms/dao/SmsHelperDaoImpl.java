@@ -323,8 +323,14 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	public List<String> getGroupContact(String groupId, int userId) {
 		session = sessionFactory.openSession();
 		List<String> list = null;
+		List<String> list1 = null;
 		try {
-			String sqlQuery = "SELECT mobile FROM contact WHERE group_id in("+groupId+") and user_id ="+userId;
+			
+			/*String sqlQuery1 = "SELECT id FROM group_details WHERE id in("+groupId+") and status =1 and user_id ="+userId;
+			Query query1 = session.createSQLQuery(sqlQuery1);
+			list1 = query1.list();*/
+			//System.out.println("list to string "+list1.toString());
+			String sqlQuery = "SELECT mobile FROM contact WHERE group_id in("+groupId+") and status =1 and user_id ="+userId;
 			Query query = session.createSQLQuery(sqlQuery);
 			list = query.list();
 			//session.close();

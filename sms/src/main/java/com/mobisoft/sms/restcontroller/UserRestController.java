@@ -950,8 +950,8 @@ public class UserRestController {
 					if(transactionList.size() > 0)
 					{
 						map.put("status", "error");
-						map.put("code", 204);
-						map.put("message", "No data found");
+						map.put("code", 302);
+						map.put("message", "Data Found");
 						map.put("data", transactionList);
 						map.put("total", list.get(0));
 					}
@@ -970,9 +970,6 @@ public class UserRestController {
 					map.put("message", "Some parameter is not match in our  Db");
 					map.put("data", null);
 				}
-				
-				
-				
 			}
 			else
 			{

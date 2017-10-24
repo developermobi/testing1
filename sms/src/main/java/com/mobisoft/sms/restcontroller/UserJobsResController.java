@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -275,6 +275,19 @@ public class UserJobsResController {
 					    				int updateNewBalance = balance.get(0)-sentMessage; 
 					    				UserJobs userJobs= new UserJobs();
 										userJobs.setUserId(userId);
+//										System.out.println("message type :-- "+messageType);
+//										if(messageType == 3)
+//										{
+//											//byte [] b  = message.getBytes("UTF-8");	
+//											message = URLEncoder.encode(message, "UTF-8");
+//											userJobs.setMessage(message);
+//											
+//											
+//										}
+//										else 
+//										{
+//											userJobs.setMessage(message);
+//										}
 										userJobs.setMessage(message);
 										userJobs.setMessageType(messageType);
 										userJobs.setMessageLength(messageLength);
