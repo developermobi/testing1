@@ -33,8 +33,8 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max) {		
-		return userReportDao.dailyRepotMessage(userId,start,max);
+	public List<DlrStatus> dailyRepotMessage(int userId,String date,int start, int max) {		
+		return userReportDao.dailyRepotMessage(userId,date,start,max);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -44,8 +44,8 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public List<UserJobs> scheduleReportByUserId(int userId, int start, int max) {		
-		return userReportDao.scheduleReportByUserId(userId, start, max);
+	public List<UserJobs> scheduleReportByUserId(int userId,String fromDate,String toDate, int start, int max) {		
+		return userReportDao.scheduleReportByUserId(userId,fromDate,toDate, start, max);
 	}
 
 	@Override
@@ -54,18 +54,18 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public int messageCountScheduale(int userId) {		
-		return userReportDao.messageCountScheduale(userId);
+	public int messageCountScheduale(int userId,String fromDate,String toDate) {		
+		return userReportDao.messageCountScheduale(userId,fromDate,toDate);
 	}
 
 	@Override
-	public List<UserJobs> compaignStatus(int userId, int start, int max,String date) {		
-		return userReportDao.compaignStatus(userId, start, max,date);
+	public List<UserJobs> compaignStatus(int userId, int start, int max,String fromdate,String toDate) {		
+		return userReportDao.compaignStatus(userId, start, max,fromdate,toDate);
 	}
 
 	@Override
-	public List<UserJobs> compaignStatusCount(int userId,String date) {		
-		return userReportDao.compaignStatusCount(userId,date);
+	public List<UserJobs> compaignStatusCount(int userId,String fromDate,String toDate) {		
+		return userReportDao.compaignStatusCount(userId,fromDate,toDate);
 	}
 
 	@Override

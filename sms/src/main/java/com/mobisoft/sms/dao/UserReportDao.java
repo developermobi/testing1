@@ -13,14 +13,16 @@ public interface UserReportDao {
 	public List todayCountMessage(int userId);
 	public List weeklyCountMessage(int userId);
 	public List monthlyCountMessage(int userId);
-	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max);
+	public List<DlrStatus> dailyRepotMessage(int userId,String date,int start, int max);
 	public List<Integer> messageCountDaily(int userId,String date);
-	public int  messageCountScheduale(int userId);
+	
 	public List archiveReportByUserId(int userId,String startDate,String endDate);
 	
-	public List<UserJobs> compaignStatus(int userId,int start, int max,String date);
-	public List<UserJobs> compaignStatusCount(int userId,String date);
-	public List<UserJobs> scheduleReportByUserId(int userId,int start,int max);
+	public List<UserJobs> compaignStatus(int userId,int start, int max,String fromDate,String toDate);
+	public List<UserJobs> compaignStatusCount(int userId,String fromDate,String toDate);
+	
+	public int  messageCountScheduale(int userId,String fromDate,String toDate);
+	public List<UserJobs> scheduleReportByUserId(int userId,String fromDate,String toDate, int start,int max);
 	
 	public List<DlrStatus> dlrStatusGroupBy(int jobId,int userId); 
 	

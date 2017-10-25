@@ -38,7 +38,6 @@ public class GroupDetailsRestController {
 	@Autowired
 	private ContactService contactService;
 	
-	
 	@Autowired
 	private UserService userService;
 
@@ -54,17 +53,14 @@ public class GroupDetailsRestController {
 		map.put("data", null);
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
-			
 			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
-			
 		}
 		else
 		{
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
-
 			int result = groupDetailsService.saveGroupDetails(node);
 				if(result == 1){
 					map.put("status", "success");

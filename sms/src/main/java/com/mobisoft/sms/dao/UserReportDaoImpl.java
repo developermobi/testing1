@@ -140,14 +140,14 @@ public class UserReportDaoImpl implements UserReportDao {
 	}
 
 	@Override
-	public List<DlrStatus> dailyRepotMessage(int userId,int start, int max) {
+	public List<DlrStatus> dailyRepotMessage(int userId,String date,int start, int max) {
 		
 		session = sessionFactory.openSession();
 		List<DlrStatus> listResult = null;
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	/*	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		LocalDate localDate = LocalDate.now();
 		String date = dtf.format(localDate);
-		System.out.println(dtf.format(localDate));
+		System.out.println(dtf.format(localDate));*/
 		try {
 			//Criteria criteria = session.createCriteria(DlrStatus.class);
 			//criteria.add(Restrictions.eq("userId",userId)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("loggedAt"));
@@ -263,13 +263,17 @@ public class UserReportDaoImpl implements UserReportDao {
 		
 	}
 	@Override
-	public List<UserJobs> scheduleReportByUserId(int userId,int start,int max) {
+	public List<UserJobs> scheduleReportByUserId(int userId,String fromDate,String toDate,int start,int max) {
 		List<UserJobs> listResult = null;
 		session = sessionFactory.openSession();
 		try {
-			Criteria criteria = session.createCriteria(UserJobs.class);
+			/*Criteria criteria = session.createCriteria(UserJobs.class);
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 1)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("scheduledAt"));
-			listResult = criteria.list();
+			listResult = criteria.list();*/
+			
+			SQLQuery query = session.createSQLQuery("select * from user_jobs where user_id ="+userId+" and schedule_status=1 and  DATE_FORMAT(completed_at,'%Y-%m-%d') >= '"+fromDate+"' AND DATE_FORMAT(completed_at,'%Y-%m-%d')  <= '"+toDate+"' order by id desc limit "+start+","+max+"");	
+		    query.addEntity(UserJobs.class);
+			listResult = query.list();
 			//session.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -286,6 +290,32 @@ public class UserReportDaoImpl implements UserReportDao {
 		}
 		return listResult;
 		
+	}
+	@Override
+	public int messageCountScheduale(int userId,String fromDate,String toDate) {
+		int countSchedual =0;
+		session = sessionFactory.openSession();
+		List<UserJobs> listResult = null;		
+		try {
+			SQLQuery query = session.createSQLQuery("select * from user_jobs where user_id ="+userId+" and schedule_status=1 and  DATE_FORMAT(completed_at,'%Y-%m-%d') >= '"+fromDate+"' AND DATE_FORMAT(completed_at,'%Y-%m-%d')  <= '"+toDate+"' order by id desc");	
+		    query.addEntity(UserJobs.class);
+			listResult = query.list();
+			countSchedual = listResult.size();
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if(session != null)
+				{
+					session.close();
+				}
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+		return countSchedual;
 	}
 	@Override
 	public List<Integer> messageCountDaily(int userId, String date) {
@@ -312,35 +342,10 @@ public class UserReportDaoImpl implements UserReportDao {
 		}
 		return results;
 	}
-	@Override
-	public int messageCountScheduale(int userId) {
-		int countSchedual =0;
-		session = sessionFactory.openSession();
-		List<UserJobs> listResult = null;		
-		try {
-			Criteria criteria = session.createCriteria(UserJobs.class);
-			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 1)).addOrder(Order.desc("scheduledAt"));
-			listResult = criteria.list();
-			countSchedual = listResult.size();
-			//session.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally {
-			try {
-				if(session != null)
-				{
-					session.close();
-				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
-			}
-		}
-		return countSchedual;
-	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserJobs> compaignStatus(int userId, int start, int max,String date) {
+	public List<UserJobs> compaignStatus(int userId, int start, int max,String fromDate,String toDate) {
 		
 		session = sessionFactory.openSession();
 		List<UserJobs> listResult = null;		
@@ -349,7 +354,7 @@ public class UserReportDaoImpl implements UserReportDao {
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
 			.addOrder(Order.desc("queuedAt")).setFirstResult(start).setMaxResults(max);*/
 			
-			SQLQuery query = session.createSQLQuery("select * from user_jobs where user_id ="+userId+" and  completed_at like '%"+date+"%'");	
+			SQLQuery query = session.createSQLQuery("select * from user_jobs where user_id ="+userId+" and  DATE_FORMAT(completed_at,'%Y-%m-%d') >= '"+fromDate+"' AND DATE_FORMAT(completed_at,'%Y-%m-%d')  <= '"+toDate+"'");	
 		    query.addEntity(UserJobs.class);
 			listResult = query.list();
 			//session.close();
@@ -370,7 +375,7 @@ public class UserReportDaoImpl implements UserReportDao {
 	}
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserJobs> compaignStatusCount(int userId,String date) {
+	public List<UserJobs> compaignStatusCount(int userId,String fromDate,String toDate) {
 		session = sessionFactory.openSession();
 		List<UserJobs> listResult = null;		
 		try {
@@ -378,7 +383,7 @@ public class UserReportDaoImpl implements UserReportDao {
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
 			.setProjection(Projections.rowCount());
 			listResult = criteria.list();*/
-			SQLQuery query = session.createSQLQuery("select count(*) as count from user_jobs where user_id ="+userId+" and  completed_at like '%"+date+"%'");	
+			SQLQuery query = session.createSQLQuery("select count(*) as count from user_jobs where user_id ="+userId+" and  DATE_FORMAT(completed_at,'%Y-%m-%d') >= '"+fromDate+"' AND DATE_FORMAT(completed_at,'%Y-%m-%d')  <= '"+toDate+"'");	
 		   
 			listResult = query.list();
 			
@@ -441,11 +446,11 @@ public class UserReportDaoImpl implements UserReportDao {
 		        	  
 		           if(!status.trim().equals(""))
 		           {
-		        	   sqlSelectDataDlrStatus ="SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE job_id= "+jobId+" AND user_id="+userId+" and status = '"+status+"'";
+		        	   sqlSelectDataDlrStatus ="SELECT mobile, Sender, message, STATUS, logged_at as Date_Time, dlr_time as Delivery_time  FROM dlr_status WHERE job_id= "+jobId+" AND user_id="+userId+" and status = '"+status+"'";
 		           }
 		           else
 		           {
-		        	  sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at, dlr_time FROM dlr_status WHERE job_id= "+jobId+" AND user_id="+userId+"";
+		        	  sqlSelectDataDlrStatus = "SELECT mobile, Sender, message, STATUS, logged_at as Date_Time, dlr_time as Delivery_time  FROM dlr_status WHERE job_id= "+jobId+" AND user_id="+userId+"";
 		           }		           
 		           System.out.println(sqlSelectDataDlrStatus);
 		           ResultSet rs = pstmtDlrStatus.executeQuery(sqlSelectDataDlrStatus);
@@ -472,7 +477,7 @@ public class UserReportDaoImpl implements UserReportDao {
 						}
 						file = new File(dir.getAbsolutePath()+"/"+fileName);
 						CSVWriter writer = new CSVWriter(new FileWriter(file));
-						String[] header="Mobile,Sender,Message,Status,logged_at,dlr_time".split(",");
+						String[] header="Mobile,Sender,Message,Status,Date,Delivery".split(",");
 						//writer.writeAll(allLines);(header);
 						writer.writeAll(rs, true); //And the second argument is boolean which represents whether you want to write header columns (table column names) to file or not.
 						writer.close();

@@ -108,8 +108,8 @@ public class UserReportRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "dailyRepotMessage/{userId}/{start}/{max}",method = RequestMethod.GET)
-	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "dailyRepotMessage/{userId}/{date}/{start}/{max}",method = RequestMethod.GET)
+	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("date")String date,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -123,13 +123,13 @@ public class UserReportRestController {
 		}
 		else{
 			
-			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			/*DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			LocalDate localDate = LocalDate.now();
 			String date = dtf.format(localDate);
-			System.out.println(dtf.format(localDate));
+			System.out.println(dtf.format(localDate));*/
 			List<Integer> list = userReportService.messageCountDaily(userId,date);
 			System.out.println("count"+list.get(0));
-			List<DlrStatus> dalyReport = userReportService.dailyRepotMessage(userId,start,max);
+			List<DlrStatus> dalyReport = userReportService.dailyRepotMessage(userId,date,start,max);
 			
 			if(dalyReport.size() > 0){
 				map.put("status", "success");
@@ -198,8 +198,8 @@ public class UserReportRestController {
     		e.printStackTrace();
     	}		
 	}
-	@RequestMapping(value = "scheduleReportByUserId/{userId}/{start}/{max}",method = RequestMethod.GET)
-	public Map<String,Object>scheduleReportByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "scheduleReportByUserId/{userId}/{fromDate}/{toDate}/{start}/{max}",method = RequestMethod.GET)
+	public Map<String,Object>scheduleReportByUserId(@PathVariable("userId")int userId,@PathVariable("fromDate")String fromDate,@PathVariable("toDate")String toDate,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -212,8 +212,8 @@ public class UserReportRestController {
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			List<UserJobs> dalyReport = userReportService.scheduleReportByUserId(userId, start, max);
-			int totalSchedualCount = userReportService.messageCountScheduale(userId);
+			List<UserJobs> dalyReport = userReportService.scheduleReportByUserId(userId,fromDate,toDate, start, max);
+			int totalSchedualCount = userReportService.messageCountScheduale(userId,fromDate,toDate);
 						
 			if(dalyReport.size() > 0){
 				map.put("status", "success");
@@ -232,22 +232,23 @@ public class UserReportRestController {
 		
 		return map;
 	}
-	@RequestMapping(value = "compaignReportByUserId/{userId}/{date}/{start}/{max}",method = RequestMethod.GET)
-	public Map<String,Object>compaignReportByUserId(@PathVariable("userId")int userId,@PathVariable("start")int start,@PathVariable("max")int max,@PathVariable("date")String date,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "compaignReportByUserId/{userId}/{fromDate}/{toDate}/{start}/{max}",method = RequestMethod.GET)
+	public Map<String,Object>compaignReportByUserId(@PathVariable("userId")int userId,
+			@PathVariable("start")int start,@PathVariable("max")int max,@PathVariable("fromDate")String fromDate,
+			@PathVariable("toDate")String toDate,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
-		map.put("message", "some error occured");
-			
+		map.put("message", "some error occured");			
 		if(tokenAuthentication.validateToken(authorization) == 0){
 			map.put("code", 404);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			List<UserJobs> compaignReport = userReportService.compaignStatus(userId, start, max,date);
-			List<UserJobs> totalCompaignCount = userReportService.compaignStatusCount(userId,date);
+			List<UserJobs> compaignReport = userReportService.compaignStatus(userId, start, max,fromDate,toDate);
+			List<UserJobs> totalCompaignCount = userReportService.compaignStatusCount(userId,fromDate,toDate);
 			System.out.println(totalCompaignCount.get(0));		
 			if(totalCompaignCount.size() > 0){
 				map.put("status", "success");
@@ -258,16 +259,13 @@ public class UserReportRestController {
 					map.put("data", compaignReport);
 					map.put("total", totalCompaignCount.get(0));
 				}
-				
-				
 			}else{
 				map.put("status", "success");
 				map.put("code", 204);
 				map.put("message", "No data found");
 				map.put("data", compaignReport);
 			}
-		}
-		
+		}		
 		return map;
 	}
 	@RequestMapping(value = "dlrStatusGroupBy/{userId}/{jobId}",method = RequestMethod.GET)
