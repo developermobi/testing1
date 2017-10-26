@@ -354,7 +354,7 @@ public class UserReportDaoImpl implements UserReportDao {
 			criteria.add(Restrictions.eq("userId",userId)).add(Restrictions.eq("scheduleStatus", 0))
 			.addOrder(Order.desc("queuedAt")).setFirstResult(start).setMaxResults(max);*/
 			
-			SQLQuery query = session.createSQLQuery("select * from user_jobs where user_id ="+userId+" and  DATE_FORMAT(completed_at,'%Y-%m-%d') >= '"+fromDate+"' AND DATE_FORMAT(completed_at,'%Y-%m-%d')  <= '"+toDate+"'");	
+			SQLQuery query = session.createSQLQuery("select * from user_jobs where user_id ="+userId+" and  DATE_FORMAT(completed_at,'%Y-%m-%d') >= '"+fromDate+"' AND DATE_FORMAT(completed_at,'%Y-%m-%d')  <= '"+toDate+"' order by id desc limit "+start+","+max+"");	
 		    query.addEntity(UserJobs.class);
 			listResult = query.list();
 			//session.close();

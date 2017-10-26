@@ -306,17 +306,13 @@ public class ContactRestController {
 		{
 			String fileName = "";
 			if(!multipartFile.isEmpty()){
-				
 			    try {
-			    	
 			    	fileName = multipartFile.getOriginalFilename().replace(" ", "-");
 			    	String newFileName = userId+fileName;
 			    	System.out.println("file size:- "+multipartFile.getSize());
 			    	if(multipartFile.getSize() <= 3000000 )
 			    	{
-			    		
 			    		if(multipartFile.getOriginalFilename().endsWith(".csv")){
-			    			
 							String fileUploadDirectory =  uploadUserContact+"/";						
 							userContactFile = new File(fileUploadDirectory);
 							System.out.println("inside if directory");
@@ -349,7 +345,6 @@ public class ContactRestController {
 					            // nextLine[] is an array of values from the line
 					            System.out.println(nextLine[0]+"  "+nextLine[1]+"  "+nextLine[2]+"  "+nextLine[3]);					           
 					        }*/
-
 						}
 			    		else
 			    		{
@@ -357,7 +352,6 @@ public class ContactRestController {
 							map.put("status", "error");
 							map.put("message", "Invalid file format please select csv file....");	
 			    		}
-
 			    	}
 			    	else
 			    	{

@@ -457,20 +457,30 @@ public class UserJobsResController {
 					        bw.close();
 					       /* System.out.println("fileter mobile number"+groupContactList);*/
 
-					}
+					}					
 					if(node.get("duplicateStatus").asInt() == 1)
+					{						  
+					    groupContactList = Global.filterDuplicateNumber(groupContactList);
+					    FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
+				        BufferedWriter bw = new BufferedWriter(fw);
+				        for(String contact : groupContactList)
+				        {
+				        	bw.write(contact);
+					        bw.newLine();
+				        }
+				        
+				        bw.close();
+					}					
+					if((node.get("duplicateStatus").asInt() != 1) && (listCheckAutherization.get(0).getDndCheck().equals("N")))
 					{
-						  
-						    groupContactList = Global.filterDuplicateNumber(groupContactList);
-						    FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
-					        BufferedWriter bw = new BufferedWriter(fw);
-					        for(String contact : groupContactList)
-					        {
-					        	bw.write(contact);
-						        bw.newLine();
-					        }
-					        
-					        bw.close();
+						FileWriter fw = new FileWriter(fileData.getAbsoluteFile());
+				        BufferedWriter bw = new BufferedWriter(fw);
+				        for(String contact : groupContactList)
+				        {
+				        	bw.write(contact);
+					        bw.newLine();
+				        }				        
+				        bw.close();
 					}
 					
 				} catch (Exception e) {

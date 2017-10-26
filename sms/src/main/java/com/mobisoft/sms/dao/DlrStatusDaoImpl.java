@@ -114,51 +114,59 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						           String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,mclass, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 						           pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
 						           int i=0;
-						           for(String mobile : mobileList){	        	   
-		
-						        	   String messId = Global.randomString(10);			        	   
-						        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
-						        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
-						        	   pstmtDlrStatus.setInt(3,code);
-						        	   pstmtDlrStatus.setInt(4, list.get(0).getCount());
-						        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
-						        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
-						        	   pstmtDlrStatus.setString(7, messId);
-						        	   pstmtDlrStatus.setInt(8, 1);
-						        	   pstmtDlrStatus.setString(9, mobile);
-						        	   pstmtDlrStatus.setString(10, list.get(0).getRoute());
-						        	   pstmtDlrStatus.setInt(11, 1);
-						        	   pstmtDlrStatus.setInt(12, list.get(0).getUserId());
-						               pstmtDlrStatus.addBatch();
-						               
-						               pstmtQueuedSms.setInt(1, list.get(0).getId());
-						               pstmtQueuedSms.setString(2,"MT");
-						               pstmtQueuedSms.setString(3,list.get(0).getSender());
-						               pstmtQueuedSms.setString(4, mobile);
-						               pstmtQueuedSms.setString(5, list.get(0).getMessage());
-						               pstmtQueuedSms.setString(6,list.get(0).getRoute());
-						               pstmtQueuedSms.setString(7,"sqlbox");
-						               pstmtQueuedSms.setInt(8, 1);
-						               pstmtQueuedSms.setInt(9, 1);
-						               pstmtQueuedSms.setInt(10, code);
-						               pstmtQueuedSms.setInt(11,19);
-						               pstmtQueuedSms.setString(12, messId);
-						               pstmtQueuedSms.setString(13,"UTF-8");
-						               pstmtQueuedSms.addBatch(); 
-		
-						           }
-						           conn.setAutoCommit(false);
-						           pstmtDlrStatus.executeBatch();
-						           pstmtQueuedSms.executeBatch();
-						           String sql1 = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
-						           org.hibernate.Query qry1 = session.createSQLQuery(sql1);
-						           qry1.setParameter("status", 2);
-						           qry1.setParameter("userId", list.get(0).getUserId());
-						           qry1.setParameter("id", list.get(0).getId());			
-						           temp =qry1.executeUpdate();
-						           conn.commit();
-						           conn.setAutoCommit(true);
-						           
+						          if((mobileList.size() > 0) && (!mobileList.get(0).equals("")))
+						          {
+						        	  for(String mobile : mobileList){	        	   
+						        			
+							        	   String messId = Global.randomString(10);			        	   
+							        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
+							        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
+							        	   pstmtDlrStatus.setInt(3,code);
+							        	   pstmtDlrStatus.setInt(4, list.get(0).getCount());
+							        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
+							        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
+							        	   pstmtDlrStatus.setString(7, messId);
+							        	   pstmtDlrStatus.setInt(8, 1);
+							        	   pstmtDlrStatus.setString(9, mobile);
+							        	   pstmtDlrStatus.setString(10, list.get(0).getRoute());
+							        	   pstmtDlrStatus.setInt(11, 1);
+							        	   pstmtDlrStatus.setInt(12, list.get(0).getUserId());
+							               pstmtDlrStatus.addBatch();
+							               
+							               pstmtQueuedSms.setInt(1, list.get(0).getId());
+							               pstmtQueuedSms.setString(2,"MT");
+							               pstmtQueuedSms.setString(3,list.get(0).getSender());
+							               pstmtQueuedSms.setString(4, mobile);
+							               pstmtQueuedSms.setString(5, list.get(0).getMessage());
+							               pstmtQueuedSms.setString(6,list.get(0).getRoute());
+							               pstmtQueuedSms.setString(7,"sqlbox");
+							               pstmtQueuedSms.setInt(8, 1);
+							               pstmtQueuedSms.setInt(9, 1);
+							               pstmtQueuedSms.setInt(10, code);
+							               pstmtQueuedSms.setInt(11,19);
+							               pstmtQueuedSms.setString(12, messId);
+							               pstmtQueuedSms.setString(13,"UTF-8");
+							               pstmtQueuedSms.addBatch(); 
+			
+							           }
+						        	   conn.setAutoCommit(false);
+							           pstmtDlrStatus.executeBatch();
+							           pstmtQueuedSms.executeBatch();
+							           String sql1 = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
+							           org.hibernate.Query qry1 = session.createSQLQuery(sql1);
+							           qry1.setParameter("status", 2);
+							           qry1.setParameter("userId", list.get(0).getUserId());
+							           qry1.setParameter("id", list.get(0).getId());			
+							           temp =qry1.executeUpdate();
+							           conn.commit();
+							           conn.setAutoCommit(true);
+						          }
+						          else
+						          {
+						        	  conn.rollback();
+						        	  System.out.println("This job id = "+list.get(0).getId()+" file name have zero contact data, Please check this job id file data");
+						        	  
+						          }				            
 						         } catch (FileNotFoundException e) {									
 									e.printStackTrace();
 									conn.rollback();
@@ -224,8 +232,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 			       public void execute(Connection conn) throws SQLException {
 			    	  
 			    	   	  int jobId = (int) (System.currentTimeMillis() & 0xfffffff);	
-				    	  String sender = (String)mapList.get("sender");
-				    	  
+				    	  String sender = (String)mapList.get("sender");				    	  
 				    	  int messageType = (int)mapList.get("messageType");
 				    	  int coding = 0;
 				    	  if(messageType == 1)
