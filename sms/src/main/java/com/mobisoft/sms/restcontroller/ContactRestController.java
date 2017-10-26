@@ -68,7 +68,7 @@ public class ContactRestController {
 	String rootPath = System.getProperty("catalina.home");
 	
 	@RequestMapping(value = "/saveContact",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object> saveGroupDetails(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
+	public Map<String,Object> saveContact(@RequestHeader("Authorization") String authorization,@RequestBody String jsonString) throws JsonParseException, JsonMappingException, IOException{
 
 		Map<String,Object> map = new HashMap<>();		
 		map.put("status", "error");
@@ -76,8 +76,7 @@ public class ContactRestController {
 		map.put("message", "some error occured");
 		map.put("data", null);
 		
-		if(tokenAuthentication.validateToken(authorization) == 0){
-			
+		if(tokenAuthentication.validateToken(authorization) == 0){			
 			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
@@ -86,22 +85,33 @@ public class ContactRestController {
 		{
 			mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(jsonString, JsonNode.class);
-
 			int result = contactService.saveConact(node);
 			if(result == 1){
 				map.put("status", "success");
 				map.put("code", 201);
 				map.put("message", "Successfully Add Contact");
 				map.put("data", result);
-			}else{
+			}else if(result == 2)
+			{
+				map.put("status", "Not found");
+				map.put("code", 404);
+				map.put("message", "Group name not exist!");
+				map.put("data", result);
+			}
+			else if(result == 3)
+			{
+				map.put("status", "Conflict");
+				map.put("code", 409);
+				map.put("message", "Contact number already exist!");
+				map.put("data", result);
+			}
+			else{
 				map.put("status", "error");
 				map.put("code", 403);
 				map.put("message", "error occured during insertion");
 				map.put("data", result);
-			}
-			
-		}
-		
+			}			
+		}		
 		return map;
 	}
 	@RequestMapping(value = "/getAllContact/{userId}/{start}/{limit}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
@@ -186,10 +196,8 @@ public class ContactRestController {
 			map.put("code", 404);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
-			
 		}
 		else{
-
 			mapper = new ObjectMapper();		
 			JsonNode node = mapper.readValue(josnString, JsonNode.class);
 			int result = contactService.updateContact(node, contactId);
@@ -205,7 +213,6 @@ public class ContactRestController {
 				map.put("data", result);
 			}
 		}
-
 		return map;
 		
 	}

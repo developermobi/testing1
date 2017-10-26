@@ -45,34 +45,45 @@ public class ContactDaoImpl implements ContactDao{
 		GroupDetails groupDetails=(GroupDetails)session.get(GroupDetails.class, node.get("groupId").asInt());
 		if(groupDetails.getGroupId() > 0)
 		{
-			Contact contact = new Contact();
-			contact.setDesignation(node.get("designation").asText());
-			contact.setEmailId(node.get("emailId").asText());
-			contact.setMobile(node.get("mobile").asText());
-			contact.setName(node.get("name").asText());
-			contact.setStatus(1);
-			contact.setUserId(node.get("userId").asInt());
-			contact.setGroupId(groupDetails);
-					
-			try {
-				session.saveOrUpdate(contact);					
-				temp = 1;
-				tx.commit();
-				//session.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-				temp = 0;
-				tx.rollback();
-			}finally {
+			Criteria criteria = session.createCriteria(Contact.class);
+			criteria.add(Restrictions.eq("mobile", node.get("mobile").asText())).add(Restrictions.eq("groupId",groupDetails));
+			List<Contact> list = criteria.list();
+			if(list.size() == 0)
+			{
+				Contact contact = new Contact();
+				contact.setDesignation(node.get("designation").asText());
+				contact.setEmailId(node.get("emailId").asText());
+				contact.setMobile(node.get("mobile").asText());
+				contact.setName(node.get("name").asText());
+				contact.setStatus(1);
+				contact.setUserId(node.get("userId").asInt());
+				contact.setGroupId(groupDetails);
+						
 				try {
-					if(session != null)
-					{
-						session.close();
+					session.saveOrUpdate(contact);					
+					temp = 1;
+					tx.commit();
+					//session.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+					temp = 0;
+					tx.rollback();
+				}finally {
+					try {
+						if(session != null)
+						{
+							session.close();
+						}
+					} catch (Exception e2) {
+						e2.printStackTrace();
 					}
-				} catch (Exception e2) {
-					e2.printStackTrace();
 				}
 			}
+			else
+			{
+				temp = 3;
+			}
+			
 		}
 		else
 		{
