@@ -166,8 +166,7 @@ public class ContactRestController {
 			map.put("message", "Invalid User Name Password");
 		}
 		else{
-			List<Contact> groupList = contactService.getContactByContactId(contactId);
-			
+			List<Contact> groupList = contactService.getContactByContactId(contactId);			
 			if(groupList.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);
@@ -179,7 +178,6 @@ public class ContactRestController {
 				map.put("data", groupList);
 			}
 		}
-		
 		return map;
 	}
 	@RequestMapping(value = "updateContactById/{contactId}",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_VALUE)

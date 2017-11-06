@@ -140,9 +140,6 @@ public class GroupDetailsRestController {
 			List<Contact> listContactByGroup = contactService.getContactCountByGroupId(groupId,start,limit);		
 			
 			List<Contact> list = contactService.countGroupConatct(groupId);
-			System.out.println("row copuint:"+list);
-			System.out.println("groupDetails: "+listContactByGroup.get(0));
-			
 			 Map<String, Object> dataMap = new HashMap<>();
 			 dataMap.put("total", list);
 			 dataMap.put("groupContactData", listContactByGroup);

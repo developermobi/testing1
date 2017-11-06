@@ -3,6 +3,7 @@ package com.mobisoft.sms.dao;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -16,12 +17,14 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.object.SqlQuery;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Contact;
 import com.mobisoft.sms.model.GroupDetails;
 import com.mobisoft.sms.model.User;
+import com.mobisoft.sms.service.ContactService;
 import com.mobisoft.sms.utility.Global;
 import com.mysql.jdbc.PreparedStatement;
 
@@ -36,6 +39,9 @@ public class ContactDaoImpl implements ContactDao{
 	
 	private Transaction tx = null;
 	private int temp=0;
+	
+	@Autowired
+	private ContactService contactservice;
 
 	@Override
 	public int saveConact(JsonNode node) {
@@ -277,28 +283,48 @@ public class ContactDaoImpl implements ContactDao{
 		session=sessionFactory.openSession();
 		try { 
 			
-		 
+			List listConatct = contactservice.getGroupConatct(groupId,session);
+			System.out.println("list contact all ready"+listConatct);
 			final GroupDetails groupDetails=(GroupDetails)session.get(GroupDetails.class,groupId);
 	        session.doWork(new Work() {				   
 			       @Override
 			       public void execute(Connection conn) throws SQLException {
 			          PreparedStatement pstmtContact = null;
 			          try{
-			           String sqlInsertDlrStatus = "INSERT INTO contact(designation, email_id, mobile, name, status,user_id, group_id) VALUES (?,?,?,?,?,?,?)";
+			           String sqlInsertDlrStatus = "Insert INTO contact(designation, email_id, mobile, name, status,user_id, group_id) VALUES (?,?,?,?,?,?,?)";
 			           pstmtContact = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
 			           String [] nextLine;
 			           int i=0;
+			           List<String> findDuplicate = new ArrayList<String>();
+			         
 			           while ((nextLine = reader.readNext()) != null) {
-			        	   			
-			            	    pstmtContact.setString(1, nextLine[3]);
-					            pstmtContact.setString(2, nextLine[2]);
-					            pstmtContact.setString(3, nextLine[1]);
-					            pstmtContact.setString(4, nextLine[0]);
-					            pstmtContact.setInt(5, 1);
-					            pstmtContact.setInt(6, userId);
-					            pstmtContact.setInt(7,groupDetails.getGroupId());
-					            pstmtContact.addBatch();
-					            
+			        	   	
+			        	   	boolean flagDuplicate = findDuplicate.contains(nextLine[1]);
+	        	   			if(flagDuplicate)
+	        	   			{
+	        	   				continue;
+	        	   			}
+		        	   		boolean flag = listConatct.contains(nextLine[1]);
+		        	   		if(flag)
+		        	   		{
+		        	   			continue;
+		        	   		}	
+		        	   		if(nextLine[1].equals(""))
+		        	   		{
+		        	   			continue;
+		        	   		}
+
+		            	    pstmtContact.setString(1, nextLine[3]);
+				            pstmtContact.setString(2, nextLine[2]);
+				            pstmtContact.setString(3, nextLine[1]);
+				            pstmtContact.setString(4, nextLine[0]);
+				            pstmtContact.setInt(5, 1);
+				            pstmtContact.setInt(6, userId);
+				            pstmtContact.setInt(7,groupDetails.getGroupId());
+				            pstmtContact.addBatch();
+				            findDuplicate.add(nextLine[1]);
+				            System.out.println("duplicate list"+findDuplicate);
+     
 				       } 		           
 			           reader.close();
 					   conn.setAutoCommit(false);
@@ -394,6 +420,22 @@ public class ContactDaoImpl implements ContactDao{
 			}
 		}
 		
+		return list;
+	}
+
+	@Override
+	public List getGroupConatct(int groupId,Session session) {
+		
+		int count = 0;
+		List list = null;
+		try {
+			GroupDetails groupDetails =(GroupDetails)session.get(GroupDetails.class,groupId);
+			Query query = session.createSQLQuery("select mobile from contact where status = 1 or status = 0 and  group_id="+groupId);
+			list = query.list();					
+			//session.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return list;
 	}
 	

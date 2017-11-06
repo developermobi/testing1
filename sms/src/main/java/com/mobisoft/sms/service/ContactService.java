@@ -2,6 +2,8 @@ package com.mobisoft.sms.service;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Contact;
 
@@ -18,4 +20,5 @@ public interface ContactService {
 	public int updateContactStatusByContactId(int contactId, int status);
 	public int uploadMultipleContact(int groupId,int userId,CSVReader reader);
 	public List<Contact> countGroupConatct(int groupId);
+	public List getGroupConatct(int groupId,Session session);
 }

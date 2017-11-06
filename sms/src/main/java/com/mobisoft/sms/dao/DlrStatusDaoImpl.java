@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +32,9 @@ import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.DlrStatus;
 import com.mobisoft.sms.model.User;
+import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserJobs;
+import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.utility.Global;
 import com.mysql.jdbc.PreparedStatement;
 
@@ -45,6 +48,8 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	@Value("${uploadUserTextFile}")
 	private String uploadUserTextFile;
 	
+	@Autowired
+	private SmsHelperService smsHelperService;
 	
 	File file;
 	FileReader fr = null;
@@ -54,6 +59,8 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 	
 	@Override
 	public int saveDlrStatus(List<UserJobs> list) {
+		
+		final List<UserAuthrization> listCheckAutherization = smsHelperService.getUserAuthrizationCheck(list.get(0).getUserId(),list.get(0).getProductId());
 		
 		final Session session = sessionFactory.openSession();
 		
@@ -108,15 +115,34 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								   {
 									   code = 2;
 								   }
+								   
+								   int percent = 100;
+								   if(list.get(0).getJobType() == 3 || list.get(0).getJobType() == 4){
+									   
+									   percent = Integer.parseInt(listCheckAutherization.get(0).getPercentage());
+									   
+									   Collections.shuffle(mobileList);
+								   }	
+								   
+								   int mobileListSize = mobileList.size();
+								   
+								   int percentCount = (mobileListSize / 100) * percent;								   
+								   
+								   final List<String> mobileListDelivered = mobileList.subList(0, percentCount);
+								   
+								   final List<String> mobileListFake = mobileList.subList(percentCount, mobileList.size());
+								   
+								   System.out.println("mobileListDelivered: "+mobileListDelivered.size());
+								   System.out.println("mobileListFake: "+mobileListFake.size());
+								   								   
 						           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 						           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
 						           
 						           String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,mclass, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 						           pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
 						           int i=0;
-						          if((mobileList.size() > 0) && (!mobileList.get(0).equals("")))
-						          {
-						        	  for(String mobile : mobileList){	        	   
+						           if(mobileListDelivered.size() > 0){
+						        	   for(String mobile : mobileListDelivered){	        	   
 						        			
 							        	   String messId = Global.randomString(10);			        	   
 							        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
@@ -149,24 +175,56 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 							               pstmtQueuedSms.addBatch(); 
 			
 							           }
-						        	   conn.setAutoCommit(false);
-							           pstmtDlrStatus.executeBatch();
-							           pstmtQueuedSms.executeBatch();
-							           String sql1 = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
-							           org.hibernate.Query qry1 = session.createSQLQuery(sql1);
-							           qry1.setParameter("status", 2);
-							           qry1.setParameter("userId", list.get(0).getUserId());
-							           qry1.setParameter("id", list.get(0).getId());			
-							           temp =qry1.executeUpdate();
-							           conn.commit();
-							           conn.setAutoCommit(true);
-						          }
-						          else
-						          {
-						        	  conn.rollback();
-						        	  System.out.println("This job id = "+list.get(0).getId()+" file name have zero contact data, Please check this job id file data");
-						        	  
-						          }				            
+						           }
+						           
+						           if(mobileListFake.size() > 0){
+						        	   for(String mobile : mobileListFake){	        	   
+								       		
+							        	   String messId = Global.randomString(10);			        	   
+							        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
+							        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
+							        	   pstmtDlrStatus.setInt(3,code);
+							        	   pstmtDlrStatus.setInt(4, list.get(0).getCount());
+							        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
+							        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
+							        	   pstmtDlrStatus.setString(7, messId);
+							        	   pstmtDlrStatus.setInt(8, 1);
+							        	   pstmtDlrStatus.setString(9, mobile);
+							        	   pstmtDlrStatus.setString(10, "mobiF");
+							        	   pstmtDlrStatus.setInt(11, 1);
+							        	   pstmtDlrStatus.setInt(12, list.get(0).getUserId());
+							               pstmtDlrStatus.addBatch();
+							               
+							               pstmtQueuedSms.setInt(1, list.get(0).getId());
+							               pstmtQueuedSms.setString(2,"MT");
+							               pstmtQueuedSms.setString(3,list.get(0).getSender());
+							               pstmtQueuedSms.setString(4, mobile);
+							               pstmtQueuedSms.setString(5, list.get(0).getMessage());
+							               pstmtQueuedSms.setString(6,"mobiF");
+							               pstmtQueuedSms.setString(7,"sqlbox");
+							               pstmtQueuedSms.setInt(8, 1);
+							               pstmtQueuedSms.setInt(9, 1);
+							               pstmtQueuedSms.setInt(10, code);
+							               pstmtQueuedSms.setInt(11,19);
+							               pstmtQueuedSms.setString(12, messId);
+							               pstmtQueuedSms.setString(13,"UTF-8");
+							               pstmtQueuedSms.addBatch(); 
+			
+							           }
+						           }
+						           
+						           conn.setAutoCommit(false);
+						           pstmtDlrStatus.executeBatch();
+						           pstmtQueuedSms.executeBatch();
+						           String sql1 = "UPDATE user_jobs set job_status = :status WHERE user_id = :userId and id = :id";
+						           org.hibernate.Query qry1 = session.createSQLQuery(sql1);
+						           qry1.setParameter("status", 2);
+						           qry1.setParameter("userId", list.get(0).getUserId());
+						           qry1.setParameter("id", list.get(0).getId());			
+						           temp =qry1.executeUpdate();
+						           conn.commit();
+						           conn.setAutoCommit(true);
+						           
 						         } catch (FileNotFoundException e) {									
 									e.printStackTrace();
 									conn.rollback();

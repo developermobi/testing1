@@ -288,7 +288,6 @@ public class UserReportRestController {
 				System.out.println(object[0]);
 				System.out.println(object[1]);
 				mapDlrStatus.put(object[0], object[1]);
-				
 			}
 			if(dlrStausReport.size() > 0){
 				map.put("status", "success");
@@ -368,12 +367,9 @@ public class UserReportRestController {
 			String status = "";
 			status = node.get("status").asText();
 			Map<Integer,List<DlrStatus>> maplist = userReportService.dlrReportDetails(node.get("userId").asInt(),node.get("jobId").asInt(),status,node.get("start").asInt(),node.get("max").asInt());
-	
 			System.out.println("in list"+maplist.get(0));
 			if(maplist.size() > 0)
 			{
-				//List<DlrStatus> list = maplist.get(1);	
-				
 				if(maplist.size() > 0)
 				{
 					map.put("code", 302);
@@ -388,12 +384,13 @@ public class UserReportRestController {
 					map.put("status", "error");
 					map.put("message", "No Data Found");
 					
-				}
-				
+				}				
 			}
 			else
 			{
-				
+				map.put("code", 201);
+				map.put("status", "error");
+				map.put("message", "No Data Found");
 			}
 			
 		}

@@ -2,6 +2,7 @@ package com.mobisoft.sms.service;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,6 +61,11 @@ public class ContactServiceImpl implements ContactService{
 	public List<Contact> countGroupConatct(int groupId) {
 		
 		return contactDao.countGroupConatct(groupId);
+	}
+	@Override
+	public List getGroupConatct(int groupId,Session session) {
+		
+		return contactDao.getGroupConatct(groupId,session);
 	}
 
 }

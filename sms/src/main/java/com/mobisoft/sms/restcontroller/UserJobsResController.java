@@ -236,12 +236,12 @@ public class UserJobsResController {
 							{	 
 								mobileList =  Global.filterDuplicateNumber(mobileList);								  
 								FileWriter fw = new FileWriter(userJobFile.getAbsoluteFile());
-								BufferedWriter bw = new BufferedWriter(fw);							       
+								BufferedWriter bw = new BufferedWriter(fw);
 						        for(String contact : mobileList)
 						        {
 						        	bw.write(contact);
 							        bw.newLine();
-						        }							        
+						        }
 						        bw.close();
 						        System.out.println("fileter mobile number"+mobileList);
 							}				           
@@ -263,7 +263,7 @@ public class UserJobsResController {
 			    		}
 			    		else
 			    		{
-			    			if(!(mobileList.size() == 1) && !("".equals(mobileList.get(0))))
+			    			if((mobileList.size() == 1) && !("".equals(mobileList.get(0))))
 			    			{
 			    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
 				    			int sentMessage = mobileList.size() * messageCount;
@@ -422,13 +422,11 @@ public class UserJobsResController {
 				      file = new File(uploadUserJobsFile);				       
 			            if (!file.exists()) {
 			                file.mkdir();
-			            }
-			            
+			            }			            
 			            fileData = new File(file, fileName);
 			            if (!fileData.exists()) {
 			            	fileData.createNewFile();
 			            }
-
 			        listCheckAutherization = smsHelperService.getUserAuthrizationCheck(node.get("userId").asInt(),node.get("productId").asInt());
 					//System.out.println("Authentication Details:- "+listCheckAutherization.get(0).getDndCheck());
 					
@@ -497,7 +495,9 @@ public class UserJobsResController {
 	    		}
 	    		else
 	    		{
-	    			if(!(groupContactList.size() == 1) && !("".equals(groupContactList.get(0))))
+	    			/*System.out.println("contact list data:--- "+groupContactList.get(0));
+	    			System.out.println("contact list data:--- "+groupContactList.size());*/
+	    			if((groupContactList.size() == 1) && !("".equals(groupContactList.get(0))))
 	    			{
 	    				List<Integer> balance = smsHelperService.getBalance(node.get("userId").asInt(),node.get("productId").asInt());
 		    			//System.out.println("User Balnce "+balance.get(0));
@@ -850,6 +850,185 @@ public class UserJobsResController {
 
 		return map;
 	}
+	public Map<String,Object>savePersonalizedSms(@RequestHeader("Authorization") String authorization,@RequestParam("file")MultipartFile multipartFile,
+			@RequestParam("userId")int userId,@RequestParam("message")String message,
+			@RequestParam("messageType")int messageType,@RequestParam("sender")String sender,
+			@RequestParam("productId")int productId,
+			@RequestParam("scheduledAt")String scheduledAt,			
+			@RequestParam("jobType")int jobType,
+			@RequestParam("duplicateStatus")int duplicateStatus,
+			@RequestParam("scheduleStatus")int scheduleStatus,
+			@RequestParam("mobileIndex")String mobileIndex
+			) throws IllegalStateException, ParseException, IOException{
+		
+		Map<String,Object> map = new HashMap<>();
+		map.put("status", "error");
+		map.put("code", 400);
+		map.put("message", "some error occured");
+		map.put("data", null);
+		
+		if(tokenAuthentication.validateToken(authorization) == 0){
+			
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "Invalid User Name Password");
+			
+		}else if(tokenAuthentication.validateToken(authorization) == 1 || tokenAuthentication.validateToken(authorization) == 2 ){
+			
+			String fileName = "";
+			if(!multipartFile.isEmpty()){
+				
+			    try {
+			    	List<Object> dndNumberList=null;
+			    	List<UserAuthrization> listCheckAutherization = null;
+			    	Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+			        long time = cal.getTimeInMillis();
+			    	fileName = multipartFile.getOriginalFilename().replace(" ", "-");
+			    	String newFileName = userId+time+fileName;
+			    	System.out.println(multipartFile.getSize());
+			    	if(multipartFile.getSize() <= 3000000 )
+			    	{
+			    		if(multipartFile.getOriginalFilename().endsWith(".csv")){
+			    			System.out.println("Upload Csv File Details");
+			    			String fileUploadDirectory =  uploadUserJobsFile+"/";						
+							userJobFile = new File(fileUploadDirectory);						
+					        if (!userJobFile.exists()) {
+					            if (!userJobFile.mkdirs()) {
+					            	
+					            	map.put("code", 403);
+					    			map.put("status", "error");
+					    			map.put("message", "file Upload Directory has not found");
+					            }
+					        }
+							userJobFile = new File(fileUploadDirectory,newFileName);
+							multipartFile.transferTo(userJobFile);
+							CSVReader reader = new CSVReader(new FileReader(userJobFile));
+							String [] nextLine;
+							mobileList = new ArrayList<>();
+							String[] message_data = message.split("#");
+							
+							System.out.println("mobileList: "+mobileList);
+				            System.out.println("message: "+message);
+				           				            
+				           //Delimiter used in CSV file				            
+			                final String COMMA_DELIMITER = ",";
+			            
+			                final String NEW_LINE_SEPARATOR = "\n";
+				             
+			                FileWriter fileWriter = null;
+			                String newPerFileName = uploadUserJobsFile+"/Personalized-"+userId+time+".csv";
+		    				
+			                fileWriter = new FileWriter(newPerFileName);
+			                try {
+								while ((nextLine = reader.readNext()) != null) {
+									String new_message = "";
+									for(int i=0;i< message_data.length;i++){
+										
+										if(message_data[i].length() > 1){
+											new_message += message_data[i];
+										}else if(message_data[i].length() == 1){
+											new_message +=  nextLine[characterIndex(message_data[i])];											
+										}
+									}
+									int messageLength = new_message.length();
+						    		int messageCount = smsHelperService.messageCount(messageType, messageLength);
+						    		if(messageCount > 10)
+						    		{
+						    			continue;
+						    		}else{
+						    					
+					    				fileWriter.append(nextLine[characterIndex(mobileIndex)]);						    		
+			    		                fileWriter.append(COMMA_DELIMITER);		    		
+			    		                fileWriter.append(new_message);		    		
+			    		                fileWriter.append(NEW_LINE_SEPARATOR);
+			    		                System.out.println("CSV file was created successfully !!!");
+						    		}
+									System.out.println("new_message: "+new_message);
+									 
+						        } 
+			                }catch (Exception e) {
+			    				
+			    	            System.out.println("Error in CsvFileWriter !!!");
+			    	
+			    	            e.printStackTrace();
+			    	
+			    	        } finally {
+			    	
+			    	            try {
+			    	
+			    	                fileWriter.flush();
+			    	
+			    	                fileWriter.close();
+			    	
+			    	            } catch (IOException e) {
+			    	
+			    	                System.out.println("Error while flushing/closing fileWriter !!!");
+			    	
+			    	                e.printStackTrace();
+			    	            }
+			    	        }
+				           reader.close();
+				           
+				           			           
+			    		}
+			    		else
+			    		{
+			    			map.put("code", 415);
+			    			map.put("status", "error");
+			    			map.put("message", "Unsupported File Format");
+			    		}			    		
+			    		
+			    	}
+			    	else
+			    	{
+			    		map.put("code", 414);
+						map.put("status", "error");
+						map.put("message", "Request File Too Large");	
+			    	}
+				} catch (IOException e) {
+					map.put("code", 404);
+	    			map.put("status", e.getMessage());
+	    			map.put("message", "File Not Upload");
+				}
+			}
+		}
+		else
+		{
+			map.put("code", 401);
+			map.put("status", "error");
+			map.put("message", "user not authorized");	
+		}
+		return map;	
+		
+	}
 	
+	public int characterIndex(String c){
+		c = c.toUpperCase();
+		int index = 0;
+		if(c.equals("A")){
+			index =  0;
+		}else if(c.equals("B")){
+			index =  1;
+		}else if(c.equals("C")){
+			index =  2;
+		}else if(c.equals("D")){
+			index =  3;
+		}else if(c.equals("E")){
+			index =  4;
+		}else if(c.equals("F")){
+			index =  5;
+		}else if(c.equals("G")){
+			index =  6;
+		}else if(c.equals("H")){
+			index =  7;
+		}else if(c.equals("I")){
+			index =  8;
+		}else if(c.equals("J")){
+			index =  9;
+		}
+		
+		return index;
+	}
+
 
 }
