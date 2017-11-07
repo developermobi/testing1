@@ -170,4 +170,46 @@ public class DlrStatusRestController {
 		}
 		return map;
 	}*/
+	@RequestMapping(value = "/personalizedSmsCron",method = RequestMethod.GET)
+public Map<String,Object> personalizedSmsCron() throws FileNotFoundException, IOException, ParseException {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("status", 404);
+		map.put("message", "Data Not Inserted");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		java.util.Date date = new java.util.Date();
+		System.out.println("date: "+ date);
+		System.out.println("dateformat: "+dateFormat.format(date));
+		String currentDateTime =dateFormat.format(date);
+		currentDateTime = currentDateTime+":00";
+		
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
+		Date scheduledDate = formatter.parse(currentDateTime);
+		
+		/*Date date1 = (Date) new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(currentDateTime); 
+		System.out.println("dateformat to date: "+date1);*/
+		
+		@SuppressWarnings("unused")
+		List<UserJobs> listUserJobs = dlrStatusService.userJobsCheckPersonalized(0, 5);
+		System.out.println("111listUserJobs.size(): "+ listUserJobs.size());
+		if(listUserJobs.size() > 0)
+		{
+			int result = dlrStatusService.savePersonalizedDlrStatus(listUserJobs);
+			System.out.println(result);
+			if(result == 1)
+			{
+				map.put("status", 201);
+				map.put("message", "Sussessfully Insert batch");
+				System.out.println("Successfully save data");
+			}
+			else
+			{
+				System.out.println("Successfully not save data");
+			}
+		}
+		
+		
+		return map;
+	}
+	
 }

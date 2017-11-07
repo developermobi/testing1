@@ -3,6 +3,7 @@ package com.mobisoft.sms.restcontroller;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -19,7 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -850,6 +854,7 @@ public class UserJobsResController {
 
 		return map;
 	}
+	@RequestMapping(value="/savePersonalizedSms",method = RequestMethod.POST)
 	public Map<String,Object>savePersonalizedSms(@RequestHeader("Authorization") String authorization,@RequestParam("file")MultipartFile multipartFile,
 			@RequestParam("userId")int userId,@RequestParam("message")String message,
 			@RequestParam("messageType")int messageType,@RequestParam("sender")String sender,
@@ -916,36 +921,197 @@ public class UserJobsResController {
 			                final String NEW_LINE_SEPARATOR = "\n";
 				             
 			                FileWriter fileWriter = null;
-			                String newPerFileName = uploadUserJobsFile+"/Personalized-"+userId+time+".csv";
-		    				
-			                fileWriter = new FileWriter(newPerFileName);
+			                //String newPerFileName = uploadUserJobsFile+"/Personalized-"+userId+time+".csv";
+			                String personalizedFileUploadDirectory =  uploadUserJobsFile+"/personalized/";	
+			                String newPerFileNameXLX = "Personalized-"+userId+time+".xls";
+							File personalizeUserJobFile = new File(personalizedFileUploadDirectory);						
+					        if (!personalizeUserJobFile.exists()) {
+					            if (!personalizeUserJobFile.mkdirs()) {
+					            	
+					            	map.put("code", 403);
+					    			map.put("status", "error");
+					    			map.put("message", "file Upload Directory has not found");
+					            }
+					        }
+					        personalizeUserJobFile = new File(personalizeUserJobFile,newPerFileNameXLX);
+			                
+		    			
 			                try {
-								while ((nextLine = reader.readNext()) != null) {
-									String new_message = "";
-									for(int i=0;i< message_data.length;i++){
-										
-										if(message_data[i].length() > 1){
-											new_message += message_data[i];
-										}else if(message_data[i].length() == 1){
-											new_message +=  nextLine[characterIndex(message_data[i])];											
-										}
+			                	while ((nextLine = reader.readNext()) != null) {
+			                		mobileList.add(nextLine[characterIndex(mobileIndex)]);
+			                	}
+			                	listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
+								if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+								{	 
+									String mobileNumber = String.join(",",mobileList);
+									dndNumberList = smsHelperService.mobileNumber(mobileNumber);	
+									List<String> sendMobileLis =new ArrayList<>();
+									for(Object b:dndNumberList)
+									{
+										sendMobileLis.add(String.valueOf(b));
 									}
-									int messageLength = new_message.length();
-						    		int messageCount = smsHelperService.messageCount(messageType, messageLength);
-						    		if(messageCount > 10)
-						    		{
-						    			continue;
-						    		}else{
-						    					
-					    				fileWriter.append(nextLine[characterIndex(mobileIndex)]);						    		
-			    		                fileWriter.append(COMMA_DELIMITER);		    		
-			    		                fileWriter.append(new_message);		    		
-			    		                fileWriter.append(NEW_LINE_SEPARATOR);
-			    		                System.out.println("CSV file was created successfully !!!");
-						    		}
+									mobileNumber = String.join(",",sendMobileLis.get(0));
+									mobileNumber = mobileNumber.replaceAll("[\\[\\](){}]","");
+									mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
+								}
+								
+								System.out.println("dndNumberList: "+mobileList);
+								
+								CSVReader reader2 = new CSVReader(new FileReader(userJobFile));
+								String [] nextLine2;
+								int total_message_count = 0;
+								String sheetName = "Sheet1";//name of sheet
+								HSSFWorkbook wb = new HSSFWorkbook();
+								HSSFSheet sheet = wb.createSheet(sheetName) ;
+								int count_row = 1;
+								while ((nextLine2 = reader2.readNext()) != null) {															
+									String new_message = "";
+									if(mobileList.contains(nextLine2[characterIndex(mobileIndex)].length() == 10 ? "91"+nextLine2[characterIndex(mobileIndex)] : nextLine2[characterIndex(mobileIndex)] )){
+										
+										for(int i=0;i< message_data.length;i++){
+											System.out.println("message_data["+i+"]: "+message_data[i]);
+											
+											if(message_data[i].length() > 1){
+												new_message += message_data[i];
+											}else if(message_data[i].length() == 1){
+												new_message +=  nextLine2[characterIndex(message_data[i])];											
+											}
+										}
+										int messageLength = new_message.length();
+							    		int messageCount = smsHelperService.messageCount(messageType, messageLength);
+							    		if(messageCount > 10)
+							    		{
+							    			continue;
+							    		}else{
+							    			
+							    			HSSFRow row = sheet.createRow(count_row);
+							    			
+							    			//iterating c number of columns
+							    			for (int c=0;c < 2; c++ )
+							    			{
+							    				HSSFCell cell = row.createCell(c);
+							    				
+							    				if(c == 0){
+							    					cell.setCellValue(nextLine2[characterIndex(mobileIndex)]);
+							    				}
+							    				
+							    				if(c == 1){
+							    					cell.setCellValue(new_message);
+							    				}
+							    				
+							    				//cell.setCellValue("Cell "+count_row+" "+c);
+							    			}
+							    			
+							    			FileOutputStream fileOut = new FileOutputStream(personalizeUserJobFile);
+							    			wb.write(fileOut);
+							    			fileOut.flush();
+							    			fileOut.close();
+							    			
+							    			total_message_count = total_message_count+messageCount;		
+//						    				fileWriter.append(nextLine2[characterIndex(mobileIndex)]);						    		
+//				    		                fileWriter.append(COMMA_DELIMITER);		    		
+//				    		                fileWriter.append(new_message);		    		
+//				    		                fileWriter.append(NEW_LINE_SEPARATOR);
+//				    		                System.out.println("CSV file was created successfully !!!");
+
+							    		}
+									}else{
+										continue;
+									}
+									count_row++;
 									System.out.println("new_message: "+new_message);
 									 
 						        } 
+								
+								if((mobileList.size() > 1) && !("".equals(mobileList.get(0))))
+				    			{
+				    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
+					    			int sentMessage = total_message_count;
+					    			if(sentMessage <= balance.get(0))
+					    			{
+					    				List<UserProduct>routeList= smsHelperService.getRouteDetails(userId, productId);
+					    				if(routeList.size() > 0)
+					    				{
+						    				int updateNewBalance = balance.get(0)-sentMessage; 
+						    				UserJobs userJobs= new UserJobs();
+											userJobs.setUserId(userId);
+//											System.out.println("message type :-- "+messageType);
+//											if(messageType == 3)
+//											{
+//												//byte [] b  = message.getBytes("UTF-8");	
+//												message = URLEncoder.encode(message, "UTF-8");
+//												userJobs.setMessage(message);
+//												
+//												
+//											}
+//											else 
+//											{
+//												userJobs.setMessage(message);
+//											}
+											userJobs.setMessage(null);
+											userJobs.setMessageType(messageType);
+											userJobs.setMessageLength(0);
+											userJobs.setCount(total_message_count);
+											userJobs.setSender(sender);
+											userJobs.setTotalNumbers(mobileList.size());
+											userJobs.setTotalSent(sentMessage);
+											userJobs.setFilename(personalizeUserJobFile.getAbsolutePath());							
+											String scheduledAtConvert = scheduledAt;
+											DateFormat formatter ; 
+											Date scheduledDate ; 
+											if(scheduledAtConvert != "")
+											{
+												formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+												scheduledDate = formatter.parse(scheduledAtConvert);
+												userJobs.setScheduledAt(scheduledDate);
+											}
+											/*String queuedAtConvert = queuedAt;
+											Date queuedAtDate; 					
+											queuedAtDate = formatter.parse(queuedAtConvert);	
+											userJobs.setQueuedAt(queuedAtDate);*/
+
+											userJobs.setJobStatus(0);
+											userJobs.setJobType(5);
+											userJobs.setDuplicateStatus(duplicateStatus);
+											userJobs.setScheduleStatus(scheduleStatus);
+											
+											/*userJobs.setSendNow(sendNow);*/
+											userJobs.setSendRatio(0);
+											userJobs.setProductId(productId);
+											userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
+											//userJobs.setCompletedAt(completedAtDate);
+											int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
+											if(result == 1)
+											{
+												map.put("code", 201);
+								    			map.put("status", "Success");
+								    			map.put("message", "file Upload ");							    			
+												if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
+												{
+													map.put("Total Dnd Number", dndNumberList.get(1));
+												}
+											}
+											else
+											{
+												map.put("code", 403);
+								    			map.put("status", "error");
+								    			map.put("message", "Something Going Worng File Is Not Uploaded");
+											}
+					    				}
+					    				else
+					    				{
+					    					map.put("code", 204);
+							    			map.put("status", "error");
+							    			map.put("message", "Route is empty");
+					    				}				    				
+					    			}
+					    			else
+					    			{
+					    				map.put("code", 204);
+										map.put("status", "error");
+										map.put("message", "Insufficieant Balance");
+					    			}
+				    			}
 			                }catch (Exception e) {
 			    				
 			    	            System.out.println("Error in CsvFileWriter !!!");
@@ -954,18 +1120,6 @@ public class UserJobsResController {
 			    	
 			    	        } finally {
 			    	
-			    	            try {
-			    	
-			    	                fileWriter.flush();
-			    	
-			    	                fileWriter.close();
-			    	
-			    	            } catch (IOException e) {
-			    	
-			    	                System.out.println("Error while flushing/closing fileWriter !!!");
-			    	
-			    	                e.printStackTrace();
-			    	            }
 			    	        }
 				           reader.close();
 				           

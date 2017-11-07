@@ -190,8 +190,7 @@ public class GroupDetailsRestController {
 				map.put("message", "No data found, Please Add group..");
 				map.put("data", groupActiveDetails);
 			}
-		}		
-		
+		}
 		return map;
 	}
 	@RequestMapping(value = "getGroupById/{groupId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
@@ -235,14 +234,11 @@ public class GroupDetailsRestController {
 		map.put("message", "some error occured");
 		map.put("data", null);
 		if(tokenAuthentication.validateToken(authorization) == 0){
-			
 			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
-			
 		}
 		else{
-
 			mapper = new ObjectMapper();		
 			JsonNode node = mapper.readValue(josnString, JsonNode.class);
 			
@@ -278,11 +274,9 @@ public class GroupDetailsRestController {
 		map.put("data", null);
 		
 		if(tokenAuthentication.validateToken(authorization) == 0){
-			
 			map.put("code", 401);
 			map.put("status", "error");
 			map.put("message", "Invalid User Name Password");
-			
 		}
 		else{	
 			int result = groupDetailsService.deleteGroupDetailsByGroupId(groupId);

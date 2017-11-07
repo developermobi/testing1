@@ -17,4 +17,7 @@ public interface DlrStatusDao {
 	public int saveQuickMessage(Map<String,Object> sendQuickListDetails,Session session);
 	public List<UserJobs> userJobsCheck(int jobStatus, int schedualStatus);
 	public List<UserJobs> userJobsCheckSchedule(int jobStatus, int schedualStatus,Date dateTime);
+	
+	public List<UserJobs> userJobsCheckPersonalized(int jobStatus, int jobType);
+	public int savePersonalizedDlrStatus(List<UserJobs> list) throws FileNotFoundException, IOException;
 }

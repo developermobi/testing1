@@ -43,4 +43,14 @@ public class DlrStatusServiceImpl implements DlrStatusService{
 		return dlrStatusDao.userJobsCheckSchedule(jobStatus, schedualStatus, dateTime);
 	}
 
+	@Override
+	public List<UserJobs> userJobsCheckPersonalized(int jobStatus, int jobType) {
+		return dlrStatusDao.userJobsCheckPersonalized(jobStatus, jobType);
+	}
+
+	@Override
+	public int savePersonalizedDlrStatus(List<UserJobs> list) throws FileNotFoundException, IOException {
+		return dlrStatusDao.savePersonalizedDlrStatus(list);
+	}
+
 }
