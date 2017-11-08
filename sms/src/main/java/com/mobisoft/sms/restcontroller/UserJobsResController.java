@@ -267,7 +267,7 @@ public class UserJobsResController {
 			    		}
 			    		else
 			    		{
-			    			if((mobileList.size() == 1) && !("".equals(mobileList.get(0))))
+			    			if((mobileList.size() > 0) && !("".equals(mobileList.get(0))))
 			    			{
 			    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
 				    			int sentMessage = mobileList.size() * messageCount;
@@ -300,11 +300,12 @@ public class UserJobsResController {
 										userJobs.setTotalNumbers(mobileList.size());
 										userJobs.setTotalSent(sentMessage);
 										userJobs.setFilename(userJobFile.getAbsolutePath());							
-										String scheduledAtConvert = scheduledAt;
-										DateFormat formatter ; 
-										Date scheduledDate ; 
-										if(scheduledAtConvert != "")
+										
+										if(scheduleStatus != 0)
 										{
+											String scheduledAtConvert = scheduledAt;
+											DateFormat formatter ; 
+											Date scheduledDate ; 
 											formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 											scheduledDate = formatter.parse(scheduledAtConvert);
 											userJobs.setScheduledAt(scheduledDate);
@@ -458,7 +459,6 @@ public class UserJobsResController {
 					        
 					        bw.close();
 					       /* System.out.println("fileter mobile number"+groupContactList);*/
-
 					}					
 					if(node.get("duplicateStatus").asInt() == 1)
 					{						  
@@ -501,7 +501,7 @@ public class UserJobsResController {
 	    		{
 	    			/*System.out.println("contact list data:--- "+groupContactList.get(0));
 	    			System.out.println("contact list data:--- "+groupContactList.size());*/
-	    			if((groupContactList.size() == 1) && !("".equals(groupContactList.get(0))))
+	    			if((groupContactList.size() > 0) && !("".equals(groupContactList.get(0))))
 	    			{
 	    				List<Integer> balance = smsHelperService.getBalance(node.get("userId").asInt(),node.get("productId").asInt());
 		    			//System.out.println("User Balnce "+balance.get(0));
@@ -522,11 +522,12 @@ public class UserJobsResController {
 							userJobs.setTotalNumbers(groupContactList.size());
 							userJobs.setTotalSent(sentMessage);
 							userJobs.setFilename(fileData.getAbsolutePath());
-							String scheduledAtConvert = node.get("scheduledAt").asText();
-							DateFormat formatter ; 
-							Date scheduledDate ; 
-							if(scheduledAtConvert != "")
+							
+							if(node.get("scheduleStatus").asInt() != 0)
 							{
+								String scheduledAtConvert = node.get("scheduledAt").asText();
+								DateFormat formatter ; 
+								Date scheduledDate ; 
 								formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 								scheduledDate = formatter.parse(scheduledAtConvert);
 								userJobs.setScheduledAt(scheduledDate);
@@ -708,12 +709,13 @@ public class UserJobsResController {
 										userJobs.setTotalNumbers(mobileList.size());
 										userJobs.setTotalSent(sentMessage);
 										userJobs.setFilename(fileData.getAbsolutePath());
-										String scheduledAtConvert = node.get("scheduledAt").asText();
-										System.out.println(scheduledAtConvert);
-										DateFormat formatter ; 
-										Date scheduledDate ; 
-										if(scheduledAtConvert != "")
+										
+										if(node.get("scheduleStatus").asInt() == 1)
 										{
+											String scheduledAtConvert = node.get("scheduledAt").asText();
+											System.out.println(scheduledAtConvert);
+											DateFormat formatter ; 
+											Date scheduledDate ; 
 											formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 											scheduledDate = formatter.parse(scheduledAtConvert);
 											userJobs.setScheduledAt(scheduledDate);
@@ -926,19 +928,21 @@ public class UserJobsResController {
 			                String newPerFileNameXLX = "Personalized-"+userId+time+".xls";
 							File personalizeUserJobFile = new File(personalizedFileUploadDirectory);						
 					        if (!personalizeUserJobFile.exists()) {
-					            if (!personalizeUserJobFile.mkdirs()) {
-					            	
+					            if (!personalizeUserJobFile.mkdirs()) {					            	
 					            	map.put("code", 403);
 					    			map.put("status", "error");
 					    			map.put("message", "file Upload Directory has not found");
 					            }
 					        }
-					        personalizeUserJobFile = new File(personalizeUserJobFile,newPerFileNameXLX);
-			                
-		    			
+					        personalizeUserJobFile = new File(personalizedFileUploadDirectory,newPerFileNameXLX);
 			                try {
 			                	while ((nextLine = reader.readNext()) != null) {
-			                		mobileList.add(nextLine[characterIndex(mobileIndex)]);
+			                		if(nextLine[characterIndex(mobileIndex)].length() == 10){
+			                			mobileList.add("91"+nextLine[characterIndex(mobileIndex)]);
+			                		}else{
+			                			mobileList.add(nextLine[characterIndex(mobileIndex)]);
+			                		}
+			                		
 			                	}
 			                	listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
 								if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
@@ -955,21 +959,24 @@ public class UserJobsResController {
 									mobileList = Arrays.asList(mobileNumber.split("\\s*,\\s*"));
 								}
 								
-								System.out.println("dndNumberList: "+mobileList);
+								//System.out.println("dndNumberList: "+mobileList);
 								
 								CSVReader reader2 = new CSVReader(new FileReader(userJobFile));
+								
 								String [] nextLine2;
 								int total_message_count = 0;
 								String sheetName = "Sheet1";//name of sheet
 								HSSFWorkbook wb = new HSSFWorkbook();
-								HSSFSheet sheet = wb.createSheet(sheetName) ;
+								HSSFSheet sheet = wb.createSheet(sheetName);
+								
 								int count_row = 1;
 								while ((nextLine2 = reader2.readNext()) != null) {															
 									String new_message = "";
+									//System.out.println("Flag: "+mobileList.contains(nextLine2[characterIndex(mobileIndex)].length() == 10 ? "91"+nextLine2[characterIndex(mobileIndex)] : nextLine2[characterIndex(mobileIndex)] ));
 									if(mobileList.contains(nextLine2[characterIndex(mobileIndex)].length() == 10 ? "91"+nextLine2[characterIndex(mobileIndex)] : nextLine2[characterIndex(mobileIndex)] )){
-										
+										//System.out.println("apftercsvfile");
 										for(int i=0;i< message_data.length;i++){
-											System.out.println("message_data["+i+"]: "+message_data[i]);
+											//System.out.println("message_data["+i+"]: "+message_data[i]);
 											
 											if(message_data[i].length() > 1){
 												new_message += message_data[i];
@@ -983,7 +990,7 @@ public class UserJobsResController {
 							    		{
 							    			continue;
 							    		}else{
-							    			
+							    			//System.out.println("apftercsvfile1");
 							    			HSSFRow row = sheet.createRow(count_row);
 							    			
 							    			//iterating c number of columns
@@ -1001,7 +1008,8 @@ public class UserJobsResController {
 							    				
 							    				//cell.setCellValue("Cell "+count_row+" "+c);
 							    			}
-							    			
+							    			//System.out.println("apftercsvfile2");
+							    			//System.out.println("xlx_filepath"+personalizeUserJobFile.getAbsolutePath());
 							    			FileOutputStream fileOut = new FileOutputStream(personalizeUserJobFile);
 							    			wb.write(fileOut);
 							    			fileOut.flush();
@@ -1022,8 +1030,9 @@ public class UserJobsResController {
 									System.out.println("new_message: "+new_message);
 									 
 						        } 
+								reader2.close();
 								
-								if((mobileList.size() > 1) && !("".equals(mobileList.get(0))))
+								if((mobileList.size() > 0) && !("".equals(mobileList.get(0))))
 				    			{
 				    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
 					    			int sentMessage = total_message_count;
@@ -1056,11 +1065,12 @@ public class UserJobsResController {
 											userJobs.setTotalNumbers(mobileList.size());
 											userJobs.setTotalSent(sentMessage);
 											userJobs.setFilename(personalizeUserJobFile.getAbsolutePath());							
-											String scheduledAtConvert = scheduledAt;
-											DateFormat formatter ; 
-											Date scheduledDate ; 
-											if(scheduledAtConvert != "")
+											 
+											if(scheduleStatus != 0)
 											{
+												String scheduledAtConvert = scheduledAt;
+												DateFormat formatter ; 
+												Date scheduledDate ;
 												formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 												scheduledDate = formatter.parse(scheduledAtConvert);
 												userJobs.setScheduledAt(scheduledDate);
@@ -1121,17 +1131,14 @@ public class UserJobsResController {
 			    	        } finally {
 			    	
 			    	        }
-				           reader.close();
-				           
-				           			           
+				           reader.close(); 
 			    		}
 			    		else
 			    		{
 			    			map.put("code", 415);
 			    			map.put("status", "error");
 			    			map.put("message", "Unsupported File Format");
-			    		}			    		
-			    		
+			    		}	
 			    	}
 			    	else
 			    	{

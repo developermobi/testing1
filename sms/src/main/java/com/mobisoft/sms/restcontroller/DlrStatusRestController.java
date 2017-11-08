@@ -171,7 +171,7 @@ public class DlrStatusRestController {
 		return map;
 	}*/
 	@RequestMapping(value = "/personalizedSmsCron",method = RequestMethod.GET)
-public Map<String,Object> personalizedSmsCron() throws FileNotFoundException, IOException, ParseException {
+	public Map<String,Object> personalizedSmsCron() throws FileNotFoundException, IOException, ParseException {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("status", 404);
@@ -190,8 +190,7 @@ public Map<String,Object> personalizedSmsCron() throws FileNotFoundException, IO
 		System.out.println("dateformat to date: "+date1);*/
 		
 		@SuppressWarnings("unused")
-		List<UserJobs> listUserJobs = dlrStatusService.userJobsCheckPersonalized(0, 5);
-		System.out.println("111listUserJobs.size(): "+ listUserJobs.size());
+		List<UserJobs> listUserJobs = dlrStatusService.userJobsCheckPersonalized(0, 5);	
 		if(listUserJobs.size() > 0)
 		{
 			int result = dlrStatusService.savePersonalizedDlrStatus(listUserJobs);
@@ -199,7 +198,7 @@ public Map<String,Object> personalizedSmsCron() throws FileNotFoundException, IO
 			if(result == 1)
 			{
 				map.put("status", 201);
-				map.put("message", "Sussessfully Insert batch");
+				map.put("message", "Sussessfully Sent Messgage");
 				System.out.println("Successfully save data");
 			}
 			else
