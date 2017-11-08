@@ -6,7 +6,6 @@ import org.hibernate.Session;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mobisoft.sms.model.Contact;
-import com.mobisoft.sms.model.GroupDetails;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -20,5 +19,6 @@ public interface ContactDao {
 	public int updateContactStatusByContactId(int contactId, int status);
 	public int uploadMultipleContact(int groupId,final int userId,final CSVReader reader);
 	public List<Contact> countGroupConatct(int groupId);
+	@SuppressWarnings("rawtypes")
 	public List getGroupConatct(int groupId,Session session);
 }
