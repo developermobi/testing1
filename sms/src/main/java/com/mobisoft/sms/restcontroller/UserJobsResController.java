@@ -385,9 +385,7 @@ public class UserJobsResController {
 			map.put("message", "user not authorized");	
 		}
 		return map;
-		
-		
-	
+
 	}	
 	//................................Send Group Message Url..................................................
 	
