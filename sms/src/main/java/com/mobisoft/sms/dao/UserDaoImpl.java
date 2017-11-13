@@ -35,6 +35,7 @@ import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.service.SmsHelperService;
+import com.mobisoft.sms.utility.EmailAPI;
 import com.mobisoft.sms.utility.Global;
 
 
@@ -43,6 +44,12 @@ public class UserDaoImpl implements UserDao {
 
 	@Autowired
 	private SessionFactory sessionFactory;
+	
+	@Autowired
+	private EmailAPI emailApi;
+	
+	@Value("${supportEmail}")
+	private String supportEmail;
 	
 	private Session session = null;
 	
@@ -54,6 +61,8 @@ public class UserDaoImpl implements UserDao {
 
 	@Value("${password}")
 	private String password;
+	
+	
 	
 
 	@Value("${senderId}")
@@ -208,6 +217,21 @@ public class UserDaoImpl implements UserDao {
 					System.out.println(temp);
 					temp=1;
 					tx.commit();
+					//-------------------------email-----------------------
+					User resellerUser=(User)session.get(User.class, resellerId);
+					String subject = "Delete user by user name :-- "+resellerUser.getUserName();
+					String msgBody = "Delete User name is "+user.getName()+"\n\n"									 
+									  + " and User Name: "+user.getUserName()+"\n"
+									 
+									  + "Thank You\n";
+					
+					Map<String, String> emailDetails = new HashMap<String, String>();
+					emailDetails.put("toAddress", supportEmail);
+					emailDetails.put("subject", subject);
+					emailDetails.put("msgBody", msgBody);
+					
+					emailApi.sendSimpleMail(emailDetails);
+					
 					//session.close();
 				}
 				
@@ -399,6 +423,36 @@ public class UserDaoImpl implements UserDao {
 			if(updateSmsBalanceResult > 0)
 			{
 				temp = 1;
+				//-------------------------email-----------------------
+				String subject = "login credentials";
+				String msgBody = "Dear "+user.getName()+"\n\n"
+								  + "Plase find login credentials as given below:\n\n"
+								  + "User Name: "+user.getUserName()+"\n"
+								  + "Password:"+user.getPassword()+"\n\n"
+								  + "Thank You\n";
+				
+				Map<String, String> emailDetails = new HashMap<String, String>();
+				emailDetails.put("toAddress", user.getEmail());
+				emailDetails.put("subject", subject);
+				emailDetails.put("msgBody", msgBody);
+				
+				emailApi.sendSimpleMail(emailDetails);
+				
+				
+				String subject_support = "Create New User by User Name:-- "+resellerUser.getUserName()+" and new user login credentials";
+				String msgBody_support = "Dear "+user.getName()+"\n\n"
+								  + "Plase find login credentials as given below:\n\n"
+								  + "User Name: "+user.getUserName()+"\n"
+								  + "Password:"+user.getPassword()+"\n\n"
+								  + "Thank You\n";
+				
+				Map<String, String> emailDetails_support = new HashMap<String, String>();
+				emailDetails_support.put("toAddress", user.getEmail());
+				emailDetails_support.put("subject", subject_support);
+				emailDetails_support.put("msgBody", msgBody_support);
+				
+				emailApi.sendSimpleMail(emailDetails_support);
+
 				tx.commit();
 			}
 
@@ -637,6 +691,33 @@ public class UserDaoImpl implements UserDao {
 					{
 						temp = 1;
 						tx.commit();
+						String subject = "Add New Produt  by User Name:-- "+reseller.getUserName()+"";
+						String msgBody = "Dear User "+user.getName()+" Add product Successfully Please chek your make my sms account \n\n"
+										 +"Product name Is:---"+product.getName()+"\n\n"
+										  + "User Name: "+user.getUserName()+"\n"
+										  
+										  + "Thank You\n";
+						
+						Map<String, String> emailDetails = new HashMap<String, String>();
+						emailDetails.put("toAddress", user.getEmail());
+						emailDetails.put("subject", subject);
+						emailDetails.put("msgBody", msgBody);
+						
+						emailApi.sendSimpleMail(emailDetails);
+						
+						String subject_support = "Add New Produt  by User Name:-- "+reseller.getUserName()+"";
+						String msgBody_support = "Add product Successfully  User:- "+user.getName()+"  \n"
+								 			+"Product name Is:---"+product.getName()+"\n\n"
+										  + "User Name: "+user.getUserName()+"\n"
+										  + "Thank You\n";
+						
+						Map<String, String> emailDetails_support = new HashMap<String, String>();
+						emailDetails_support.put("toAddress", supportEmail);
+						emailDetails_support.put("subject", subject_support);
+						emailDetails_support.put("msgBody", msgBody_support);
+						
+						emailApi.sendSimpleMail(emailDetails_support);
+
 						//session.close();
 					}
 				}

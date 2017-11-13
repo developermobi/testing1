@@ -104,21 +104,21 @@
     class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
     	<property name="maxUploadSize" value="200000000" />
 	</bean>
-	<!-- <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-	    SMTP settings
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+	    <!-- SMTP settings -->
 	    <property name="host" value="${email.smtp_host}" />
 	    <property name="port" value="${email.smtp_port}" />
 	    <property name="username" value="${email.user_name}" />
 	    <property name="password" value="${email.password}" />
 	 
 	    <property name="javaMailProperties">
-	        additional properties specific to JavaMail
+	        <!-- additional properties specific to JavaMail -->
 	        <props>
 	            <prop key="mail.transport.protocol">smtp</prop>
 	            <prop key="mail.smtp.auth">true</prop>
 	            <prop key="mail.smtp.starttls.enable">true</prop>
 	        </props>
 	    </property>
-	</bean> -->
+	</bean>
 	
 </beans>

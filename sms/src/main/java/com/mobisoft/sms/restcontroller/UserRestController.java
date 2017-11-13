@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mobisoft.sms.utility.EmailAPI;
 import com.mobisoft.sms.utility.Global;
 import com.mobisoft.sms.utility.TokenAuthentication;
 import com.mobisoft.sms.model.Credit;
@@ -48,12 +49,16 @@ public class UserRestController {
 	@Autowired
 	private SmsHelperService smsHelperService;
 	
+	@Autowired
+	private EmailAPI emailApi;
+	
 	private ObjectMapper mapper = null;
 	
 	@Value("${sms_username}")
 	private String userNameMessage;
 	
 
+	
 	@Value("${password}")
 	private String password;
 	
@@ -84,7 +89,6 @@ public class UserRestController {
  				map.put("status", 302);
 				map.put("message", "success");
 				map.put("data", mapData);
-
 			}
 		}
 		
@@ -130,19 +134,6 @@ public class UserRestController {
 					int resellerBalnce = balance.get(0);
 					//int resellerBalnce = (Integer)smsBalance.getBalance();
 					System.out.println("Sms Balnce"+resellerBalnce);
-					/*User user = new User();
-					user.setUserName(node.get("userName").asText());
-					user.setPassword(password);
-					user.setName(node.get("name").asText());
-					user.setEmail(node.get("email").asText());
-					user.setMobile(node.get("mobile").asText());
-					user.setCity(node.get("city").asText());
-					user.setState(node.get("state").asText());
-					user.setCountry(node.get("country").asText());
-					user.setAddress(node.get("address").asText());
-					user.setRole(node.get("role").asInt());
-					user.setStatus(node.get("status").asInt());
-					user.setCompany_name(node.get("companyName").asText());*/
 					
 					int newUserBalnce = node.get("creditBalnce").asInt();
 					if(newUserBalnce > 0)
@@ -156,9 +147,10 @@ public class UserRestController {
 							objectNode.put("previousResellerBalance",resellerBalnce);
 							int result = userService.saveUerDeatils(objectNode);
 							if(result == 1){
+								
 								map.put("status", "success");
 								map.put("code", 201);
-								map.put("message", "inserted successfully");
+								map.put("message", "Successfully Create User");
 								map.put("data", result);
 							}else{
 								map.put("status", "error");

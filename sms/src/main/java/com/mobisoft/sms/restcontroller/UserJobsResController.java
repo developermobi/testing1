@@ -44,6 +44,7 @@ import com.mobisoft.sms.model.UserJobs;
 import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.service.SmsHelperService;
 import com.mobisoft.sms.service.UserJobsService;
+import com.mobisoft.sms.utility.EmailAPI;
 import com.mobisoft.sms.utility.Global;
 import com.mobisoft.sms.utility.TokenAuthentication;
 
@@ -68,6 +69,8 @@ public class UserJobsResController {
 	private SmsHelperService smsHelperService;
 	
 	private ObjectMapper mapper = null;
+	
+	
 	
 	@Value("${uploadUserTextFile}")
 	private String uploadUserJobsFile;
@@ -647,7 +650,7 @@ public class UserJobsResController {
 					{
 						if(node.get("duplicateStatus").asInt() == 1)
 						{
-							  mobileList = Global.filterDuplicateNumber(mobileList);
+							mobileList = Global.filterDuplicateNumber(mobileList);
 						}
 						if(node.get("scheduleStatus").asInt() == 1)
 						{
@@ -761,6 +764,9 @@ public class UserJobsResController {
 						}
 						else
 						{
+							
+							
+							
 							System.out.println("Start direct in dlr_status table");
 							int messageLength = node.get("message").asText().length();
 				    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);

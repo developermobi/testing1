@@ -7,8 +7,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -32,7 +34,7 @@ import com.mobisoft.sms.model.SmsDnd;
 import com.mobisoft.sms.model.User;
 import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
-
+import com.mobisoft.sms.utility.EmailAPI;
 import com.mobisoft.sms.utility.Global;
 import com.mysql.jdbc.PreparedStatement;
 
@@ -45,6 +47,11 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	/*@Autowired
 	@Qualifier("sessionFactory2")
 	SessionFactory sessionFactory2;*/
+	@Autowired
+	private EmailAPI emailApi;
+	
+	@Value("${supportEmail}")
+	private String supportEmail;
 	
 	@Value("${sms_username}")
 	private String userName;
@@ -108,6 +115,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	           System.out.println(balanceList);
 	           temp = creditBalance(resellerId, userProduct1.getProductId().getId(), resellerId, balanceList.get(0), remark, deductType,session,tx);
 	       	   temp = debitBalnce(resellerId, userProduct1.getProductId().getId(), userId, balanceList.get(0), remark, deductType,session,tx);
+	       	
 	        }
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -136,6 +144,21 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			credit.setUserId(user);		
 			session.saveOrUpdate(credit);
 			updateUserBalance(newBalance, user.getUserId(), product.getId(), session, tx);
+			
+			//-------------------------email-----------------------
+			//User resellerUser=(User)session.get(User.class, resellerId);
+			String subject = "Credit User user name :-- "+user.getUserName();
+			String msgBody = "New credit Balance is "+balance+"\n\n"									 	 
+							  + "Thank You\n";
+			
+			Map<String, String> emailDetails = new HashMap<String, String>();
+			emailDetails.put("toAddress", supportEmail);
+			emailDetails.put("subject", subject);
+			emailDetails.put("msgBody", msgBody);
+			
+			emailApi.sendSimpleMail(emailDetails);
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -167,6 +190,19 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			
 			session.saveOrUpdate(debit);
 			temp = updateUserBalance(newResellerBalance, resellerUser.getUserId(), productId, session, tx);
+			//-------------------------email-----------------------
+			//User resellerUser=(User)session.get(User.class, resellerId);
+			String subject = "Debit User  user name :-- "+resellerUser.getUserName();
+			String msgBody = "Debit Balance is "+balance+"\n\n"
+							  						 
+							  + "Thank You\n";
+			
+			Map<String, String> emailDetails = new HashMap<String, String>();
+			emailDetails.put("toAddress", supportEmail);
+			emailDetails.put("subject", subject);
+			emailDetails.put("msgBody", msgBody);
+			
+			emailApi.sendSimpleMail(emailDetails);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
