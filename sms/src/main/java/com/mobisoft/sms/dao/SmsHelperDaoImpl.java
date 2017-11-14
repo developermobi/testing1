@@ -185,7 +185,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			debit.setDebitBy(resellerUser.getUserId());					
 			debit.setRemark(remark);			
 			debit.setDebitType(debitType);			
-			debit.setUserId(user);
+			debit.setUserId(resellerUser);
 			debit.setProductId(product);
 			
 			session.saveOrUpdate(debit);

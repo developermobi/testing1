@@ -87,7 +87,9 @@ public class SenderIdDaoImpl implements SenderIDDao{
 		try {
 			User user = (User)session.load(User.class,userId);
 			Criteria criteria = session.createCriteria(SenderId.class);
-			criteria.add(Restrictions.eq("userId", user)).setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
+			criteria.add(Restrictions.eq("userId", user))
+			.add(Restrictions.eq("status", 1))
+			.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);		
 			list = criteria.list();
 			session.flush();
 			session.clear();

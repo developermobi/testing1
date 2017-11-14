@@ -738,8 +738,7 @@ public class UserJobsResController {
 										//userJobs.setCompletedAt(completedAtDate);
 										int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
 										if(result == 1)
-										{
-											
+										{											
 											map.put("code", 201);
 							    			map.put("status", "Success");
 							    			map.put("message", "Send Message Successfully ");
