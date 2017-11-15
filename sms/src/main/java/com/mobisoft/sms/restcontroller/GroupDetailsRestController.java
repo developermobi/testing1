@@ -67,7 +67,13 @@ public class GroupDetailsRestController {
 					map.put("code", 201);
 					map.put("message", "Successfully Add Group");
 					map.put("data", result);
-				}else{
+				}else if(result == 2){
+					map.put("status", "failed");
+					map.put("code", 409);
+					map.put("message", "All Ready Exist Group");
+					map.put("data", result);
+				}
+				else{
 					map.put("status", "error");
 					map.put("code", 403);
 					map.put("message", "error occured during insertion");

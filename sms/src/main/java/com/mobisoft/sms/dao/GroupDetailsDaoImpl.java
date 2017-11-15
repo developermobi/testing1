@@ -26,36 +26,51 @@ public class GroupDetailsDaoImpl implements GroupDetailsDao{
 	private Session session = null;
 	
 	private Transaction tx = null;
+	@SuppressWarnings("unchecked")
 	@Override
 	public int saveGroupDetails(JsonNode node) {
 		session =  sessionFactory.openSession();
 		tx = session.beginTransaction();
 		User user = (User)session.get(User.class,node.get("userId").asInt());
-		GroupDetails groupDetails = new GroupDetails();
-		groupDetails.setName(node.get("name").asText());
-		groupDetails.setStatus(node.get("status").asInt());
-		groupDetails.setGroupDescription(node.get("groupDescription").asText());
-		groupDetails.setUserId(user);
-		int temp = 0;		
-		try {
-			session.saveOrUpdate(groupDetails);					
-			temp = 1;
-			tx.commit();
-			//session.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			temp = 0;
-			tx.rollback();
-		}finally {
+		int temp = 0;	
+		//GroupDetails groupDetailsChek = (GroupDetails)session.get(GroupDetails.class);
+		Criteria criteria = session.createCriteria(GroupDetails.class);
+		criteria.add(Restrictions.eq("name",node.get("name").asText()));
+		List<GroupDetails> groupDetailsChek = criteria.list();
+		/*System.out.println("get name :---"+groupDetailsChek.get(0).getName());*/
+		if(groupDetailsChek.size() == 0 )
+		{
+			GroupDetails groupDetails = new GroupDetails();
+			groupDetails.setName(node.get("name").asText());
+			groupDetails.setStatus(node.get("status").asInt());
+			groupDetails.setGroupDescription(node.get("groupDescription").asText());
+			groupDetails.setUserId(user);				
 			try {
-				if(session != null)
-				{
-					session.close();
+				session.saveOrUpdate(groupDetails);					
+				temp = 1;
+				tx.commit();
+				//session.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+				temp = 0;
+				tx.rollback();
+			}finally {
+				try {
+					if(session != null)
+					{
+						session.close();
+					}
+				} catch (Exception e2) {
+					e2.printStackTrace();
 				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
 			}
+			
+			
+		}else{
+			temp =2;
 		}
+			
+		
 		return temp;
 	}
 

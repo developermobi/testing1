@@ -329,18 +329,20 @@ public class UserJobsResController {
 										userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
 										//userJobs.setCompletedAt(completedAtDate);
 										int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
-										if(result == 1)
-										{
+										if(result == 1){
+											if(scheduleStatus != 0){
+												map.put("message", "SMS Scheduled successfully");
+											}else{
+												map.put("message", "SMS sent successfully");
+											}
 											map.put("code", 201);
 							    			map.put("status", "Success");
-							    			map.put("message", "file Upload ");							    			
-											if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
-											{
+							    										    			
+											if(listCheckAutherization.get(0).getDndCheck().equals("Y")){
 												map.put("Total Dnd Number", dndNumberList.get(1));
 											}
 										}
-										else
-										{
+										else{
 											map.put("code", 403);
 							    			map.put("status", "error");
 							    			map.put("message", "Something Going Worng File Is Not Uploaded");
@@ -551,10 +553,14 @@ public class UserJobsResController {
 							int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
 							if(result == 1)
 							{
-								
+								if(node.get("scheduleStatus").asInt() != 0){
+									map.put("message", "SMS Scheduled successfully");
+								}else{
+									map.put("message", "SMS sent successfully");
+								}
 								map.put("code", 201);
 				    			map.put("status", "Success");
-				    			map.put("message", "Successfully send data");
+				    			
 				    			if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
 				    			{
 				    				map.put("Total Dnd Number", dndNumberList.get(1));
@@ -738,10 +744,15 @@ public class UserJobsResController {
 										//userJobs.setCompletedAt(completedAtDate);
 										int result = userJobsService.saveUserJobs(userJobs,node.get("productId").asInt(),sentMessage,updateNewBalance);
 										if(result == 1)
-										{											
+										{	
+											if(node.get("scheduleStatus").asInt() != 0){
+												map.put("message", "SMS Scheduled successfully");
+											}else{
+												map.put("message", "SMS sent successfully");
+											}
 											map.put("code", 201);
 							    			map.put("status", "Success");
-							    			map.put("message", "Send Message Successfully ");
+							    			
 							    			if(listCheckAutherization.get(0).getDndCheck().equals("Y"))
 							    			{
 							    				map.put("Total Dnd Number", dndNumberList.get(1));

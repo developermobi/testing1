@@ -124,23 +124,31 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								   }
 								   
 								   int percent = 100;
-								   if(list.get(0).getJobType() == 3 || list.get(0).getJobType() == 4){
+								   if(list.get(0).getJobType() == 3 || list.get(0).getJobType() == 4 ){
+									   if( mobileList.size() >= 5000)
+									   {
+										   percent = Integer.parseInt(listCheckAutherization.get(0).getPercentage());
+										   
+										   Collections.shuffle(mobileList);
+									   }
 									   
-									   percent = Integer.parseInt(listCheckAutherization.get(0).getPercentage());
-									   
-									   Collections.shuffle(mobileList);
 								   }	
-								   
+								 //  System.out.println("percent-"+percent);
 								   int mobileListSize = mobileList.size();
-								   
-								   int percentCount = (mobileListSize / 100) * percent;								   
-								   
+									  
+								   int percentCount=0;
+								   if(percent == 100){
+									   percentCount = mobileListSize;	
+								   }else{
+									   percentCount = (mobileListSize / 100) * percent;	
+								   }
 								   final List<String> mobileListDelivered = mobileList.subList(0, percentCount);
 								   
 								   final List<String> mobileListFake = mobileList.subList(percentCount, mobileList.size());
 								   
 								   System.out.println("mobileListDelivered: "+mobileListDelivered.size());
 								   System.out.println("mobileListFake: "+mobileListFake.size());
+								  
 								   								   
 						           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 						           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
@@ -317,7 +325,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				    	  String providerId = (String)mapList.get("routeName");
 				    	  int type = 1;
 				    	  int  userId = (int)mapList.get("userId");
-				    	  String momt = "mo";
+				    	  String momt = "MT";
 				    	  String boxcId = "sqlbox";
 				    	  int service =1;
 				    	  int mClass = 1;
@@ -363,7 +371,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				               pstmtQueuedSms.setInt(11,dlrMask);
 				               pstmtQueuedSms.setString(12, messId);
 				               pstmtQueuedSms.setString(13,chaset);
-				               pstmtQueuedSms.addBatch(); 
+				               pstmtQueuedSms.addBatch();
 
 				           }
 				           conn.setAutoCommit(false);
@@ -572,7 +580,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								    	  String providerId = list.get(0).getRoute();
 								    	  int type = 1;
 								    	  int  userId = list.get(0).getUserId();
-								    	  String momt = "mo";
+								    	  String momt = "MT";
 								    	  String boxcId = "sqlbox";
 								    	  int service =1;
 								    	  int mClass = 1;
