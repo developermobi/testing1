@@ -142,6 +142,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								   }else{
 									   percentCount = (mobileListSize / 100) * percent;	
 								   }
+								   
 								   final List<String> mobileListDelivered = mobileList.subList(0, percentCount);
 								   
 								   final List<String> mobileListFake = mobileList.subList(percentCount, mobileList.size());
@@ -150,16 +151,16 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								   System.out.println("mobileListFake: "+mobileListFake.size());
 								  
 								   								   
-						           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+						           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id,  mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 						           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
 						           
-						           String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,mclass, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+						           String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 						           pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
 						           int i=0;
 						           if(mobileListDelivered.size() > 0){
-						        	   for(String mobile : mobileListDelivered){	        	   
+						        	   for(String mobile : mobileListDelivered){
 						        			
-							        	   String messId = Global.randomString(10);			        	   
+							        	   String messId = Global.randomString(10);	
 							        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
 							        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
 							        	   pstmtDlrStatus.setInt(3,code);
@@ -167,11 +168,11 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 							        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
 							        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
 							        	   pstmtDlrStatus.setString(7, messId);
-							        	   pstmtDlrStatus.setInt(8, 1);
-							        	   pstmtDlrStatus.setString(9, mobile);
-							        	   pstmtDlrStatus.setString(10, list.get(0).getRoute());
-							        	   pstmtDlrStatus.setInt(11, 1);
-							        	   pstmtDlrStatus.setInt(12, list.get(0).getUserId());
+							        	 
+							        	   pstmtDlrStatus.setString(8, mobile);
+							        	   pstmtDlrStatus.setString(9, list.get(0).getRoute());
+							        	   pstmtDlrStatus.setInt(10, 1);
+							        	   pstmtDlrStatus.setInt(11, list.get(0).getUserId());
 							               pstmtDlrStatus.addBatch();
 							               
 							               pstmtQueuedSms.setInt(1, list.get(0).getId());
@@ -182,11 +183,11 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 							               pstmtQueuedSms.setString(6,list.get(0).getRoute());
 							               pstmtQueuedSms.setString(7,"sqlbox");
 							               pstmtQueuedSms.setInt(8, 1);
-							               pstmtQueuedSms.setInt(9, 1);
-							               pstmtQueuedSms.setInt(10, code);
-							               pstmtQueuedSms.setInt(11,19);
-							               pstmtQueuedSms.setString(12, messId);
-							               pstmtQueuedSms.setString(13,"UTF-8");
+							             
+							               pstmtQueuedSms.setInt(9, code);
+							               pstmtQueuedSms.setInt(10,19);
+							               pstmtQueuedSms.setString(11, messId);
+							               pstmtQueuedSms.setString(12,"UTF-8");
 							               pstmtQueuedSms.addBatch(); 
 			
 							           }
@@ -195,7 +196,7 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						           if(mobileListFake.size() > 0){
 						        	   for(String mobile : mobileListFake){	        	   
 								       		
-							        	   String messId = Global.randomString(10);			        	   
+							        	   String messId = Global.randomString(10);	
 							        	   pstmtDlrStatus.setInt(1, list.get(0).getId());
 							        	   pstmtDlrStatus.setString(2, list.get(0).getSender());
 							        	   pstmtDlrStatus.setInt(3,code);
@@ -203,28 +204,12 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 							        	   pstmtDlrStatus.setInt(5, list.get(0).getMessageLength());
 							        	   pstmtDlrStatus.setString(6, list.get(0).getMessage());
 							        	   pstmtDlrStatus.setString(7, messId);
-							        	   pstmtDlrStatus.setInt(8, 1);
-							        	   pstmtDlrStatus.setString(9, mobile);
-							        	   pstmtDlrStatus.setString(10, "mobiF");
-							        	   pstmtDlrStatus.setInt(11, 1);
-							        	   pstmtDlrStatus.setInt(12, list.get(0).getUserId());
+							        	   pstmtDlrStatus.setString(8, mobile);
+							        	   pstmtDlrStatus.setString(9, "mobiF");
+							        	   pstmtDlrStatus.setInt(10, 1);
+							        	   pstmtDlrStatus.setInt(11, list.get(0).getUserId());
 							               pstmtDlrStatus.addBatch();
-							               
-							               pstmtQueuedSms.setInt(1, list.get(0).getId());
-							               pstmtQueuedSms.setString(2,"MT");
-							               pstmtQueuedSms.setString(3,list.get(0).getSender());
-							               pstmtQueuedSms.setString(4, mobile);
-							               pstmtQueuedSms.setString(5, list.get(0).getMessage());
-							               pstmtQueuedSms.setString(6,"mobiF");
-							               pstmtQueuedSms.setString(7,"sqlbox");
-							               pstmtQueuedSms.setInt(8, 1);
-							               pstmtQueuedSms.setInt(9, 1);
-							               pstmtQueuedSms.setInt(10, code);
-							               pstmtQueuedSms.setInt(11,19);
-							               pstmtQueuedSms.setString(12, messId);
-							               pstmtQueuedSms.setString(13,"UTF-8");
-							               pstmtQueuedSms.addBatch(); 
-			
+
 							           }
 						           }
 						           conn.setAutoCommit(false);
@@ -335,10 +320,10 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				          PreparedStatement pstmtDlrStatus = null;
 				          PreparedStatement pstmtQueuedSms = null;
 				          try{
-				           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+				           String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id,  mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 				           pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
 				           
-				           String sqlInsertQueued ="INSERT INTO queued_sms_quick(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,mclass, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				           String sqlInsertQueued ="INSERT INTO queued_sms_quick(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 				           pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
 				           int i=0;
 				           for(String mobile : mobileList){	        	   
@@ -351,11 +336,11 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				        	   pstmtDlrStatus.setInt(5, length);
 				        	   pstmtDlrStatus.setString(6, message);
 				        	   pstmtDlrStatus.setString(7, messId);
-				        	   pstmtDlrStatus.setInt(8, mobi_class);
-				        	   pstmtDlrStatus.setString(9, mobile);
-				        	   pstmtDlrStatus.setString(10,providerId);
-				        	   pstmtDlrStatus.setInt(11, type);
-				        	   pstmtDlrStatus.setInt(12, userId);
+				        	
+				        	   pstmtDlrStatus.setString(8, mobile);
+				        	   pstmtDlrStatus.setString(9,providerId);
+				        	   pstmtDlrStatus.setInt(10, type);
+				        	   pstmtDlrStatus.setInt(11, userId);
 				               pstmtDlrStatus.addBatch();
 				               
 				               pstmtQueuedSms.setInt(1, jobId);
@@ -366,11 +351,11 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				               pstmtQueuedSms.setString(6,providerId);
 				               pstmtQueuedSms.setString(7,boxcId);
 				               pstmtQueuedSms.setInt(8, service);
-				               pstmtQueuedSms.setInt(9, mobi_class);
-				               pstmtQueuedSms.setInt(10, coding);
-				               pstmtQueuedSms.setInt(11,dlrMask);
-				               pstmtQueuedSms.setString(12, messId);
-				               pstmtQueuedSms.setString(13,chaset);
+				            
+				               pstmtQueuedSms.setInt(9, coding);
+				               pstmtQueuedSms.setInt(10,dlrMask);
+				               pstmtQueuedSms.setString(11, messId);
+				               pstmtQueuedSms.setString(12,chaset);
 				               pstmtQueuedSms.addBatch();
 
 				           }
@@ -560,10 +545,10 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 										HSSFCell cell;										
 										Iterator rows = sheet.rowIterator();
 										
-										String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id, mobi_class, mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+										String sqlInsertDlrStatus = "INSERT INTO dlr_status(job_id,Sender, coding, count,length, message, message_id,  mobile, provider_id, type, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 								        pstmtDlrStatus = (PreparedStatement) conn.prepareStatement(sqlInsertDlrStatus );
 								           
-								        String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,mclass, coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+								        String sqlInsertQueued ="INSERT INTO queued_sms(id,momt,sender,receiver,msgdata,smsc_id,boxc_id,service,coding,dlr_mask,dlr_url,charset) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 								        pstmtQueuedSms = (PreparedStatement)conn.prepareStatement(sqlInsertQueued);
 								        int code = 0;
 										   if(list.get(0).getMessageType() == 1)
@@ -623,11 +608,11 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								        	   pstmtDlrStatus.setInt(5, messageLength);
 								        	   pstmtDlrStatus.setString(6, message);
 								        	   pstmtDlrStatus.setString(7, messId);
-								        	   pstmtDlrStatus.setInt(8, mobi_class);
-								        	   pstmtDlrStatus.setString(9, mobile);
-								        	   pstmtDlrStatus.setString(10,providerId);
-								        	   pstmtDlrStatus.setInt(11, type);
-								        	   pstmtDlrStatus.setInt(12, userId);
+								        	  // pstmtDlrStatus.setInt(8, mobi_class);
+								        	   pstmtDlrStatus.setString(8, mobile);
+								        	   pstmtDlrStatus.setString(9,providerId);
+								        	   pstmtDlrStatus.setInt(10, type);
+								        	   pstmtDlrStatus.setInt(11, userId);
 								               pstmtDlrStatus.addBatch();
 								               
 								               pstmtQueuedSms.setInt(1, list.get(0).getId());
@@ -638,11 +623,11 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 								               pstmtQueuedSms.setString(6,providerId);
 								               pstmtQueuedSms.setString(7,boxcId);
 								               pstmtQueuedSms.setInt(8, service);
-								               pstmtQueuedSms.setInt(9, mobi_class);
-								               pstmtQueuedSms.setInt(10, code);
-								               pstmtQueuedSms.setInt(11,dlrMask);
-								               pstmtQueuedSms.setString(12, messId);
-								               pstmtQueuedSms.setString(13,chaset);
+								              // pstmtQueuedSms.setInt(9, mobi_class);
+								               pstmtQueuedSms.setInt(9, code);
+								               pstmtQueuedSms.setInt(10,dlrMask);
+								               pstmtQueuedSms.setString(11, messId);
+								               pstmtQueuedSms.setString(12,chaset);
 								               pstmtQueuedSms.addBatch(); 
 
 											

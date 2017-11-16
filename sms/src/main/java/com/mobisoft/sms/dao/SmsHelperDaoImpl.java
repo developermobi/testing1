@@ -148,7 +148,8 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			//-------------------------email-----------------------
 			//User resellerUser=(User)session.get(User.class, resellerId);
 			String subject = "Credit User user name :-- "+user.getUserName();
-			String msgBody = "New credit Balance is "+balance+"\n\n"									 	 
+			String msgBody = "New credit Balance is "+balance+"\n\n"
+								+remark+"\n"
 							  + "Thank You\n";
 			
 			Map<String, String> emailDetails = new HashMap<String, String>();
@@ -194,7 +195,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			//User resellerUser=(User)session.get(User.class, resellerId);
 			String subject = "Debit User  user name :-- "+resellerUser.getUserName();
 			String msgBody = "Debit Balance is "+balance+"\n\n"
-							  						 
+								+remark+"\n"						 
 							  + "Thank You\n";
 			
 			Map<String, String> emailDetails = new HashMap<String, String>();
