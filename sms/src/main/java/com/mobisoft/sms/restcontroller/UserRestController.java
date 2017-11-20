@@ -72,7 +72,7 @@ public class UserRestController {
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("status", 404);
-		map.put("message", "user not found");		
+		map.put("message", "Invalid username or password");		
 		mapper = new ObjectMapper();
 		User user = mapper.readValue(jsonString, User.class);
 		

@@ -313,7 +313,7 @@ public class ContactDaoImpl implements ContactDao{
 		        	   		{
 		        	   			continue;
 		        	   		}
-
+		        	   		
 		            	    pstmtContact.setString(1, nextLine[3]);
 				            pstmtContact.setString(2, nextLine[2]);
 				            pstmtContact.setString(3, nextLine[1]);
@@ -324,7 +324,6 @@ public class ContactDaoImpl implements ContactDao{
 				            pstmtContact.addBatch();
 				            findDuplicate.add(nextLine[1]);
 				            System.out.println("duplicate list"+findDuplicate);
-     
 				       } 		           
 			           reader.close();
 					   conn.setAutoCommit(false);
@@ -430,7 +429,7 @@ public class ContactDaoImpl implements ContactDao{
 		List list = null;
 		try {
 			GroupDetails groupDetails =(GroupDetails)session.get(GroupDetails.class,groupId);
-			Query query = session.createSQLQuery("select mobile from contact where status = 1 or status = 0 and  group_id="+groupId);
+			Query query = session.createSQLQuery("select mobile from contact where group_id="+groupId+" and status = 1 or status = 0");
 			list = query.list();					
 			//session.close();
 		} catch (Exception e) {

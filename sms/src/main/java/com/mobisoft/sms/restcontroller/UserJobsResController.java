@@ -270,104 +270,113 @@ public class UserJobsResController {
 			    		}
 			    		else
 			    		{
-			    			if((mobileList.size() > 0) && !("".equals(mobileList.get(0))))
+			    			if(multipartFile.getOriginalFilename().endsWith(".txt") || multipartFile.getOriginalFilename().endsWith(".csv"))
 			    			{
-			    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
-				    			int sentMessage = mobileList.size() * messageCount;
-				    			if(sentMessage <= balance.get(0))
+			    				if((mobileList.size() > 0) && !("".equals(mobileList.get(0))))
 				    			{
-				    				List<UserProduct>routeList= smsHelperService.getRouteDetails(userId, productId);
-				    				if(routeList.size() > 0)
-				    				{
-					    				int updateNewBalance = balance.get(0)-sentMessage; 
-					    				UserJobs userJobs= new UserJobs();
-										userJobs.setUserId(userId);
-//										System.out.println("message type :-- "+messageType);
-//										if(messageType == 3)
-//										{
-//											//byte [] b  = message.getBytes("UTF-8");	
-//											message = URLEncoder.encode(message, "UTF-8");
-//											userJobs.setMessage(message);
-//											
-//											
-//										}
-//										else 
-//										{
-//											userJobs.setMessage(message);
-//										}
-										userJobs.setMessage(message);
-										userJobs.setMessageType(messageType);
-										userJobs.setMessageLength(messageLength);
-										userJobs.setCount(messageCount);
-										userJobs.setSender(sender);
-										userJobs.setTotalNumbers(mobileList.size());
-										userJobs.setTotalSent(sentMessage);
-										userJobs.setFilename(userJobFile.getAbsolutePath());							
-										
-										if(scheduleStatus != 0)
-										{
-											String scheduledAtConvert = scheduledAt;
-											DateFormat formatter ; 
-											Date scheduledDate ; 
-											formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-											scheduledDate = formatter.parse(scheduledAtConvert);
-											userJobs.setScheduledAt(scheduledDate);
-										}
-										/*String queuedAtConvert = queuedAt;
-										Date queuedAtDate; 					
-										queuedAtDate = formatter.parse(queuedAtConvert);	
-										userJobs.setQueuedAt(queuedAtDate);*/
+				    				List<Integer> balance = smsHelperService.getBalance(userId,productId);
+					    			int sentMessage = mobileList.size() * messageCount;
+					    			if(sentMessage <= balance.get(0))
+					    			{
+					    				List<UserProduct>routeList= smsHelperService.getRouteDetails(userId, productId);
+					    				if(routeList.size() > 0)
+					    				{
+						    				int updateNewBalance = balance.get(0)-sentMessage; 
+						    				UserJobs userJobs= new UserJobs();
+											userJobs.setUserId(userId);
+//											System.out.println("message type :-- "+messageType);
+//											if(messageType == 3)
+//											{
+//												//byte [] b  = message.getBytes("UTF-8");	
+//												message = URLEncoder.encode(message, "UTF-8");
+//												userJobs.setMessage(message);
+//												
+//												
+//											}
+//											else 
+//											{
+//												userJobs.setMessage(message);
+//											}
+											userJobs.setMessage(message);
+											userJobs.setMessageType(messageType);
+											userJobs.setMessageLength(messageLength);
+											userJobs.setCount(messageCount);
+											userJobs.setSender(sender);
+											userJobs.setTotalNumbers(mobileList.size());
+											userJobs.setTotalSent(sentMessage);
+											userJobs.setFilename(userJobFile.getAbsolutePath());							
+											
+											if(scheduleStatus != 0)
+											{
+												String scheduledAtConvert = scheduledAt;
+												DateFormat formatter ; 
+												Date scheduledDate ; 
+												formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+												scheduledDate = formatter.parse(scheduledAtConvert);
+												userJobs.setScheduledAt(scheduledDate);
+											}
+											/*String queuedAtConvert = queuedAt;
+											Date queuedAtDate; 					
+											queuedAtDate = formatter.parse(queuedAtConvert);	
+											userJobs.setQueuedAt(queuedAtDate);*/
 
-										userJobs.setJobStatus(0);
-										userJobs.setJobType(jobType);
-										userJobs.setDuplicateStatus(duplicateStatus);
-										userJobs.setScheduleStatus(scheduleStatus);
-										
-										/*userJobs.setSendNow(sendNow);*/
-										userJobs.setSendRatio(0);
-										userJobs.setProductId(productId);
-										userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
-										//userJobs.setCompletedAt(completedAtDate);
-										int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
-										if(result == 1){
-											if(scheduleStatus != 0){
-												map.put("message", "SMS Scheduled successfully");
-											}else{
-												map.put("message", "SMS sent successfully");
+											userJobs.setJobStatus(0);
+											userJobs.setJobType(jobType);
+											userJobs.setDuplicateStatus(duplicateStatus);
+											userJobs.setScheduleStatus(scheduleStatus);
+											
+											/*userJobs.setSendNow(sendNow);*/
+											userJobs.setSendRatio(0);
+											userJobs.setProductId(productId);
+											userJobs.setRoute(routeList.get(0).getRouteId().getSmppName());
+											//userJobs.setCompletedAt(completedAtDate);
+											int result = userJobsService.saveUserJobs(userJobs,productId,sentMessage,updateNewBalance);
+											if(result == 1){
+												if(scheduleStatus != 0){
+													map.put("message", "SMS Scheduled successfully");
+												}else{
+													map.put("message", "SMS sent successfully");
+												}
+												map.put("code", 201);
+								    			map.put("status", "Success");
+								    										    			
+												if(listCheckAutherization.get(0).getDndCheck().equals("Y")){
+													map.put("Total Dnd Number", dndNumberList.get(1));
+												}
 											}
-											map.put("code", 201);
-							    			map.put("status", "Success");
-							    										    			
-											if(listCheckAutherization.get(0).getDndCheck().equals("Y")){
-												map.put("Total Dnd Number", dndNumberList.get(1));
+											else{
+												map.put("code", 403);
+								    			map.put("status", "error");
+								    			map.put("message", "Something Going Worng File Is Not Uploaded");
 											}
-										}
-										else{
-											map.put("code", 403);
+					    				}
+					    				else
+					    				{
+					    					map.put("code", 204);
 							    			map.put("status", "error");
-							    			map.put("message", "Something Going Worng File Is Not Uploaded");
-										}
-				    				}
-				    				else
-				    				{
-				    					map.put("code", 204);
-						    			map.put("status", "error");
-						    			map.put("message", "Route is empty");
-				    				}				    				
+							    			map.put("message", "Route is empty");
+					    				}				    				
+					    			}
+					    			else
+					    			{
+					    				map.put("code", 204);
+										map.put("status", "error");
+										map.put("message", "Insufficieant Balance");
+					    			}
 				    			}
 				    			else
 				    			{
-				    				map.put("code", 204);
+				    				map.put("code", 0);
 									map.put("status", "error");
-									map.put("message", "Insufficieant Balance");
+									map.put("message", "Mobile Count is zero please upload correct file");
 				    			}
 			    			}
-			    			else
-			    			{
+			    			else{
 			    				map.put("code", 0);
 								map.put("status", "error");
-								map.put("message", "Mobile Count is zero please upload correct file");
-			    			}		    			
+								map.put("message", "Please Select Valid File Type");
+			    			}
+		    			
 			    		}
 			    	}
 			    	else

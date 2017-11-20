@@ -57,7 +57,7 @@ public class DlrStatus {
 	private java.util.Date loggedAt = new java.util.Date();
 	
 	@Column(name="dlr_time")
-	private Date dlrTime;
+	private String dlrTime;
 	
 	@Column(name="job_id")
 	private int jobId;
@@ -172,11 +172,11 @@ public class DlrStatus {
 		this.loggedAt = loggedAt;
 	}
 
-	public Date getDlrTime() {
+	public String getDlrTime() {
 		return dlrTime;
 	}
 
-	public void setDlrTime(Date dlrTime) {
+	public void setDlrTime(String dlrTime) {
 		this.dlrTime = dlrTime;
 	}
 
@@ -204,5 +204,4 @@ public class DlrStatus {
 		this.providerId = providerId;
 	}
 
-	
 }
