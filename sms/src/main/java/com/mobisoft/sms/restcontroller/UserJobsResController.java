@@ -70,8 +70,6 @@ public class UserJobsResController {
 	
 	private ObjectMapper mapper = null;
 	
-	
-	
 	@Value("${uploadUserTextFile}")
 	private String uploadUserJobsFile;
 	
@@ -951,7 +949,7 @@ public class UserJobsResController {
 			                String newPerFileNameXLX = "Personalized-"+userId+time+".xls";
 							File personalizeUserJobFile = new File(personalizedFileUploadDirectory);						
 					        if (!personalizeUserJobFile.exists()) {
-					            if (!personalizeUserJobFile.mkdirs()) {					            	
+					            if (!personalizeUserJobFile.mkdirs()) {	          	
 					            	map.put("code", 403);
 					    			map.put("status", "error");
 					    			map.put("message", "file Upload Directory has not found");
@@ -962,9 +960,13 @@ public class UserJobsResController {
 			                	while ((nextLine = reader.readNext()) != null) {
 			                		if(nextLine[characterIndex(mobileIndex)].length() == 10){
 			                			mobileList.add("91"+nextLine[characterIndex(mobileIndex)]);
-			                		}else{
+			                		}else /*if(nextLine[characterIndex(mobileIndex)].length() == 12)*/{
 			                			mobileList.add(nextLine[characterIndex(mobileIndex)]);
-			                		}
+			                		}/*else{
+			                			map.put("code", 403);
+						    			map.put("status", "error");
+						    			map.put("message", "Check Your mobile number column");
+			                		}*/
 			                		
 			                	}
 			                	listCheckAutherization = smsHelperService.getUserAuthrizationCheck(userId,productId);
@@ -995,17 +997,60 @@ public class UserJobsResController {
 								int count_row = 1;
 								while ((nextLine2 = reader2.readNext()) != null) {															
 									String new_message = "";
-									//System.out.println("Flag: "+mobileList.contains(nextLine2[characterIndex(mobileIndex)].length() == 10 ? "91"+nextLine2[characterIndex(mobileIndex)] : nextLine2[characterIndex(mobileIndex)] ));
+									System.out.println("Flag: "+mobileList.contains(nextLine2[characterIndex(mobileIndex)].length() == 10 ? "91"+nextLine2[characterIndex(mobileIndex)] : nextLine2[characterIndex(mobileIndex)] ));
 									if(mobileList.contains(nextLine2[characterIndex(mobileIndex)].length() == 10 ? "91"+nextLine2[characterIndex(mobileIndex)] : nextLine2[characterIndex(mobileIndex)] )){
 										//System.out.println("apftercsvfile");
 										for(int i=0;i< message_data.length;i++){
 											//System.out.println("message_data["+i+"]: "+message_data[i]);
 											
+												
 											if(message_data[i].length() > 1){
 												new_message += message_data[i];
 											}else if(message_data[i].length() == 1){
-												new_message +=  nextLine2[characterIndex(message_data[i])];											
+												//new_message +=  nextLine2[characterIndex(message_data[i])];
+												System.out.println(message_data[i]);
+												if(message_data[i].equals("A")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("B")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("C")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("D")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("E")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("F")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("G")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("H")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("I")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
+												if(message_data[i].equals("J")){
+													new_message +=nextLine2[characterIndex(message_data[i])];
+													new_message +=" ";
+												}
 											}
+											
 										}
 										int messageLength = new_message.length();
 							    		int messageCount = smsHelperService.messageCount(messageType, messageLength);
@@ -1022,7 +1067,12 @@ public class UserJobsResController {
 							    				HSSFCell cell = row.createCell(c);
 							    				
 							    				if(c == 0){
-							    					cell.setCellValue(nextLine2[characterIndex(mobileIndex)]);
+							    					if(nextLine2[characterIndex(mobileIndex)].length() == 10){
+							    						cell.setCellValue("91"+nextLine2[characterIndex(mobileIndex)]);
+							    					}else{
+							    						cell.setCellValue(nextLine2[characterIndex(mobileIndex)]);
+							    					}
+							    					
 							    				}
 							    				
 							    				if(c == 1){
@@ -1148,7 +1198,9 @@ public class UserJobsResController {
 			                }catch (Exception e) {
 			    				
 			    	            System.out.println("Error in CsvFileWriter !!!");
-			    	
+			    	            map.put("code", 204);
+								map.put("status", "error");
+								map.put("message", "Don't select blank column in message box !!!");
 			    	            e.printStackTrace();
 			    	
 			    	        } finally {

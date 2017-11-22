@@ -543,19 +543,24 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				{
 					tx.commit();
 					//session.close();
-					String message ="Dear Sir,  Send otp on  your register mobile number"+otp;
+					String message ="Dear Sir,  Send otp on  your register mobile number and email id "+otp;
 					String mobile = user.getMobile();
 					if( mobile.length() == 12)
 					{
 						mobile = mobile.substring(2);
 					}
-					/*System.out.println("helookajsdhsa ");
-					EmailAPI emailAPI = new EmailAPI();
-					Map<String,String> map =new HashMap<String, String>();
-					map.put("toAddress", user.getEmail());
-					map.put("subject", "Send Otp For Change Password");
-					map.put("msgBody", message);					
-					emailAPI.sendSimpleMail(map);*/
+					
+					
+					String subject = "Send Otp For Change Password";
+					
+					
+					Map<String, String> emailDetails = new HashMap<String, String>();
+					emailDetails.put("toAddress", user.getEmail());
+					emailDetails.put("subject", subject);
+					emailDetails.put("msgBody", message);
+					
+					emailApi.sendSimpleMail(emailDetails);
+					
 					try {
 						System.out.println("helookajsdhsa2342123 ");
 						temp = Global.sendMessage(userName, password,mobile, senderId, message);
@@ -574,7 +579,17 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				session.save(otpValidate);
 				tx.commit();
 				//session.close();
-				String message ="Dear Sir,  Send otp on  your register mobile number"+otpValidate.getOtpData();
+				String message ="Dear Sir,  Send otp on  your register mobile number and Email ID "+otpValidate.getOtpData();
+				
+				String subject = "Send Otp For Change Password";			
+				
+				Map<String, String> emailDetails = new HashMap<String, String>();
+				emailDetails.put("toAddress", user.getEmail());
+				emailDetails.put("subject", subject);
+				emailDetails.put("msgBody", message);
+				
+				emailApi.sendSimpleMail(emailDetails);
+				
 				String mobile = user.getMobile();
 				if( mobile.length() == 12)
 				{

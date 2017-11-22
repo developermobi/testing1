@@ -80,15 +80,21 @@ public class UserRestController {
 		if(userList.size() > 0){
 			
 			if(userList.get(0).getUserName().equals(user.getUserName()) && userList.get(0).getPassword().equals(user.getPassword())){
-				String token = tokenAuthentication.getToken(user.getUserName(),user.getPassword());
-				Map<String, Object> mapData =new HashMap<>();
-				mapData.put("authorization","Basic " + token);
-				mapData.put("fullName", userList.get(0).getName());
-				mapData.put("userId", userList.get(0).getUserId());
-				mapData.put("userRole", userList.get(0).getRole());
- 				map.put("status", 302);
-				map.put("message", "success");
-				map.put("data", mapData);
+				if(userList.get(0).getStatus() == 1){
+					String token = tokenAuthentication.getToken(user.getUserName(),user.getPassword());
+					Map<String, Object> mapData =new HashMap<>();
+					mapData.put("authorization","Basic " + token);
+					mapData.put("fullName", userList.get(0).getName());
+					mapData.put("userId", userList.get(0).getUserId());
+					mapData.put("userRole", userList.get(0).getRole());
+	 				map.put("status", 302);
+					map.put("message", "success");
+					map.put("data", mapData);
+				}else{
+					map.put("status", 403);
+					map.put("message", "Your account has been inactive !!");
+					
+				}
 			}
 		}
 		
@@ -163,7 +169,7 @@ public class UserRestController {
 						{
 							map.put("code", 204);
 							map.put("status", "error");
-							map.put("message", "Insufficieant Balance");
+							map.put("message", "Insufficient Balance");
 						}
 						
 					}
@@ -578,7 +584,7 @@ public class UserRestController {
 					{
 						map.put("code", 204);
 						map.put("status", "error");
-						map.put("message", "Insufficieant Balance");
+						map.put("message", "Insufficient Balance");
 					}
 					
 				}
@@ -638,7 +644,7 @@ public class UserRestController {
 					}else if(result == 3){
 						map.put("status", "error");
 						map.put("code", 204);
-						map.put("message", "Insufficieant Balance");
+						map.put("message", "Insufficient Balance");
 						map.put("data", result);
 					}
 					else if(result == 2){
@@ -664,7 +670,7 @@ public class UserRestController {
 			}else{
 				map.put("code", 409);
 				map.put("status", "error");
-				map.put("message", "All ready exists");
+				map.put("message", "Product already exists");
 			}
 			
 			
@@ -727,7 +733,7 @@ public class UserRestController {
 					{
 						map.put("code", 204);
 						map.put("status", "error");
-						map.put("message", "Insufficieant Balance");
+						map.put("message", "You can remove balance upto 1");
 					}
 					
 				}
@@ -860,7 +866,7 @@ public class UserRestController {
 			if(chnagePassword == 1){				
 				map.put("code", 201);
 				map.put("status", "success");
-				map.put("message", "Dear User, Your new password has been send on your register mobile number");
+				map.put("message", "Dear User, Your new password has been send on your register mobile number and Email Id");
 			}
 			else if(chnagePassword == 2){
 				

@@ -647,9 +647,16 @@ public class UserDaoImpl implements UserDao {
 				int resellerBalnce = resellerBalanceList.get(0);
 				if(resellerBalnce > balance)
 				{
+					
+					Criteria criteria= session.createCriteria(UserProduct.class);
+					criteria.add(Restrictions.eq("userId", reseller))
+							.add(Restrictions.eq("productId", product));
+					List<UserProduct>userProductsList = criteria.list();
+					
 					UserProduct userProduct=new UserProduct();
 					userProduct.setProduct(product);
 					userProduct.setUserId(user);
+					userProduct.setRouteId(userProductsList.get(0).getRouteId());
 					
 					session.save(userProduct);
 					
@@ -813,9 +820,18 @@ public class UserDaoImpl implements UserDao {
 						{
 							mobile = mobile.substring(2);
 						}
-						String message ="Dear Sir, Your new password is "+user2.getPassword();
+						String message ="Dear User, Your new password is "+user2.getPassword();
 						i = Global.sendMessage(userName, password,mobile, senderId, message);
 						
+						String subject = "Change password";
+						
+						
+						Map<String, String> emailDetails = new HashMap<String, String>();
+						emailDetails.put("toAddress", user.getEmail());
+						emailDetails.put("subject", subject);
+						emailDetails.put("msgBody", message);
+						
+						emailApi.sendSimpleMail(emailDetails);
 					} catch (MalformedURLException e) {
 						
 						e.printStackTrace();
