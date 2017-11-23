@@ -33,9 +33,27 @@ public class UserJobsDaoImpl implements UserJobsDao {
 		try {
 			final Session session = sessionFactory.openSession();
 			final Transaction tx = session.beginTransaction();	
-					
+			String remark = "Message sent by self by";
+			switch (userJobs.getJobType()) {
+			case 1:
+				remark +=" quick method";
+				break;
+			case 2:
+				remark +=" group";
+				break;
+			case 3:
+				remark +=" notepad file";
+				break;
+			case 4:
+				remark +=" csv file";
+				break;
+			default:
+				remark +=" Personalize message";
+				break;
+			}
+			
 			session.save(userJobs);
-			int temp = smsHelperService.debitBalnce(userJobs.getUserId(), productId,userJobs.getUserId() , sentMessageBalance, "Sent Message By Self", 4, session, tx);
+			int temp = smsHelperService.debitBalnce(userJobs.getUserId(), productId,userJobs.getUserId() , sentMessageBalance, remark, 4, session, tx);
 			System.out.println("Return update balnmce"+temp);
 			if(temp == 1)
 			{

@@ -203,7 +203,7 @@ public class UserDaoImpl implements UserDao {
 		if(user.getStatus() == 1)
 		{
 			try {
-				String remark = "Delete User By Self "+" User Name Is"+ user.getUserName();
+				String remark = "Delete User By you "+" User Name Is"+ user.getUserName();
 				temp = smsHelperService.deductBalanceDeleteUser(user.getUserId(),resellerId,  remark, 2,session,tx);
 				System.out.println("akldasdkl"+temp);
 				if(temp == 1)
@@ -388,12 +388,12 @@ public class UserDaoImpl implements UserDao {
 			session.saveOrUpdate(userProduct);
 			
 			// save data in credit table
-			
+			String remark = "Registration credit added by Admin Create New User "+user.getUserName();
 			Credit credit =new Credit();
 			credit.setCredit(jsonNode.get("balance").asInt());
 			credit.setCreditBy(resellerUser.getUserId());
 			credit.setCurrentAmount(jsonNode.get("balance").asInt());
-			credit.setRemark("Credit By "+resellerUser.getUserName()+" And Create New User "+user.getUserName());
+			credit.setRemark(remark);
 			credit.setCreditType(1);
 			credit.setPreviousAmouunt(0);
 			credit.setProductId(product);
@@ -408,7 +408,7 @@ public class UserDaoImpl implements UserDao {
 			debit.setCurrentAmount(jsonNode.get("updateResellerBalance").asInt());
 			debit.setPreviousAmouunt(jsonNode.get("previousResellerBalance").asInt());
 			debit.setDebitBy(resellerUser.getUserId());
-			String debitReasion = "Create New  User, User Name = "+user.getUserName();			
+			String debitReasion = "Create New  User by you  user name is:- = "+user.getUserName();			
 			debit.setRemark(debitReasion);			
 			debit.setDebitType(1);			
 			debit.setUserId(resellerUser);
@@ -592,14 +592,16 @@ public class UserDaoImpl implements UserDao {
 		session=sessionFactory.openSession();
 		tx = session.beginTransaction();
 		User user = (User)session.get(User.class, creditUserId);
+		User userCredit = (User)session.get(User.class, creditByUserId);
 		int temp = 0;
 		if(user.getUserId() != 0)
 		{
 			try {
-				String remark ="Add Balance By self "+" User name is "+user.getUserName();
+				String remark ="Credit added by "+" User name is "+user.getUserName()+" from "+userCredit.getUserName();
+				String remarkDebit ="Debit  by "+" User name is "+user.getUserName()+" from "+userCredit.getUserName();
 				smsHelperService.creditBalance(user.getUserId(), productId, creditByUserId, balance, remark, 3, session, tx);
 				
-				temp = smsHelperService.debitBalnce(creditUserId, productId,creditByUserId , balance, remark, 3, session, tx);
+				temp = smsHelperService.debitBalnce(creditUserId, productId,creditByUserId , balance, remarkDebit, 3, session, tx);
 				
 				if(temp == 1)
 				{
@@ -672,7 +674,7 @@ public class UserDaoImpl implements UserDao {
 					credit.setCredit(balance);
 					credit.setCreditBy(reseller.getUserId());
 					credit.setCurrentAmount(balance);
-					credit.setRemark("Credit By "+reseller.getUserName()+" And New Product "+user.getUserName());
+					credit.setRemark("Credit by you add new product  "+product.getName());
 					credit.setCreditType(3);
 					credit.setPreviousAmouunt(0);
 					credit.setProductId(product);
@@ -686,7 +688,7 @@ public class UserDaoImpl implements UserDao {
 					debit.setCurrentAmount(updateResellerBalance);
 					debit.setPreviousAmouunt(resellerBalnce);
 					debit.setDebitBy(reseller.getUserId());
-					String debitReasion = "Add New Product, User Name = "+user.getUserName();			
+					String debitReasion = "Debit by you Add New Product by you,  User Name is :- "+user.getUserName();			
 					debit.setRemark(debitReasion);			
 					debit.setDebitType(3);			
 					debit.setUserId(reseller);
@@ -765,9 +767,10 @@ public class UserDaoImpl implements UserDao {
 		if(user.getUserId() != 0)
 		{
 			try {
-				String remark ="Add Balance By self "+" User name is "+user.getUserName();
-				smsHelperService.creditBalance(user.getUserId(), productId, deductUserId, balance, remark, 3, session, tx);				
-				temp = smsHelperService.debitBalnce(dedcutByUserId, productId,deductUserId , balance, remark, 3, session, tx);
+				String remarkDebit ="Debit Balance By self "+" User name is "+user.getUserName();
+				String remarkCredit ="Credit Balance By self "+" User name is "+user.getUserName();
+				smsHelperService.creditBalance(user.getUserId(), productId, deductUserId, balance, remarkCredit, 3, session, tx);				
+				temp = smsHelperService.debitBalnce(dedcutByUserId, productId,deductUserId , balance, remarkDebit, 3, session, tx);
 				if(temp == 1)
 				{
 					tx.commit();
