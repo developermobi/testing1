@@ -245,8 +245,9 @@ public class UserReportRestController {
 		}
 		else{
 			List<UserJobs> compaignReport = userReportService.compaignStatus(userId, start, max,fromDate,toDate);
+			
 			List<UserJobs> totalCompaignCount = userReportService.compaignStatusCount(userId,fromDate,toDate);
-			System.out.println(totalCompaignCount.get(0));		
+			System.out.println(totalCompaignCount.get(0));
 			if(totalCompaignCount.size() > 0){
 				map.put("status", "success");
 				map.put("code", 302);

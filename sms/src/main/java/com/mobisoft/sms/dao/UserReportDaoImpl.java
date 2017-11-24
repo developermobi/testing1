@@ -545,6 +545,8 @@ public class UserReportDaoImpl implements UserReportDao {
 			projectionList.add(Projections.property("mobile").as("mobile"));
 			projectionList.add(Projections.property("Sender").as("sender"));
 			projectionList.add(Projections.property("message").as("message"));
+			projectionList.add(Projections.property("coding").as("coding"));
+			projectionList.add(Projections.property("count").as("count"));
 			projectionList.add(Projections.property("loggedAt").as("loggedAt"));
 			projectionList.add(Projections.property("dlrTime").as("dlrTime"));
 			criteria.setProjection(projectionList);
