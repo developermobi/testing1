@@ -1,5 +1,6 @@
 package com.mobisoft.sms.dao;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -13,6 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+
+import org.apache.commons.codec.binary.Base64;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -36,6 +42,7 @@ import com.mobisoft.sms.model.UserAuthrization;
 import com.mobisoft.sms.model.UserProduct;
 import com.mobisoft.sms.utility.EmailAPI;
 import com.mobisoft.sms.utility.Global;
+import com.mobisoft.sms.utility.StringEncryption;
 import com.mysql.jdbc.PreparedStatement;
 
 @Repository("smsHelperDao")
@@ -61,6 +68,9 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	
 	@Value("${senderId}")
 	private String senderId;
+	
+	Cipher ecipher ;
+	Cipher dcipher;
 	
 	private Session session = null;
 	
@@ -651,6 +661,32 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 			}
 		}
 		return temp;
+	}
+
+	@Override
+	public String encriptPassword(String password) {
+		
+	   System.out.println("lkashdlsa lkadjlaksd salkdhasld ldkasd asdaskdasd ask "+ password);
+		try {
+	         // Encode the string into bytes using utf-8
+	         byte[] utf8 = password.getBytes("UTF8");
+
+	         // Encrypt
+	         byte[] enc = ecipher.doFinal(utf8);
+
+	         // Encode bytes to base64 to get a string
+	       
+	         System.out.println("new password:- "+new String(new Base64().encodeToString(enc)));
+	         String str = new String(new Base64().encodeToString(enc));
+	         return str;
+
+	     } catch (BadPaddingException e) {
+	     } catch (IllegalBlockSizeException e) {
+	     } catch (UnsupportedEncodingException e) {
+	     } 
+		
+		
+		return null;
 	}
 
 }

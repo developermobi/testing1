@@ -101,4 +101,10 @@ public class SmsHelperServiceImpl implements SmsHelperService{
 		
 		return smsHelperDao.varifyOtp(otp, userId);
 	}
+
+	@Override
+	public String encriptPassword(String password) {
+		
+		return password;
+	}
 }

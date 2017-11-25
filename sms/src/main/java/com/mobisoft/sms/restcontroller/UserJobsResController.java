@@ -98,6 +98,7 @@ public class UserJobsResController {
 			@RequestParam("userId")int userId,@RequestParam("message")String message,
 			@RequestParam("messageType")int messageType,@RequestParam("sender")String sender,
 			@RequestParam("productId")int productId,
+			@RequestParam("messageCount")int messageCount,
 			@RequestParam("scheduledAt")String scheduledAt,			
 			@RequestParam("jobType")int jobType,@RequestParam("duplicateStatus")int duplicateStatus,@RequestParam("scheduleStatus")int scheduleStatus
 			) throws IllegalStateException, ParseException, IOException{
@@ -259,7 +260,7 @@ public class UserJobsResController {
 			    		}
 			    		
 			    		int messageLength = message.length();
-			    		int messageCount = smsHelperService.messageCount(messageType, messageLength);
+			    		//int messageCount = smsHelperService.messageCount(messageType, messageLength);
 			    		if(messageCount > 10)
 			    		{
 			    			map.put("code", 413);
@@ -500,7 +501,8 @@ public class UserJobsResController {
 				}
 
 				int messageLength = node.get("message").asText().length();
-	    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
+	    		//int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
+				int messageCount = node.get("messageCount").asInt();
 	    		if(messageCount > 10)
 	    		{
 	    			map.put("code", 413);
@@ -695,10 +697,11 @@ public class UserJobsResController {
 						        
 						        bw.close();
 						        int messageLength = node.get("message").asText().length();
-					    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
-					    		System.out.println("messageLength "+messageLength);
+					    		//int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
+						        int messageCount = node.get("messageCount").asInt();
+					    	/*	System.out.println("messageLength "+messageLength);
 					    		System.out.println("messageType "+node.get("messageType").asInt());
-					    		System.out.println("message count "+messageCount);
+					    		System.out.println("message count "+messageCount);*/
 					    		if(messageCount > 10)
 					    		{
 					    			map.put("code", 413);
@@ -789,8 +792,9 @@ public class UserJobsResController {
 							
 							System.out.println("Start direct in dlr_status table");
 							int messageLength = node.get("message").asText().length();
-				    		int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
-				    		System.out.println("message "+node.get("message").asText());
+				    		//int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
+				    		int messageCount = node.get("messageCount").asInt();
+							System.out.println("message "+node.get("message").asText());
 				    		String result1 = java.net.URLDecoder.decode(node.get("message").asText(),"ASCII");
 				    		System.out.println("message "+result1);
 				    		System.out.println("messageLength "+messageLength);

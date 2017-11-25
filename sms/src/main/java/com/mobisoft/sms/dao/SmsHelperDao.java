@@ -28,4 +28,5 @@ public interface SmsHelperDao {
 	public List<Object> mobileNumber(String mobileNumber);
 	public int genrateOtp(int userId);
 	public int varifyOtp(String otp,int userId);
+	public String encriptPassword(String password);	
 }
