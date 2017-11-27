@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -120,7 +121,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 	        
 	        for (UserProduct userProduct1 : productList) {
 
-	        	System.out.println("User product"+userProduct1.getProductId().getId());
+	           System.out.println("User product"+userProduct1.getProductId().getId());
 	           List<Integer> balanceList = getBalance(user.getUserId(),userProduct1.getProductId().getId());
 	           System.out.println(balanceList);
 	           temp = creditBalance(resellerId, userProduct1.getProductId().getId(), resellerId, balanceList.get(0), remark, deductType,session,tx);
@@ -665,28 +666,19 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 
 	@Override
 	public String encriptPassword(String password) {
+		Long l = new Date().getTime();
+		String plainClientCredentials= "fucking you c "+l+":"+password;
 		
-	   System.out.println("lkashdlsa lkadjlaksd salkdhasld ldkasd asdaskdasd ask "+ password);
-		try {
-	         // Encode the string into bytes using utf-8
-	         byte[] utf8 = password.getBytes("UTF8");
-
-	         // Encrypt
-	         byte[] enc = ecipher.doFinal(utf8);
-
-	         // Encode bytes to base64 to get a string
-	       
-	         System.out.println("new password:- "+new String(new Base64().encodeToString(enc)));
-	         String str = new String(new Base64().encodeToString(enc));
-	         return str;
-
-	     } catch (BadPaddingException e) {
-	     } catch (IllegalBlockSizeException e) {
-	     } catch (UnsupportedEncodingException e) {
-	     } 
+		String base64ClientCredentials = new String(Base64.encodeBase64(plainClientCredentials.getBytes()));
+	    /*
+	    String credentials = new String(Base64.decodeBase64(base64ClientCredentials));
+	   
+	    // credentials = username:password
+	    String[] values = credentials.split(":");		
+	    String userName = values[0];
+        String newPassword = values[1];*/
 		
-		
-		return null;
+		return base64ClientCredentials;
 	}
 
 }

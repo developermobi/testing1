@@ -93,7 +93,6 @@ public class UserRestController {
 				}else{
 					map.put("status", 403);
 					map.put("message", "Your account has been inactive !!");
-					
 				}
 			}
 		}
@@ -342,8 +341,7 @@ public class UserRestController {
 			
 		}
 		else if(tokenAuthentication.validateToken(authorization) == 1 || tokenAuthentication.validateToken(authorization) == 2){
-			User user = new User();
-			
+			User user = new User();			
 			user.setName(node.get("name").asText());
 			user.setEmail(node.get("email").asText());
 			user.setMobile(node.get("mobile").asText());
@@ -387,15 +385,12 @@ public class UserRestController {
 		map.put("message", "some error occured");
 		map.put("data", null);
 		
-		if(tokenAuthentication.validateToken(authorization) == 0){
-			
+		if(tokenAuthentication.validateToken(authorization) == 0){			
 			map.put("code", 404);
 			map.put("status", "error");
-			map.put("message", "Invalid User Name Password");
-			
+			map.put("message", "Invalid User Name Password");			
 		}
-		else if(tokenAuthentication.validateToken(authorization) == 1){
-					
+		else if(tokenAuthentication.validateToken(authorization) == 1){					
 			int result = userService.deleteUser(userId,resellerId);
 			if(result == 1){
 				map.put("status", "success");
@@ -420,10 +415,9 @@ public class UserRestController {
 		else if(tokenAuthentication.validateToken(authorization) == 2){
 			map.put("code", 401);
 			map.put("status", "error");
-			map.put("message", "user not authorized");
-	
+			map.put("message", "user not authorized");	
 		}
-		return map;	
+		return map;
 	}
 	
 	@RequestMapping(value = "getBalanceByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
@@ -443,7 +437,6 @@ public class UserRestController {
 			
 		}
 		else {
-
 			List<SmsBalance> userList = userService.getBalanceByUserId(userId);
 			System.out.println(userList.size());
 			if(userList.size() > 0){
@@ -457,30 +450,23 @@ public class UserRestController {
 				map.put("message", "No data found");
 				map.put("data", userList);
 			}
-		
-		}
-		
+		}		
 		return map;
 	}
 	
 	@RequestMapping(value = "getCreditByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String,Object>getCreditByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
-	{
+	public Map<String,Object>getCreditByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization){
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
 		map.put("code", 400);
 		map.put("message", "some error occured");
 		map.put("data", null);
-		
-		if(tokenAuthentication.validateToken(authorization) == 0){
-			
+		if(tokenAuthentication.validateToken(authorization) == 0){			
 			map.put("code", 404);
 			map.put("status", "error");
-			map.put("message", "Invalid User Name Password");
-			
+			map.put("message", "Invalid User Name Password");			
 		}
 		else {
-
 			List<Credit> userList = userService.getCreditDetailsByUserId(userId);
 			if(userList.size() > 0){
 				map.put("status", "success");
@@ -493,12 +479,9 @@ public class UserRestController {
 				map.put("message", "No data found");
 				map.put("data", userList);
 			}
-		
 		}
-		
 		return map;
 	}
-	
 	@RequestMapping(value = "getDebitByUserId/{userId}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String,Object>getDebitByUserId(@PathVariable("userId")int userId,@RequestHeader("Authorization") String authorization)
 	{
@@ -506,17 +489,13 @@ public class UserRestController {
 		map.put("status", "error");
 		map.put("code", 400);
 		map.put("message", "some error occured");
-		map.put("data", null);
-		
-		if(tokenAuthentication.validateToken(authorization) == 0){
-			
+		map.put("data", null);		
+		if(tokenAuthentication.validateToken(authorization) == 0){			
 			map.put("code", 404);
 			map.put("status", "error");
-			map.put("message", "Invalid User Name Password");
-			
+			map.put("message", "Invalid User Name Password");			
 		}
 		else {
-
 			List<Debit> userList = userService.getDebitByUserId(userId);
 			if(userList.size() > 0){
 				map.put("status", "success");
@@ -529,9 +508,7 @@ public class UserRestController {
 				map.put("message", "No data found");
 				map.put("data", userList);
 			}
-		
-		}
-		
+		}		
 		return map;
 	}
 	@RequestMapping( value = "/addCreditByReseller/{userId}/{resellerId}/{productId}/{newBalance}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -541,32 +518,21 @@ public class UserRestController {
 		map.put("status", "error");
 		map.put("code", 400);
 		map.put("message", "some error occured");
-		map.put("data", null);
-		
-		if(tokenAuthentication.validateToken(authorization) == 0){
-			
+		map.put("data", null);		
+		if(tokenAuthentication.validateToken(authorization) == 0){			
 			map.put("code", 404);
 			map.put("status", "error");
-			map.put("message", "Invalid User Name Password");
-			
+			map.put("message", "Invalid User Name Password");			
 		}
-		else if(tokenAuthentication.validateToken(authorization) == 1){
-					
+		else if(tokenAuthentication.validateToken(authorization) == 1){					
 			//int result = userService.addCreditUser(userId, resellerId, productId, newBalance);
 			System.out.println("Sms Balnce");
 			List<Integer> balance = smsHelperService.getBalance(resellerId,productId);
-			
-			
-			if(balance.size() > 0)
-			{
+			if(balance.size() > 0){
 				int resellerBalnce = balance.get(0);
-
-				if(newBalance > 0)
-				{
+				if(newBalance > 0){
 					int updateResellerBalance = resellerBalnce - newBalance;
-					if(updateResellerBalance > 0)
-					{
-						
+					if(updateResellerBalance > 0){						
 						int result = userService.addCreditUser(userId, resellerId, productId, newBalance);
 						if(result == 1){
 							map.put("status", "success");
@@ -586,19 +552,14 @@ public class UserRestController {
 						map.put("status", "error");
 						map.put("message", "Insufficient Balance");
 					}
-					
 				}
-				else
-				{
+				else{
 					map.put("code", 405);
 					map.put("status", "error");
 					map.put("message", "Please set positive balance ");
-				}
-				
-					
+				}	
 			}
-			else
-			{
+			else{
 				map.put("code", 406);
 				map.put("status", "error");
 				map.put("message", "Please Purchase Selected  Product");
