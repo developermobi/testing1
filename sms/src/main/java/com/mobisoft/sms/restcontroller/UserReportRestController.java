@@ -105,8 +105,8 @@ public class UserReportRestController {
 		return map;
 	}
 	
-	@RequestMapping(value = "dailyRepotMessage/{userId}/{date}/{start}/{max}",method = RequestMethod.GET)
-	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("date")String date,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
+	@RequestMapping(value = "dailyRepotMessage/{userId}/{date}/{mobile}/{start}/{max}",method = RequestMethod.GET)
+	public Map<String,Object>dailyRepotMessage(@PathVariable("userId")int userId,@PathVariable("date")String date,@PathVariable("mobile")String mobile,@PathVariable("start")int start,@PathVariable("max")int max,@RequestHeader("Authorization") String authorization)
 	{
 		Map<String,Object> map = new HashMap<>();
 		map.put("status", "error");
@@ -126,7 +126,11 @@ public class UserReportRestController {
 			System.out.println(dtf.format(localDate));*/
 			List<Integer> list = userReportService.messageCountDaily(userId,date);
 			System.out.println("count"+list.get(0));
-			List<DlrStatus> dalyReport = userReportService.dailyRepotMessage(userId,date,start,max);
+			if(mobile.equals(0))
+			{
+				mobile = "";
+			}
+			List<DlrStatus> dalyReport = userReportService.dailyRepotMessage(userId,date,mobile,start,max);
 			
 			if(dalyReport.size() > 0){
 				map.put("status", "success");

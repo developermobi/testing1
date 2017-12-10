@@ -13,7 +13,7 @@ public interface UserReportDao {
 	public List todayCountMessage(int userId);
 	public List weeklyCountMessage(int userId);
 	public List monthlyCountMessage(int userId);
-	public List<DlrStatus> dailyRepotMessage(int userId,String date,int start, int max);
+	public List<DlrStatus> dailyRepotMessage(int userId,String date,String mobile, int start, int max);
 	public List<Integer> messageCountDaily(int userId,String date);
 	
 	public List archiveReportByUserId(int userId,String startDate,String endDate);

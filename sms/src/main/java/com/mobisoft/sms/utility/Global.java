@@ -42,7 +42,8 @@ public class Global {
 		}
 	
 	public static int sendMessage(String userName, String password,String mobile,String senderId,String message) throws MalformedURLException{
-		String smsUrl="http://makemysms.in/api/sendsms.php?username="+userName+"&password="+password+"&sender="+senderId+"&mobile=91"+mobile+"&type=1&message="+URLEncoder.encode(message);
+		String smsUrl="http://makemysms.in/api/sendsms.php?username="+userName+"&password="+password+"&sender="+senderId+"&mobile=91"+mobile+"&type=1&product=1&message="+URLEncoder.encode(message);
+		//http://makemysms.in/api/sendsms.php?username=username&password=user_pass&sender=user_senderid&mobile=user_mobile&type=message_type& product=product_type&message=usermsg
 		URL url = new URL(smsUrl);
 		int temp=0;
 		BufferedReader reader = null;
@@ -55,10 +56,10 @@ public class Global {
 			}
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode node = mapper.readValue(line1, JsonNode.class);
-			System.out.println(node.get("msg").asText());
-			if(node.get("code").asText().equals("1")){
+			temp=1;
+			/*if(node.get("code").asText().equals("201")){
 				return temp=1;
-			}
+			}*/
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

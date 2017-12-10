@@ -738,19 +738,22 @@ public class UserRestController {
 			{
 				// Send Mail And message to user with password
 				
-				String message ="Dear Sir, Your password has been send on your register mobile number"+listUser.get(0).getPassword();
+				String message ="Dear User, Your new password is "+listUser.get(0).getPassword();
 				String mobile = listUser.get(0).getMobile();
 				if( mobile.length() == 12)
 				{
 					mobile = mobile.substring(2);
 				}
 				try {
+					System.out.println("username "+listUser.get(0).getUserName());
 					int i = Global.sendMessage(userNameMessage, password,mobile, senderId, message);
+					System.out.println("username1 "+ i);
 					if(i == 1)
 					{
+						
 						map.put("code", 201);
 						map.put("status", "success");
-						map.put("message", "Dear Sir, Your password has been send on your register mobile number");
+						map.put("message", "Dear User, Your new password is ");
 					}
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
@@ -827,7 +830,7 @@ public class UserRestController {
 			if(chnagePassword == 1){				
 				map.put("code", 201);
 				map.put("status", "success");
-				map.put("message", "Dear User, Your new password has been send on your register mobile number and Email Id");
+				map.put("message", "Dear User, Your new password is ");
 			}
 			else if(chnagePassword == 2){
 				

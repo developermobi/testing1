@@ -14,7 +14,7 @@ public interface UserReportService {
 	public List weeklyCountMessage(int userId);
 	public List monthlyCountMessage(int userId);
 	
-	public List<DlrStatus> dailyRepotMessage(int userId,String date,int start, int max);
+	public List<DlrStatus> dailyRepotMessage(int userId,String date,String mobile,int start, int max);
 	
 	public List<Integer> messageCountDaily(int userId,String date);
 	

@@ -795,8 +795,8 @@ public class UserJobsResController {
 				    		//int messageCount = smsHelperService.messageCount(node.get("messageType").asInt(), messageLength);
 				    		int messageCount = node.get("messageCount").asInt();
 							System.out.println("message "+node.get("message").asText());
-				    		String result1 = java.net.URLDecoder.decode(node.get("message").asText(),"ASCII");
-				    		System.out.println("message "+result1);
+				    		/*String result1 = java.net.URLDecoder.decode(node.get("message").asText(),"ASCII");
+				    		System.out.println("message "+result1);*/
 				    		System.out.println("messageLength "+messageLength);
 				    		System.out.println("messageType "+node.get("messageType").asInt());
 				    		System.out.println("message count "+messageCount);

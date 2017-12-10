@@ -33,8 +33,8 @@ public class UserReportServiceImpl implements UserReportService{
 	}
 
 	@Override
-	public List<DlrStatus> dailyRepotMessage(int userId,String date,int start, int max) {		
-		return userReportDao.dailyRepotMessage(userId,date,start,max);
+	public List<DlrStatus> dailyRepotMessage(int userId,String date,String mobile,int start, int max) {		
+		return userReportDao.dailyRepotMessage(userId,date,mobile,start,max);
 	}
 
 	@SuppressWarnings("rawtypes")

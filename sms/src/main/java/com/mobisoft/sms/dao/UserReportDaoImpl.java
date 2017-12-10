@@ -139,8 +139,7 @@ public class UserReportDaoImpl implements UserReportDao {
 		return results;
 	}
 
-	@Override
-	public List<DlrStatus> dailyRepotMessage(int userId,String date,int start, int max) {
+	public List<DlrStatus> dailyRepotMessage(int userId,String date,String mobile,int start, int max) {
 		
 		session = sessionFactory.openSession();
 		List<DlrStatus> listResult = null;
@@ -151,12 +150,24 @@ public class UserReportDaoImpl implements UserReportDao {
 		try {
 			//Criteria criteria = session.createCriteria(DlrStatus.class);
 			//criteria.add(Restrictions.eq("userId",userId)).setFirstResult(start).setMaxResults(max).addOrder(Order.desc("loggedAt"));
+			if(mobile == "")
+			{
+				String sql = "SELECT * FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%'  order by id desc limit "+start+","+max+"";
+				SQLQuery query = session.createSQLQuery(sql);
+				query.addEntity(DlrStatus.class);
+				listResult = query.list();
+
+			}
+			else
+			{
+				String sql = "SELECT * FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%' and mobile LIKE '%"+mobile+"%'  order by id desc limit "+start+","+max+"";
+				SQLQuery query = session.createSQLQuery(sql);
+				query.addEntity(DlrStatus.class);
+				listResult = query.list();
+
+			}
 			
-			String sql = "SELECT * FROM dlr_status WHERE user_id = "+userId+" and 	logged_at LIKE '%"+date+"%'  order by id desc limit "+start+","+max+"";
-			SQLQuery query = session.createSQLQuery(sql);
-			query.addEntity(DlrStatus.class);
-			listResult = query.list();
-			//session.close();
+						//session.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();

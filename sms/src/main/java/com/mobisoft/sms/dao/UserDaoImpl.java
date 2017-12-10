@@ -638,6 +638,7 @@ public class UserDaoImpl implements UserDao {
 		User user = (User)session.get(User.class, userId);
 		User reseller = (User)session.get(User.class,reselerId);
 		Product product=(Product)session.get(Product.class, ProductId);
+		UserAuthrization userAuthrizationReseller = (UserAuthrization)session.get(UserAuthrization.class,reseller.getUserId());
 		
 		int temp=0;
 		try {
@@ -659,8 +660,16 @@ public class UserDaoImpl implements UserDao {
 					userProduct.setProduct(product);
 					userProduct.setUserId(user);
 					userProduct.setRouteId(userProductsList.get(0).getRouteId());
+					session.saveOrUpdate(userProduct);
 					
-					session.save(userProduct);
+					UserAuthrization userAuthrization =new UserAuthrization();
+					userAuthrization.setDndCheck(userAuthrizationReseller.getDndCheck());
+					userAuthrization.setSpamCheck(userAuthrizationReseller.getSpamCheck());
+					userAuthrization.setPercentage(userAuthrizationReseller.getPercentage());
+					userAuthrization.setProductId(product.getId());
+					userAuthrization.setUserId(user);
+					
+					session.saveOrUpdate(userAuthrization);
 					
 					int updateResellerBalance = resellerBalnce - balance;
 					SmsBalance smsBalance = new SmsBalance();
@@ -668,7 +677,7 @@ public class UserDaoImpl implements UserDao {
 					smsBalance.setProductId(product);	
 					smsBalance.setUserId(user);
 					// save balance in sms_balance  table
-					session.save(smsBalance);
+					session.saveOrUpdate(smsBalance);
 					
 					Credit credit =new Credit();
 					credit.setCredit(balance);
@@ -679,7 +688,7 @@ public class UserDaoImpl implements UserDao {
 					credit.setPreviousAmouunt(0);
 					credit.setProductId(product);
 					credit.setUserId(user);				
-					session.save(credit);
+					session.saveOrUpdate(credit);
 					
 					// save reseller balance in debit table
 					
@@ -692,8 +701,8 @@ public class UserDaoImpl implements UserDao {
 					debit.setRemark(debitReasion);			
 					debit.setDebitType(3);			
 					debit.setUserId(reseller);
-					debit.setProductId(product);					
-					session.save(debit);
+					debit.setProductId(product);		
+					session.saveOrUpdate(debit);
 					
 					int result = smsHelperService.updateUserBalance(updateResellerBalance, reseller.getUserId(), product.getId(), session, tx);
 					if(result ==1)
@@ -807,7 +816,7 @@ public class UserDaoImpl implements UserDao {
 			
 			if(user.getPassword().equals(oldPassword))
 			{
-				String sqlquery = "update user set password = "+newPassword+" where id= "+userId;
+				String sqlquery = "update user set password = '"+newPassword+"' where id= "+userId;
 				Query query = session.createSQLQuery(sqlquery);
 				int updatePasswordData = query.executeUpdate();
 				
@@ -827,8 +836,7 @@ public class UserDaoImpl implements UserDao {
 						i = Global.sendMessage(userName, password,mobile, senderId, message);
 						
 						String subject = "Change password";
-						
-						
+												
 						Map<String, String> emailDetails = new HashMap<String, String>();
 						emailDetails.put("toAddress", user.getEmail());
 						emailDetails.put("subject", subject);

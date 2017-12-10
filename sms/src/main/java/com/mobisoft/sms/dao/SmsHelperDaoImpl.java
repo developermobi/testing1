@@ -554,7 +554,7 @@ public class SmsHelperDaoImpl implements SmsHelperDao{
 				{
 					tx.commit();
 					//session.close();
-					String message ="Dear Sir,  Send otp on  your register mobile number and email id "+otp;
+					String message ="Dear User,  Your OTP is : "+otp;
 					String mobile = user.getMobile();
 					if( mobile.length() == 12)
 					{

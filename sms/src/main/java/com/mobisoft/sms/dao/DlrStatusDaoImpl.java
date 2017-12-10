@@ -118,17 +118,20 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 											 temp=0;
 										}
 									}
-									
+								   String message = list.get(0).getMessage();
 								   int code = 0;
 								   if(list.get(0).getMessageType() == 1)
 								   {
 									   code =0;
+									   String changeChar = "%25";
+							    	   message = message.replaceAll("%", changeChar);
 								   }else if(list.get(0).getMessageType() == 2)
 								   {
 									   code = 4;
 								   }else if(list.get(0).getMessageType() == 3)
 								   {
 									   code = 2;
+									   
 								   }
 								   
 								   int percent = 100;
@@ -171,9 +174,8 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 						           pstmtQueuedSms2 = (PreparedStatement)conn.prepareStatement(sqlInsertQueued2);
 						           int i=0;
 						           
-						           String message = list.get(0).getMessage();
-						    	   String changeChar = "%25";
-						    	   message = message.replaceAll("%", changeChar);
+						           
+						    	  
 
 						           if(mobileListDelivered.size() > 0 && mobileListDelivered.size() <= 100){
 						        	   for(String mobile : mobileListDelivered){
@@ -433,21 +435,24 @@ public class DlrStatusDaoImpl implements DlrStatusDao{
 				    	  String sender = (String)mapList.get("sender");				    	  
 				    	  int messageType = (int)mapList.get("messageType");
 				    	  int coding = 0;
+				    	  String message = (String)mapList.get("message");
 				    	  if(messageType == 1)
 				    	  {
 				    		coding = 0;  
+				    		 String changeChar = "%25";
+					    	  message = message.replaceAll("%", changeChar);
 				    	  }else if(messageType == 2)
 				    	  {
 				    		  coding = 4;
 				    	  }else if(messageType == 3)
 				    	  {
 				    		  coding = 2;
+				    		 
 				    	  }
 				    	  int messageCount = (int)mapList.get("messageCount");
 				    	  int length = (int)mapList.get("messageLength");
-				    	  String message = (String)mapList.get("message");
-				    	  String changeChar = "%25";
-				    	  message = message.replaceAll("%", changeChar);
+				    	 
+				    	
 				    	  
 				    	  System.out.println(messageCount);
 
